@@ -170,7 +170,9 @@ function BatteryCard({ product, index }) {
           {/* Battery image — lifted in Z so it floats above the card surface */}
           <img
             src={product.image}
-            alt={product.name}
+            alt={`${product.name} ${product.model} home battery`}
+            loading="lazy"
+            decoding="async"
             onError={(e) => { e.target.src = '/sig-energy.png' }}
             style={{ transform: 'translateZ(30px)' }}
             className="w-4/5 h-4/5 object-contain drop-shadow-[0_12px_32px_rgba(0,0,0,0.6)] scale-100 group-hover:scale-[1.06] transition-transform duration-700 ease-out relative z-10"
@@ -290,7 +292,9 @@ function SolarCard({ product, index }) {
           </div>
           <img
             src={product.image}
-            alt={product.name}
+            alt={`${product.name} solar panel`}
+            loading="lazy"
+            decoding="async"
             onError={(e) => {
               e.target.src =
                 'https://images.unsplash.com/photo-1509391366360-1e97f52cefd3?q=80&w=1000&auto=format&fit=crop'

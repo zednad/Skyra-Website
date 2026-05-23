@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Send, CheckCircle, User, Mail, Phone, MapPin, Zap } from 'lucide-react'
 
@@ -18,56 +18,56 @@ const INITIAL_FORM = { name: '', email: '', phone: '', postcode: '', bill: '' }
 // Renders an SVG grid with CSS perspective, animating lines moving toward viewer
 
 function PerspectiveGrid() {
-  const cols = 12
-  const rows = 10
-  const width = 1200
-  const height = 600
-  const vp = { x: width / 2, y: 0 } // vanishing point at top-center
+  // The grid geometry is static — compute it once.
+  const { width, height, lines } = useMemo(() => {
+    const cols = 12
+    const rows = 10
+    const width = 1200
+    const height = 600
+    const vp = { x: width / 2, y: 0 }
 
-  // Vertical lines spreading from vanishing point
-  const verticals = []
-  for (let i = 0; i <= cols; i++) {
-    const xEnd = (i / cols) * width
-    verticals.push(
-      <line
-        key={`v${i}`}
-        x1={vp.x}
-        y1={vp.y}
-        x2={xEnd}
-        y2={height}
-        stroke="rgba(56,189,248,0.18)"
-        strokeWidth="0.8"
-      />
-    )
-  }
+    const lines = []
+    for (let i = 0; i <= cols; i++) {
+      const xEnd = (i / cols) * width
+      lines.push(
+        <line
+          key={`v${i}`}
+          x1={vp.x}
+          y1={vp.y}
+          x2={xEnd}
+          y2={height}
+          stroke="rgba(56,189,248,0.18)"
+          strokeWidth="0.8"
+        />
+      )
+    }
 
-  // Horizontal lines (parallel to horizon, evenly spaced on screen)
-  const horizontals = []
-  for (let j = 1; j <= rows; j++) {
-    const t = j / rows
-    // Perspective spacing: closer lines at bottom are more spaced
-    const y = height * Math.pow(t, 1.5)
-    // x extents taper toward vanishing point
-    const xLeft = vp.x + (0 - vp.x) * (1 - t)
-    const xRight = vp.x + (width - vp.x) * (1 - t)
-    horizontals.push(
-      <line
-        key={`h${j}`}
-        x1={xLeft}
-        y1={y}
-        x2={xRight}
-        y2={y}
-        stroke="rgba(56,189,248,0.12)"
-        strokeWidth="0.6"
-      />
-    )
-  }
+    for (let j = 1; j <= rows; j++) {
+      const t = j / rows
+      const y = height * Math.pow(t, 1.5)
+      const xLeft = vp.x + (0 - vp.x) * (1 - t)
+      const xRight = vp.x + (width - vp.x) * (1 - t)
+      lines.push(
+        <line
+          key={`h${j}`}
+          x1={xLeft}
+          y1={y}
+          x2={xRight}
+          y2={y}
+          stroke="rgba(56,189,248,0.12)"
+          strokeWidth="0.6"
+        />
+      )
+    }
+
+    return { width, height, lines }
+  }, [])
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {/* Animate the grid moving "forward" by translating Y upward on repeat */}
       <motion.div
-        className="absolute inset-0"
+        className="absolute inset-0 will-change-transform"
         animate={{ y: ['0%', '10%'] }}
         transition={{
           duration: 4,
@@ -81,8 +81,7 @@ function PerspectiveGrid() {
           className="w-full h-full"
           preserveAspectRatio="xMidYMid slice"
         >
-          {verticals}
-          {horizontals}
+          {lines}
         </svg>
       </motion.div>
 
@@ -94,6 +93,39 @@ function PerspectiveGrid() {
         }}
       />
     </div>
+  )
+}
+
+// ─── Floating accent particles ──────────────────────────────────────────────
+// Memoised so they don't re-mount when the parent form state changes.
+
+const FloatingDots = () => {
+  const dots = useMemo(() => Array.from({ length: 8 }, (_, i) => i), [])
+  return (
+    <>
+      {dots.map((i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1.5 h-1.5 rounded-full z-[1] pointer-events-none will-change-transform"
+          style={{
+            background: 'rgba(56,189,248,0.7)',
+            boxShadow: '0 0 6px 2px rgba(56,189,248,0.5)',
+            left: `${10 + i * 11}%`,
+            top: `${20 + (i % 3) * 25}%`,
+          }}
+          animate={{
+            y: [-8, 8, -8],
+            opacity: [0.4, 0.9, 0.4],
+          }}
+          transition={{
+            duration: 3 + i * 0.4,
+            repeat: Infinity,
+            delay: i * 0.3,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </>
   )
 }
 
@@ -135,28 +167,7 @@ export default function CTASection() {
       />
 
       {/* Floating energy dots — scattered accent particles */}
-      {[...Array(8)].map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute w-1.5 h-1.5 rounded-full z-[1] pointer-events-none"
-          style={{
-            background: 'rgba(56,189,248,0.7)',
-            boxShadow: '0 0 6px 2px rgba(56,189,248,0.5)',
-            left: `${10 + i * 11}%`,
-            top: `${20 + (i % 3) * 25}%`,
-          }}
-          animate={{
-            y: [-8, 8, -8],
-            opacity: [0.4, 0.9, 0.4],
-          }}
-          transition={{
-            duration: 3 + i * 0.4,
-            repeat: Infinity,
-            delay: i * 0.3,
-            ease: 'easeInOut',
-          }}
-        />
-      ))}
+      <FloatingDots />
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">

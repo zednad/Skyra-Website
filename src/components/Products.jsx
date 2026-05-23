@@ -133,15 +133,23 @@ export default function Products() {
         </motion.div>
 
         {/* Pricing Cards */}
-        <div className="flex flex-col lg:flex-row items-stretch justify-center gap-6 lg:gap-8 max-w-[1200px] mx-auto w-full">
-          <AnimatePresence mode="wait">
+        {/* AnimatePresence wraps a SINGLE keyed child (the tab wrapper) so old
+            and new tabs don't double-render during the transition. */}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col lg:flex-row items-stretch justify-center gap-6 lg:gap-8 max-w-[1200px] mx-auto w-full"
+          >
             {packages.map((pkg, i) => (
               <motion.div
-                key={`${activeTab}-${pkg.size}`}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                transition={{ duration: 0.5, delay: i * 0.1, type: "spring", stiffness: 100 }}
+                key={pkg.size}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.45, delay: i * 0.08, ease: [0.22, 1, 0.36, 1] }}
                 className={`flex-1 relative rounded-[2rem] p-8 lg:p-10 transition-all duration-500 flex flex-col group ${pkg.popular
                     ? 'bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl shadow-blue-900/20 md:-translate-y-4 z-10 border border-slate-700/50'
                     : 'bg-white/80 backdrop-blur-md text-slate-900 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:-translate-y-2'
@@ -150,7 +158,7 @@ export default function Products() {
                 {/* Popular Badge */}
                 {pkg.popular && (
                   <div className="absolute -top-4 inset-x-0 flex justify-center z-20">
-                    <div className="bg-gradient-to-r from-sky-400 to-blue-500 text-white text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 rounded-full shadow-lg shadow-sky-500/30 ring-4 ring-white/10 dark:ring-slate-900">
+                    <div className="bg-gradient-to-r from-sky-400 to-blue-500 text-white text-[11px] font-black tracking-[0.2em] uppercase px-5 py-2.5 rounded-full shadow-lg shadow-sky-500/30 ring-4 ring-white">
                       Most Popular
                     </div>
                   </div>
@@ -221,8 +229,8 @@ export default function Products() {
                 </motion.button>
               </motion.div>
             ))}
-          </AnimatePresence>
-        </div>
+          </motion.div>
+        </AnimatePresence>
 
       </div>
     </section>

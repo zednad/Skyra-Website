@@ -41,9 +41,9 @@ const SOCIAL_LINKS = [
 ]
 
 const CONTACT_INFO = [
-  { icon: Phone, text: '1300 759 724' },
-  { icon: Mail, text: 'hello@skyraenergy.com.au' },
-  { icon: MapPin, text: 'Level 4, 123 Collins St, Melbourne VIC 3000' },
+  { icon: Phone, text: '1300 759 724', href: 'tel:1300759724' },
+  { icon: Mail, text: 'hello@skyraenergy.com.au', href: 'mailto:hello@skyraenergy.com.au' },
+  { icon: MapPin, text: 'Level 4, 123 Collins St, Melbourne VIC 3000', href: null },
 ]
 
 const CERTIFICATIONS = [
@@ -61,12 +61,18 @@ export default function Footer() {
 
   return (
     <footer
+      className="relative overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, #0c1a2e 0%, #060e1a 100%)',
       }}
     >
+      {/* Subtle top accent — sky-tinted hairline gradient */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-400/40 to-transparent pointer-events-none" />
+      {/* Soft ambient glow in the corner */}
+      <div className="absolute -top-32 right-0 w-[600px] h-[600px] bg-sky-500/[0.06] rounded-full blur-[120px] pointer-events-none" />
+
       {/* Main footer content */}
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
+      <div className="relative max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-6 gap-12">
 
           {/* Brand column */}
@@ -91,12 +97,27 @@ export default function Footer() {
 
             {/* Contact info */}
             <div className="space-y-3 mb-6">
-              {CONTACT_INFO.map(({ icon: Icon, text }) => (
-                <div key={text} className="flex items-center gap-3">
-                  <Icon size={15} className="text-sky-500 flex-shrink-0" />
-                  <span className="text-sky-300/70 text-sm">{text}</span>
-                </div>
-              ))}
+              {CONTACT_INFO.map(({ icon: Icon, text, href }) => {
+                const content = (
+                  <>
+                    <Icon size={15} className="text-sky-500 flex-shrink-0" />
+                    <span className="text-sm">{text}</span>
+                  </>
+                )
+                return href ? (
+                  <a
+                    key={text}
+                    href={href}
+                    className="flex items-center gap-3 text-sky-300/70 hover:text-sky-400 transition-colors"
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <div key={text} className="flex items-center gap-3 text-sky-300/70">
+                    {content}
+                  </div>
+                )
+              })}
             </div>
 
             {/* Social icons */}
