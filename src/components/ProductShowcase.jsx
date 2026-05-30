@@ -228,7 +228,7 @@ export default function ProductShowcase() {
             transition={{ duration: 0.5 }}
           >
             <p className="text-xs font-bold tracking-[0.2em] text-sky-500 uppercase mb-4">
-              Premium Equipment
+              What We Install
             </p>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.2] tracking-tight mb-6">
               Industry-leading{' '}

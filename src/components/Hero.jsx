@@ -105,7 +105,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1], delay: 0.22 }}
-              className="font-fraunces text-[12vw] sm:text-[110px] lg:text-[160px] leading-[.85] text-white italic tracking-tight text-right w-fit ml-auto whitespace-nowrap drop-shadow-xl will-change-transform"
+              className="text-[12vw] sm:text-[110px] lg:text-[160px] leading-[.85] text-white font-extrabold tracking-tight text-right w-fit ml-auto whitespace-nowrap drop-shadow-xl will-change-transform"
             >
               Save Up to 70%.
             </motion.h1>

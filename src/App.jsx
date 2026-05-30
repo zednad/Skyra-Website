@@ -1,6 +1,7 @@
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
-import Stats from './components/Stats'
+import TrustStrip from './components/TrustStrip'
+import SavingsCalculator from './components/SavingsCalculator'
 import ProductShowcase from './components/ProductShowcase'
 import Products from './components/Products'
 import Features from './components/Features'
@@ -15,7 +16,8 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <Stats />
+        <TrustStrip />
+        <SavingsCalculator />
         <ProductShowcase />
         <Products />
         <Features />

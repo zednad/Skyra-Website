@@ -133,10 +133,9 @@ export default function Testimonials() {
           <h2 className="text-4xl lg:text-5xl font-black text-gray-900 mb-4">
             Real Victorian Homeowners. Real Savings.
           </h2>
-          <div className="flex items-center justify-center gap-2">
-            <Stars />
-            <span className="text-gray-600 text-sm font-semibold">4.9 average from 900+ verified reviews</span>
-          </div>
+          <p className="text-gray-500 text-base max-w-xl mx-auto">
+            Thousands of Australian households have already made the switch with SkyRa.
+          </p>
         </motion.div>
 
         <motion.div
