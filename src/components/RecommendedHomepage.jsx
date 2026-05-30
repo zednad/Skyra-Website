@@ -1,19 +1,69 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  SkyRa Energy — Homepage
-//  Exact implementation of the "03 Recommended" design exploration, top to bottom:
+//  Full-scale implementation of the "03 Recommended" design exploration:
 //  hero (with built-in nav) → trust strip → live savings calculator →
 //  what we install → packages (residential/commercial toggle) → how it works →
 //  testimonials → quote-form CTA → footer.
 //  Headings are upright (no italics) per brand preference.
+//  Motion: staggered hero load, scroll-triggered reveals, card stagger + hover
+//  lift, animated package switching, and a count-up on the savings figure.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import {
+  motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
+} from 'framer-motion'
 import {
   ArrowRight, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
-  ClipboardCheck, PencilRuler, Wrench, Power, Star, MapPin,
+  ClipboardCheck, PencilRuler, Wrench, Power, Star, MapPin, ChevronDown,
 } from 'lucide-react'
 
 const HERO_IMG =
   'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2670&auto=format&fit=crop'
+
+const EASE = [0.22, 1, 0.36, 1]
+
+/* ── Motion helpers ───────────────────────────────────────────────────────── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+}
+const staggerParent = (stagger = 0.12, delay = 0) => ({
+  hidden: {},
+  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
+})
+
+// Scroll-triggered reveal wrapper
+function Reveal({ children, className = '', delay = 0, y = 30 }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.7, delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// Count-up number (respects reduced motion). With reduced motion we render the
+// value directly (no state sync in the effect); otherwise we animate and update
+// via framer's async onUpdate callback.
+function AnimatedNumber({ value, formatFn }) {
+  const reduce = useReducedMotion()
+  const mv = useMotionValue(value)
+  const [display, setDisplay] = useState(value)
+  useEffect(() => {
+    if (reduce) return
+    const controls = animate(mv, value, {
+      duration: 0.5, ease: EASE, onUpdate: (v) => setDisplay(v),
+    })
+    return () => controls.stop()
+  }, [value, reduce, mv])
+  const shown = reduce ? value : display
+  return <>{formatFn ? formatFn(shown) : Math.round(shown)}</>
+}
 
 /* Glowing brand orb */
 function SunOrb({ size = 26 }) {
@@ -38,76 +88,114 @@ function SunOrb({ size = 26 }) {
 /* ── Nav ──────────────────────────────────────────────────────────────────── */
 function Nav() {
   return (
-    <div className="absolute inset-x-0 top-0 z-20 px-5 pt-4 sm:px-8">
-      <div className="mx-auto flex max-w-5xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 backdrop-blur-md">
-        <div className="flex items-center gap-2">
-          <SunOrb size={22} />
-          <span className="text-[16px] font-bold text-white">
+    <motion.div
+      className="absolute inset-x-0 top-0 z-20 px-6 pt-6 lg:px-12"
+      initial={{ opacity: 0, y: -24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: EASE }}
+    >
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-5 py-3 backdrop-blur-md">
+        <div className="flex items-center gap-2.5">
+          <SunOrb size={26} />
+          <span className="text-[19px] font-bold text-white">
             SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span>
           </span>
         </div>
-        <div className="hidden items-center gap-6 text-[13px] font-medium text-white/85 md:flex">
-          <span>Products</span><span>Packages</span><span>Why Solar</span><span>Reviews</span>
+        <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
+          <span className="cursor-pointer transition-colors hover:text-white">Products</span>
+          <span className="cursor-pointer transition-colors hover:text-white">Packages</span>
+          <span className="cursor-pointer transition-colors hover:text-white">Why Solar</span>
+          <span className="cursor-pointer transition-colors hover:text-white">Reviews</span>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E]">
+        <button className="inline-flex items-center gap-2.5 rounded-full bg-white py-2 pl-5 pr-2 text-[14px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03]">
           Get Quote
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#0F1A2E] text-white">
-            <Phone size={12} />
+          <span className="grid h-8 w-8 place-items-center rounded-full bg-[#0F1A2E] text-white">
+            <Phone size={14} />
           </span>
-        </span>
+        </button>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section className="relative min-h-[560px] overflow-hidden bg-[#0C1A2E]">
-      <img src={HERO_IMG} alt="Solar panels on an Australian home" className="absolute inset-0 h-full w-full object-cover opacity-70" />
+    <section className="relative flex min-h-screen flex-col overflow-hidden bg-[#0C1A2E]">
+      <motion.img
+        src={HERO_IMG}
+        alt="Solar panels on an Australian home"
+        className="absolute inset-0 h-full w-full object-cover opacity-70"
+        initial={{ scale: 1.12 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 1.6, ease: EASE }}
+      />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0C1A2E] via-[#0C1A2E]/40 to-black/40" />
-      <div className="pointer-events-none absolute -right-20 top-10 h-72 w-96 rounded-full bg-[#0EA5E9]/30 blur-[90px]" />
+      <div className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]" />
       <Nav />
-      <div className="relative z-10 mx-auto flex max-w-5xl flex-col px-5 pb-12 pt-32 sm:px-8">
-        <div className="grid items-end gap-8 lg:grid-cols-[1.6fr_1fr]">
-          <div>
-            <div className="text-[clamp(44px,7vw,82px)] font-extrabold leading-[0.9] tracking-tight text-white">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-20 pt-36 lg:px-12">
+        <div className="grid items-end gap-10 lg:grid-cols-[1.55fr_1fr]">
+          <motion.div variants={staggerParent(0.14, 0.25)} initial="hidden" animate="show">
+            <motion.div
+              variants={fadeUp}
+              className="text-[clamp(52px,8.5vw,108px)] font-extrabold leading-[0.9] tracking-tight text-white"
+            >
               Go Solar.
-            </div>
-            <div className="text-[clamp(40px,6.4vw,76px)] font-extrabold leading-[0.92] tracking-tight text-[#7DD3FC]">
+            </motion.div>
+            <motion.div
+              variants={fadeUp}
+              className="text-[clamp(46px,7.6vw,98px)] font-extrabold leading-[0.92] tracking-tight text-[#7DD3FC]"
+            >
               Save up to 70%.
-            </div>
-            <p className="mt-5 max-w-md text-[15px] leading-relaxed text-white/85">
+            </motion.div>
+            <motion.p
+              variants={fadeUp}
+              className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/85 sm:text-[18px]"
+            >
               SkyRa supplies and installs premium solar panels and home batteries across
               Australia — backed by CEC-accredited installers and a 25-year warranty.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <button className="inline-flex items-center gap-3 rounded-full bg-white py-2 pl-5 pr-2 text-[15px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.03]">
+            </motion.p>
+            <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
+              <button className="inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04]">
                 Get Free Quote
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-[#0F1A2E] text-white">
-                  <ArrowRight size={16} />
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-[#0F1A2E] text-white">
+                  <ArrowRight size={18} />
                 </span>
               </button>
-              <button className="rounded-full border border-white/30 px-5 py-2.5 text-[14px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10">
+              <button className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10">
                 Book a free assessment
               </button>
-            </div>
-          </div>
-          <div className="w-full max-w-[300px] overflow-hidden rounded-3xl border border-white/15 bg-white/[0.07] p-5 backdrop-blur-xl lg:ml-auto">
+            </motion.div>
+          </motion.div>
+          <motion.div
+            className="w-full max-w-[360px] overflow-hidden rounded-3xl border border-white/15 bg-white/[0.07] p-7 backdrop-blur-xl lg:ml-auto"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, delay: 0.7, ease: EASE }}
+          >
             {[
               ['70%', 'Average bill reduction'],
               ['25-Yr', 'Warranty & expert install'],
               ['CEC', 'Accredited installers'],
             ].map(([v, l], i) => (
               <div key={l}>
-                {i > 0 && <div className="my-3.5 h-px w-full bg-white/15" />}
-                <div className="text-[28px] font-extrabold leading-none text-white">{v}</div>
-                <div className="mt-1 text-[12.5px] font-medium text-white/75">{l}</div>
+                {i > 0 && <div className="my-5 h-px w-full bg-white/15" />}
+                <div className="text-[36px] font-extrabold leading-none text-white">{v}</div>
+                <div className="mt-1.5 text-[14px] font-medium text-white/75">{l}</div>
               </div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </div>
+      {/* scroll cue */}
+      <motion.div
+        className="absolute bottom-7 left-1/2 z-10 -translate-x-1/2 text-white/50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 7, 0] }}
+        transition={{ opacity: { delay: 1.6, duration: 0.8 }, y: { delay: 1.6, duration: 1.6, repeat: Infinity, ease: 'easeInOut' } }}
+      >
+        <ChevronDown size={26} strokeWidth={1.5} />
+      </motion.div>
     </section>
   )
 }
@@ -116,15 +204,21 @@ function Hero() {
 function TrustStrip() {
   return (
     <div className="border-y border-slate-100 bg-slate-50/70">
-      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-8 gap-y-3 px-5 py-5 sm:px-8">
-        <span className="text-[12px] font-semibold uppercase tracking-wider text-slate-400">Tier-1 brands we install</span>
+      <motion.div
+        className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-6 py-8 lg:px-8"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+      >
+        <span className="text-[13px] font-semibold uppercase tracking-wider text-slate-400">Tier-1 brands we install</span>
         {['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius'].map((b) => (
-          <span key={b} className="text-[17px] font-extrabold tracking-tight text-slate-400">{b}</span>
+          <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
         ))}
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12px] font-bold text-slate-700 shadow-sm ring-1 ring-slate-200">
-          <Star size={12} className="fill-amber-400 text-amber-400" /> 4.9 · 2,000+ reviews
+        <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-bold text-slate-700 shadow-sm ring-1 ring-slate-200">
+          <Star size={13} className="fill-amber-400 text-amber-400" /> 4.9 · 2,000+ reviews
         </span>
-      </div>
+      </motion.div>
     </div>
   )
 }
@@ -134,64 +228,70 @@ function Calculator() {
   const [bill, setBill] = useState(650)
   const annual = bill * 4
   const saving = Math.round(annual * 0.7)
-  const payback = Math.max(2.4, 7700 / saving).toFixed(1)
-  const co2 = (saving / 1000).toFixed(1)
+  const payback = Math.max(2.4, 7700 / saving)
+  const co2 = saving / 1000
   const pct = ((bill - 200) / (1200 - 200)) * 100
   return (
-    <section className="bg-white px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
-          <div>
-            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-sky-600">Try it</span>
-            <h2 className="mt-2 text-[clamp(28px,4vw,40px)] font-extrabold leading-tight tracking-tight text-slate-900">
+    <section className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl">
+        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+          <Reveal>
+            <span className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Try it</span>
+            <h2 className="mt-3 text-[clamp(32px,4.4vw,52px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
               See your saving in
               <span className="text-sky-600"> seconds.</span>
             </h2>
-            <p className="mt-3 text-[15px] leading-relaxed text-slate-500">
+            <p className="mt-5 max-w-lg text-[17px] leading-relaxed text-slate-500">
               Drag to your average quarterly power bill. We'll estimate what a SkyRa system
               could save you each year — no email required.
             </p>
-            <div className="mt-7">
+            <div className="mt-10">
               <div className="flex items-end justify-between">
-                <span className="text-[13px] font-semibold text-slate-500">Average quarterly bill</span>
-                <span className="text-[20px] font-extrabold text-slate-900">${bill}</span>
+                <span className="text-[14px] font-semibold text-slate-500">Average quarterly bill</span>
+                <span className="text-[24px] font-extrabold text-slate-900">${bill}</span>
               </div>
               <input
                 type="range" min="200" max="1200" step="10" value={bill}
                 onChange={(e) => setBill(Number(e.target.value))}
-                className="mt-3 w-full"
+                className="mt-4 w-full"
                 style={{ background: `linear-gradient(to right, #0284c7 ${pct}%, #bae6fd ${pct}%)` }}
               />
-              <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+              <div className="mt-2 flex justify-between text-[12px] text-slate-400">
                 <span>$200</span><span>$1,200</span>
               </div>
             </div>
-          </div>
-          <div className="relative overflow-hidden rounded-3xl bg-[#0C1A2E] p-7 text-white shadow-2xl">
-            <div className="pointer-events-none absolute -right-10 -top-12 h-44 w-56 rounded-full bg-[#0EA5E9]/30 blur-[60px]" />
-            <div className="relative">
-              <div className="text-[12px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
-              <div className="mt-1 text-[clamp(40px,7vw,60px)] font-extrabold leading-none">
-                ${saving.toLocaleString()}
-                <span className="text-[18px] font-semibold text-slate-400"> /yr</span>
-              </div>
-              <div className="mt-6 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-3.5">
-                  <Gauge size={16} className="text-sky-400" />
-                  <div className="mt-2 text-[20px] font-extrabold leading-none">{payback} yr</div>
-                  <div className="text-[11px] text-slate-400">Estimated payback</div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-9 text-white shadow-2xl lg:p-10">
+              <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]" />
+              <div className="relative">
+                <div className="text-[13px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
+                <div className="mt-2 text-[clamp(48px,8vw,80px)] font-extrabold leading-none">
+                  $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
+                  <span className="text-[22px] font-semibold text-slate-400"> /yr</span>
                 </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-3.5">
-                  <Sun size={16} className="text-amber-400" />
-                  <div className="mt-2 text-[20px] font-extrabold leading-none">{co2}t</div>
-                  <div className="text-[11px] text-slate-400">CO₂ avoided / yr</div>
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                    <Gauge size={20} className="text-sky-400" />
+                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                      <AnimatedNumber value={payback} formatFn={(v) => v.toFixed(1)} /> yr
+                    </div>
+                    <div className="mt-1 text-[12px] text-slate-400">Estimated payback</div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                    <Sun size={20} className="text-amber-400" />
+                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                      <AnimatedNumber value={co2} formatFn={(v) => v.toFixed(1)} />t
+                    </div>
+                    <div className="mt-1 text-[12px] text-slate-400">CO₂ avoided / yr</div>
+                  </div>
                 </div>
+                <button className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
+                  Get my exact quote <ArrowRight size={18} />
+                </button>
               </div>
-              <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-400 to-blue-600 py-3 text-[15px] font-bold text-white shadow-lg shadow-sky-500/25">
-                Get my exact quote <ArrowRight size={16} />
-              </button>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>
@@ -206,26 +306,40 @@ function Install() {
     { Icon: Zap, t: 'Smart Inverters', s: 'Fronius & Sungrow inverters with app monitoring built in.', c: 'from-cyan-500 to-sky-700' },
   ]
   return (
-    <section className="bg-slate-50 px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-sky-600">What we install</p>
-        <h2 className="mt-2 max-w-xl text-[clamp(26px,3.6vw,38px)] font-extrabold tracking-tight text-slate-900">
-          One supplier for the whole system.
-        </h2>
-        <div className="mt-9 grid gap-5 md:grid-cols-3">
+    <section className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl">
+        <Reveal>
+          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">What we install</p>
+          <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
+            One supplier for the whole system.
+          </h2>
+        </Reveal>
+        <motion.div
+          className="mt-14 grid gap-6 md:grid-cols-3 lg:gap-8"
+          variants={staggerParent()}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
           {cards.map((c) => (
-            <div key={c.t} className="group rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl">
-              <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg`}>
-                <c.Icon size={24} />
+            <motion.div
+              key={c.t}
+              variants={fadeUp}
+              whileHover={{ y: -8 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              className="group rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
+            >
+              <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg`}>
+                <c.Icon size={28} />
               </span>
-              <h3 className="mt-5 text-[20px] font-bold text-slate-900">{c.t}</h3>
-              <p className="mt-2 text-[14px] leading-relaxed text-slate-500">{c.s}</p>
-              <span className="mt-4 inline-flex items-center gap-1 text-[13px] font-bold text-sky-600">
-                Explore <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              <h3 className="mt-6 text-[22px] font-bold text-slate-900">{c.t}</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-slate-500">{c.s}</p>
+              <span className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-bold text-sky-600">
+                Explore <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
               </span>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
@@ -247,70 +361,92 @@ function Packages() {
     ],
   }
   return (
-    <section className="bg-white px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-5xl text-center">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-sky-600">Our solutions</p>
-        <h2 className="mt-2 text-[clamp(28px,4vw,42px)] font-extrabold tracking-tight text-slate-900">
-          Premium solar <span className="text-sky-600">packages</span>
-        </h2>
-        <div className="mt-6 inline-flex rounded-full bg-slate-100 p-1.5">
-          {['residential', 'commercial'].map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={
-                'rounded-full px-6 py-2.5 text-[13px] font-bold capitalize transition-colors ' +
-                (tab === t ? 'bg-white text-slate-900 shadow' : 'text-slate-500 hover:text-slate-800')
-              }
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-3">
-        {data[tab].map((p) => (
-          <div
-            key={p.size}
-            className={
-              'relative flex flex-col rounded-3xl p-7 ' +
-              (p.popular
-                ? 'bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl md:-translate-y-3 ring-1 ring-slate-700'
-                : 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200')
-            }
-          >
-            {p.popular && (
-              <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 px-4 py-1.5 text-[10px] font-extrabold uppercase tracking-wider text-white shadow-lg ring-4 ring-white">
-                Most popular
-              </span>
-            )}
-            <span className={'text-[11px] font-bold uppercase tracking-wide ' + (p.popular ? 'text-sky-400' : 'text-sky-600')}>{p.tag}</span>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-[48px] font-extrabold leading-none tracking-tight">{p.size}</span>
-              <span className={'text-[18px] font-bold ' + (p.popular ? 'text-slate-400' : 'text-slate-400')}>kW</span>
-            </div>
-            <div className={'mt-5 space-y-2.5 text-[13px] ' + (p.popular ? 'text-slate-300' : 'text-slate-600')}>
-              {[`${p.panels} Tier-1 panels`, 'Smart hybrid inverter', 'Save up to 70% on bills', '25-year warranty'].map((f) => (
-                <div key={f} className="flex items-center gap-2.5">
-                  <span className={'grid h-5 w-5 place-items-center rounded-full ' + (p.popular ? 'bg-sky-500/20 text-sky-400' : 'bg-sky-100 text-sky-600')}>
-                    <Check size={12} strokeWidth={3} />
-                  </span>
-                  {f}
-                </div>
-              ))}
-            </div>
-            <button
-              className={
-                'mt-7 w-full rounded-xl py-3 text-[14px] font-bold ' +
-                (p.popular
-                  ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg shadow-sky-500/25'
-                  : 'bg-slate-900 text-white')
-              }
-            >
-              Get a free quote
-            </button>
+    <section className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl text-center">
+        <Reveal>
+          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Our solutions</p>
+          <h2 className="mt-3 text-[clamp(32px,4.6vw,56px)] font-extrabold tracking-tight text-slate-900">
+            Premium solar <span className="text-sky-600">packages</span>
+          </h2>
+          <div className="mt-8 inline-flex rounded-full bg-slate-100 p-2">
+            {['residential', 'commercial'].map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className="relative rounded-full px-8 py-3 text-[14px] font-bold capitalize transition-colors"
+              >
+                {tab === t && (
+                  <motion.span
+                    layoutId="pkgToggle"
+                    className="absolute inset-0 rounded-full bg-white shadow"
+                    transition={{ type: 'spring', stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span className={'relative z-10 ' + (tab === t ? 'text-slate-900' : 'text-slate-500 hover:text-slate-800')}>
+                  {t}
+                </span>
+              </button>
+            ))}
           </div>
-        ))}
+        </Reveal>
+      </div>
+      <div className="mx-auto mt-14 max-w-7xl">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={tab}
+            className="grid items-stretch gap-6 md:grid-cols-3 lg:gap-8"
+            variants={staggerParent(0.1)}
+            initial="hidden"
+            animate="show"
+            exit={{ opacity: 0, y: -12, transition: { duration: 0.2 } }}
+          >
+            {data[tab].map((p) => (
+              <motion.div
+                key={p.size}
+                variants={fadeUp}
+                whileHover={{ y: -8 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                className={
+                  'relative flex flex-col rounded-[28px] p-9 ' +
+                  (p.popular
+                    ? 'bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl md:-translate-y-4 ring-1 ring-slate-700'
+                    : 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200')
+                }
+              >
+                {p.popular && (
+                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 px-5 py-2 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-lg ring-4 ring-white">
+                    Most popular
+                  </span>
+                )}
+                <span className={'text-[12px] font-bold uppercase tracking-wide ' + (p.popular ? 'text-sky-400' : 'text-sky-600')}>{p.tag}</span>
+                <div className="mt-3 flex items-baseline gap-1.5">
+                  <span className="text-[clamp(48px,6vw,64px)] font-extrabold leading-none tracking-tight">{p.size}</span>
+                  <span className="text-[22px] font-bold text-slate-400">kW</span>
+                </div>
+                <div className={'mt-7 space-y-3.5 text-[15px] ' + (p.popular ? 'text-slate-300' : 'text-slate-600')}>
+                  {[`${p.panels} Tier-1 panels`, 'Smart hybrid inverter', 'Save up to 70% on bills', '25-year warranty'].map((f) => (
+                    <div key={f} className="flex items-center gap-3">
+                      <span className={'grid h-6 w-6 shrink-0 place-items-center rounded-full ' + (p.popular ? 'bg-sky-500/20 text-sky-400' : 'bg-sky-100 text-sky-600')}>
+                        <Check size={13} strokeWidth={3} />
+                      </span>
+                      {f}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className={
+                    'mt-9 w-full rounded-2xl py-4 text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
+                    (p.popular
+                      ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg shadow-sky-500/25'
+                      : 'bg-slate-900 text-white')
+                  }
+                >
+                  Get a free quote
+                </button>
+              </motion.div>
+            ))}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </section>
   )
@@ -325,26 +461,40 @@ function HowItWorks() {
     { n: '04', t: 'Switch on', s: 'Start generating, monitor savings from the app.', Icon: Power },
   ]
   return (
-    <section className="bg-[#0C1A2E] px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <p className="text-[12px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
-        <h2 className="mt-2 max-w-lg text-[clamp(26px,3.6vw,38px)] font-extrabold tracking-tight text-white">
-          From sunlight to savings in four steps.
-        </h2>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <section className="bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl">
+        <Reveal>
+          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
+          <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-white">
+            From sunlight to savings in four steps.
+          </h2>
+        </Reveal>
+        <motion.div
+          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
+          variants={staggerParent(0.12)}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
           {steps.map((s) => (
-            <div key={s.n} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            <motion.div
+              key={s.n}
+              variants={fadeUp}
+              whileHover={{ y: -8 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-colors hover:bg-white/[0.07]"
+            >
               <div className="flex items-center justify-between">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30">
-                  <s.Icon size={20} />
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30">
+                  <s.Icon size={24} />
                 </span>
-                <span className="text-[34px] font-extrabold text-white/10">{s.n}</span>
+                <span className="text-[44px] font-extrabold text-white/10">{s.n}</span>
               </div>
-              <h3 className="mt-4 text-[16px] font-bold text-white">{s.t}</h3>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-slate-400">{s.s}</p>
-            </div>
+              <h3 className="mt-6 text-[19px] font-bold text-white">{s.t}</h3>
+              <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s.s}</p>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
@@ -358,37 +508,51 @@ function Testimonials() {
     { q: 'Genuinely premium service. They handled the rebate paperwork and the battery just works.', n: 'Mei L.', s: 'Sunnybank, QLD' },
   ]
   return (
-    <section className="bg-slate-50 px-5 py-16 sm:px-8">
-      <div className="mx-auto max-w-5xl">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="max-w-md text-[clamp(26px,3.6vw,38px)] font-extrabold tracking-tight text-slate-900">
-            Loved by homeowners <span className="text-sky-600">Australia-wide.</span>
-          </h2>
-          <div className="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
-            <Star size={15} className="fill-amber-400 text-amber-400" /> 4.9 / 5 average · 2,000+ installs
+    <section className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
+      <div className="mx-auto max-w-7xl">
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-5">
+            <h2 className="max-w-xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
+              Loved by homeowners <span className="text-sky-600">Australia-wide.</span>
+            </h2>
+            <div className="flex items-center gap-2 text-[14px] font-semibold text-slate-500">
+              <Star size={16} className="fill-amber-400 text-amber-400" /> 4.9 / 5 average · 2,000+ installs
+            </div>
           </div>
-        </div>
-        <div className="mt-9 grid gap-5 md:grid-cols-3">
+        </Reveal>
+        <motion.div
+          className="mt-14 grid gap-6 md:grid-cols-3 lg:gap-8"
+          variants={staggerParent()}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: '-80px' }}
+        >
           {t.map((x) => (
-            <div key={x.n} className="flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70">
+            <motion.div
+              key={x.n}
+              variants={fadeUp}
+              whileHover={{ y: -8 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+              className="flex flex-col rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
+            >
               <div className="flex gap-0.5 text-amber-400">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={15} className="fill-amber-400" />)}
+                {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} className="fill-amber-400" />)}
               </div>
-              <p className="mt-4 flex-1 text-[14.5px] leading-relaxed text-slate-700">“{x.q}”</p>
-              <div className="mt-5 flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-[14px] font-bold text-white">
+              <p className="mt-5 flex-1 text-[16px] leading-relaxed text-slate-700">“{x.q}”</p>
+              <div className="mt-7 flex items-center gap-3.5">
+                <span className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-[16px] font-bold text-white">
                   {x.n[0]}
                 </span>
                 <div>
-                  <div className="text-[14px] font-bold text-slate-900">{x.n}</div>
-                  <div className="flex items-center gap-1 text-[12px] text-slate-400">
-                    <MapPin size={11} /> {x.s}
+                  <div className="text-[15px] font-bold text-slate-900">{x.n}</div>
+                  <div className="flex items-center gap-1 text-[13px] text-slate-400">
+                    <MapPin size={12} /> {x.s}
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   )
@@ -397,42 +561,44 @@ function Testimonials() {
 /* ── CTA + quote form ─────────────────────────────────────────────────────── */
 function CtaForm() {
   return (
-    <section className="relative overflow-hidden bg-[#0C1A2E] px-5 py-16 sm:px-8">
-      <div className="pointer-events-none absolute -left-16 bottom-0 h-72 w-96 rounded-full bg-[#0EA5E9]/20 blur-[90px]" />
-      <div className="pointer-events-none absolute -right-10 -top-10 h-64 w-80 rounded-full bg-[#F59E0B]/15 blur-[90px]" />
-      <div className="relative mx-auto grid max-w-5xl items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
-        <div>
-          <h2 className="text-[clamp(30px,4.4vw,48px)] font-extrabold leading-[1.02] tracking-tight text-white">
+    <section className="relative overflow-hidden bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+      <div className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]" />
+      <div className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]" />
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+        <Reveal>
+          <h2 className="text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.02] tracking-tight text-white">
             Ready to cut your
             <br />
             power bill? <span className="text-[#7DD3FC]">Let's go.</span>
           </h2>
-          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/80">
+          <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-white/80">
             Get a free, no-obligation quote tailored to your roof and rebate eligibility.
             A SkyRa specialist will be in touch within one business day.
           </p>
-          <div className="mt-6 flex flex-wrap gap-5">
+          <div className="mt-8 flex flex-wrap gap-6">
             {['CEC accredited', 'No-obligation', '25-yr warranty'].map((l) => (
-              <span key={l} className="inline-flex items-center gap-2 text-[13px] font-semibold text-white/85">
-                <Check size={15} className="text-sky-400" /> {l}
+              <span key={l} className="inline-flex items-center gap-2 text-[14px] font-semibold text-white/85">
+                <Check size={16} className="text-sky-400" /> {l}
               </span>
             ))}
           </div>
-        </div>
-        <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 backdrop-blur-xl">
-          <div className="text-[16px] font-bold text-white">Get your free quote</div>
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {[['Full name', 'col-span-2'], ['Email', 'col-span-2'], ['Postcode', ''], ['Quarterly bill', '']].map(([ph, cls]) => (
-              <div key={ph} className={cls}>
-                <div className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-3 text-[13px] text-white/40">{ph}</div>
-              </div>
-            ))}
+        </Reveal>
+        <Reveal delay={0.1}>
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-8 backdrop-blur-xl">
+            <div className="text-[18px] font-bold text-white">Get your free quote</div>
+            <div className="mt-5 grid grid-cols-2 gap-4">
+              {[['Full name', 'col-span-2'], ['Email', 'col-span-2'], ['Postcode', ''], ['Quarterly bill', '']].map(([ph, cls]) => (
+                <div key={ph} className={cls}>
+                  <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-[14px] text-white/40">{ph}</div>
+                </div>
+              ))}
+            </div>
+            <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-white py-4 text-[16px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.02]">
+              Get my free quote <ArrowRight size={18} />
+            </button>
+            <p className="mt-4 text-center text-[12px] text-white/45">No spam. We never share your details.</p>
           </div>
-          <button className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3.5 text-[15px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.01]">
-            Get my free quote <ArrowRight size={16} />
-          </button>
-          <p className="mt-3 text-center text-[11px] text-white/45">No spam. We never share your details.</p>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
@@ -441,16 +607,19 @@ function CtaForm() {
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="bg-[#08111E] px-5 py-9 sm:px-8">
-      <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 sm:flex-row">
-        <div className="flex items-center gap-2">
-          <SunOrb size={20} />
-          <span className="text-[15px] font-bold text-white">SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span></span>
+    <footer className="bg-[#08111E] px-6 py-14 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
+        <div className="flex items-center gap-2.5">
+          <SunOrb size={24} />
+          <span className="text-[17px] font-bold text-white">SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span></span>
         </div>
-        <div className="flex gap-6 text-[12.5px] text-slate-400">
-          <span>Products</span><span>Packages</span><span>About</span><span>Contact</span>
+        <div className="flex gap-8 text-[14px] text-slate-400">
+          <span className="cursor-pointer transition-colors hover:text-white">Products</span>
+          <span className="cursor-pointer transition-colors hover:text-white">Packages</span>
+          <span className="cursor-pointer transition-colors hover:text-white">About</span>
+          <span className="cursor-pointer transition-colors hover:text-white">Contact</span>
         </div>
-        <span className="text-[12px] text-slate-500">© 2026 SkyRa Energy · CEC Accredited</span>
+        <span className="text-[13px] text-slate-500">© 2026 SkyRa Energy · CEC Accredited</span>
       </div>
     </footer>
   )
