@@ -22,6 +22,11 @@ const HERO_IMG =
 
 const EASE = [0.22, 1, 0.36, 1]
 
+// ── Feature flags ─────────────────────────────────────────────────────────────
+// Testimonials/reviews stay hidden until we have real customer reviews to show.
+// Flip to true to bring the reviews section back.
+const SHOW_REVIEWS = false
+
 /* ── Motion helpers ───────────────────────────────────────────────────────── */
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -102,17 +107,16 @@ function Nav() {
           </span>
         </div>
         <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
-          <span className="cursor-pointer transition-colors hover:text-white">Products</span>
-          <span className="cursor-pointer transition-colors hover:text-white">Packages</span>
-          <span className="cursor-pointer transition-colors hover:text-white">Why Solar</span>
-          <span className="cursor-pointer transition-colors hover:text-white">Reviews</span>
+          <a href="#products" className="cursor-pointer transition-colors hover:text-white">Products</a>
+          <a href="#packages" className="cursor-pointer transition-colors hover:text-white">Packages</a>
+          <a href="#why-solar" className="cursor-pointer transition-colors hover:text-white">Why Solar</a>
         </div>
-        <button className="inline-flex items-center gap-2.5 rounded-full bg-white py-2 pl-5 pr-2 text-[14px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03]">
+        <a href="#quote" className="inline-flex items-center gap-2.5 rounded-full bg-white py-2 pl-5 pr-2 text-[14px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03]">
           Get Quote
           <span className="grid h-8 w-8 place-items-center rounded-full bg-[#0F1A2E] text-white">
             <Phone size={14} />
           </span>
-        </button>
+        </a>
       </div>
     </motion.div>
   )
@@ -156,15 +160,15 @@ function Hero() {
               Australia — backed by CEC-accredited installers and a 25-year warranty.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
-              <button className="inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04]">
+              <a href="#quote" className="inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04]">
                 Get Free Quote
                 <span className="grid h-11 w-11 place-items-center rounded-full bg-[#0F1A2E] text-white">
                   <ArrowRight size={18} />
                 </span>
-              </button>
-              <button className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10">
+              </a>
+              <a href="#quote" className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10">
                 Book a free assessment
-              </button>
+              </a>
             </motion.div>
           </motion.div>
           <motion.div
@@ -215,9 +219,6 @@ function TrustStrip() {
         {['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius'].map((b) => (
           <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
         ))}
-        <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-bold text-slate-700 shadow-sm ring-1 ring-slate-200">
-          <Star size={13} className="fill-amber-400 text-amber-400" /> 4.9 · 2,000+ reviews
-        </span>
       </motion.div>
     </div>
   )
@@ -232,7 +233,7 @@ function Calculator() {
   const co2 = saving / 1000
   const pct = ((bill - 200) / (1200 - 200)) * 100
   return (
-    <section className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+    <section id="why-solar" className="bg-white px-6 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
@@ -286,9 +287,9 @@ function Calculator() {
                     <div className="mt-1 text-[12px] text-slate-400">CO₂ avoided / yr</div>
                   </div>
                 </div>
-                <button className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
+                <a href="#quote" className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
                   Get my exact quote <ArrowRight size={18} />
-                </button>
+                </a>
               </div>
             </div>
           </Reveal>
@@ -298,21 +299,43 @@ function Calculator() {
   )
 }
 
-/* ── What we install ──────────────────────────────────────────────────────── */
+/* ── What we install — panels, batteries & inverters ──────────────────────── */
 function Install() {
   const cards = [
-    { Icon: Sun, t: 'Solar Panels', s: 'Tier-1 mono panels from Jinko, Trina & REC — up to 22.3% efficiency.', c: 'from-sky-400 to-blue-600' },
-    { Icon: BatteryCharging, t: 'Home Batteries', s: 'Store the day, power the night. Tesla Powerwall & Sungrow hybrid.', c: 'from-amber-400 to-orange-600' },
-    { Icon: Zap, t: 'Smart Inverters', s: 'Fronius & Sungrow inverters with app monitoring built in.', c: 'from-cyan-500 to-sky-700' },
+    {
+      Icon: Sun,
+      t: 'Solar Panels',
+      s: 'Premium Tier-1 mono panels from the brands homeowners trust.',
+      c: 'from-sky-400 to-blue-600',
+      brands: ['Jinko', 'Trina', 'REC', 'LONGi', 'Canadian Solar', 'Q CELLS'],
+    },
+    {
+      Icon: BatteryCharging,
+      t: 'Home Batteries',
+      s: 'Store the day, power the night with leading hybrid batteries.',
+      c: 'from-amber-400 to-orange-600',
+      brands: ['Tesla', 'Sungrow', 'Sigenergy', 'BYD', 'LG', 'Fox ESS'],
+    },
+    {
+      Icon: Zap,
+      t: 'Smart Inverters',
+      s: 'Reliable inverters with built-in app monitoring.',
+      c: 'from-cyan-500 to-sky-700',
+      brands: ['Fronius', 'Sungrow', 'SMA', 'GoodWe', 'Enphase', 'SolarEdge'],
+    },
   ]
   return (
-    <section className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
+    <section id="products" className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">What we install</p>
           <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
             One supplier for the whole system.
           </h2>
+          <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-slate-500">
+            Panels, batteries and inverters from the industry's most trusted brands —
+            supplied and installed by one accredited team.
+          </p>
         </Reveal>
         <motion.div
           className="mt-14 grid gap-6 md:grid-cols-3 lg:gap-8"
@@ -327,16 +350,23 @@ function Install() {
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="group rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
+              className="group flex flex-col rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
             >
               <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg`}>
                 <c.Icon size={28} />
               </span>
               <h3 className="mt-6 text-[22px] font-bold text-slate-900">{c.t}</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-slate-500">{c.s}</p>
-              <span className="mt-5 inline-flex items-center gap-1.5 text-[14px] font-bold text-sky-600">
-                Explore <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-              </span>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {c.brands.map((b) => (
+                  <span
+                    key={b}
+                    className="rounded-full bg-slate-100 px-3 py-1.5 text-[13px] font-semibold text-slate-600 ring-1 ring-slate-200/70"
+                  >
+                    {b}
+                  </span>
+                ))}
+              </div>
             </motion.div>
           ))}
         </motion.div>
@@ -361,7 +391,7 @@ function Packages() {
     ],
   }
   return (
-    <section className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+    <section id="packages" className="bg-white px-6 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Our solutions</p>
@@ -433,16 +463,17 @@ function Packages() {
                     </div>
                   ))}
                 </div>
-                <button
+                <a
+                  href="#quote"
                   className={
-                    'mt-9 w-full rounded-2xl py-4 text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
+                    'mt-9 block w-full rounded-2xl py-4 text-center text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
                     (p.popular
                       ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg shadow-sky-500/25'
                       : 'bg-slate-900 text-white')
                   }
                 >
                   Get a free quote
-                </button>
+                </a>
               </motion.div>
             ))}
           </motion.div>
@@ -461,7 +492,7 @@ function HowItWorks() {
     { n: '04', t: 'Switch on', s: 'Start generating, monitor savings from the app.', Icon: Power },
   ]
   return (
-    <section className="bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+    <section id="how-it-works" className="bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
@@ -561,7 +592,7 @@ function Testimonials() {
 /* ── CTA + quote form ─────────────────────────────────────────────────────── */
 function CtaForm() {
   return (
-    <section className="relative overflow-hidden bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+    <section id="quote" className="relative overflow-hidden bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
       <div className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]" />
       <div className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]" />
       <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
@@ -614,10 +645,10 @@ function Footer() {
           <span className="text-[17px] font-bold text-white">SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span></span>
         </div>
         <div className="flex gap-8 text-[14px] text-slate-400">
-          <span className="cursor-pointer transition-colors hover:text-white">Products</span>
-          <span className="cursor-pointer transition-colors hover:text-white">Packages</span>
-          <span className="cursor-pointer transition-colors hover:text-white">About</span>
-          <span className="cursor-pointer transition-colors hover:text-white">Contact</span>
+          <a href="#products" className="cursor-pointer transition-colors hover:text-white">Products</a>
+          <a href="#packages" className="cursor-pointer transition-colors hover:text-white">Packages</a>
+          <a href="#how-it-works" className="cursor-pointer transition-colors hover:text-white">About</a>
+          <a href="#quote" className="cursor-pointer transition-colors hover:text-white">Contact</a>
         </div>
         <span className="text-[13px] text-slate-500">© 2026 SkyRa Energy · CEC Accredited</span>
       </div>
@@ -635,7 +666,7 @@ export default function RecommendedHomepage() {
         <Install />
         <Packages />
         <HowItWorks />
-        <Testimonials />
+        {SHOW_REVIEWS && <Testimonials />}
         <CtaForm />
       </main>
       <Footer />

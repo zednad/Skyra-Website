@@ -23,7 +23,10 @@ body {
   font-family: var(--font-body);
   color: #111827;
   background: #ffffff;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) prevents horizontal overflow without turning <body>
+     into a scroll container — keeps the viewport as the scroller so in-page
+     anchor links (#products, #packages, …) scroll reliably. */
+  overflow-x: clip;
   /* Subtle font rendering sharpness */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
