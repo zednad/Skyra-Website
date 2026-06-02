@@ -70,11 +70,15 @@ export default function Hero() {
         <motion.img
           src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2670&auto=format&fit=crop"
           alt="Solar panels installed on a residential home"
+          loading="eager"
+          decoding="async"
           style={{ y: bgY, scale: bgScale }}
           className="w-full h-full object-cover opacity-80 origin-center"
         />
-        {/* Dark gradient overlays — restore originals */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-transparent to-black/30" />
+        {/* Layered gradients — deepens contrast around text without
+            tinting the sky in the photo */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0c1a2e] via-[#0c1a2e]/30 to-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-black/10 pointer-events-none" />
       </div>
 
       {/* ── Main Content ───────────────────────────────────────────────── */}
@@ -101,7 +105,7 @@ export default function Hero() {
               initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.15, ease: [0.22, 1, 0.36, 1], delay: 0.22 }}
-              className="font-fraunces text-[12vw] sm:text-[110px] lg:text-[160px] leading-[.85] text-white italic tracking-tight text-right w-fit ml-auto whitespace-nowrap drop-shadow-xl will-change-transform"
+              className="text-[12vw] sm:text-[110px] lg:text-[160px] leading-[.85] text-white font-extrabold tracking-tight text-right w-fit ml-auto whitespace-nowrap drop-shadow-xl will-change-transform"
             >
               Save Up to 70%.
             </motion.h1>
@@ -149,21 +153,24 @@ export default function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
             style={{ opacity: cardOpacity, y: cardY }}
-            className="lg:col-span-4 lg:ml-auto w-full max-w-[340px] bg-white/5 backdrop-blur-md border border-white/20 rounded-3xl p-5 lg:p-6 shadow-2xl will-change-transform"
+            className="lg:col-span-4 lg:ml-auto w-full max-w-[340px] relative bg-white/[0.07] backdrop-blur-xl border border-white/20 rounded-3xl p-5 lg:p-6 shadow-[0_24px_60px_rgba(0,0,0,0.35)] will-change-transform overflow-hidden"
           >
-            <div className="flex flex-col gap-4">
+            {/* Top hairline gloss */}
+            <div className="absolute top-0 inset-x-6 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none" />
+
+            <div className="relative flex flex-col gap-4">
               <div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1">70%</h3>
+                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1 tracking-tight">70%</h3>
                 <p className="text-white/80 text-sm font-medium">Average Bill Reduction</p>
               </div>
-              <div className="h-px w-full bg-white/20" />
+              <div className="h-px w-full bg-gradient-to-r from-white/5 via-white/25 to-white/5" />
               <div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1">25-Yr</h3>
-                <p className="text-white/80 text-sm font-medium">Warranty & Expert Installation</p>
+                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1 tracking-tight">25-Yr</h3>
+                <p className="text-white/80 text-sm font-medium">Warranty &amp; Expert Installation</p>
               </div>
-              <div className="h-px w-full bg-white/20" />
+              <div className="h-px w-full bg-gradient-to-r from-white/5 via-white/25 to-white/5" />
               <div>
-                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1">CEC</h3>
+                <h3 className="text-3xl lg:text-4xl font-bold text-white mb-1 tracking-tight">CEC</h3>
                 <p className="text-white/80 text-sm font-medium">Accredited Installers</p>
               </div>
             </div>

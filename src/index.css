@@ -3,7 +3,7 @@
 /* ── CSS Variables ──────────────────────────────────────────────────────── */
 :root {
   --font-body:    'Manrope', system-ui, -apple-system, sans-serif;
-  --font-display: 'Syne', system-ui, sans-serif;
+  --font-display: 'Manrope', system-ui, -apple-system, sans-serif;
   --font-serif:   'Fraunces', Georgia, serif;
 
   --clr-sky:      #0284c7;
@@ -15,24 +15,31 @@
 /* ── Base ───────────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
+  /* Reserve scrollbar space so the page doesn't shift when content grows */
+  scrollbar-gutter: stable;
 }
 
 body {
   font-family: var(--font-body);
   color: #111827;
   background: #ffffff;
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) prevents horizontal overflow without turning <body>
+     into a scroll container — keeps the viewport as the scroller so in-page
+     anchor links (#products, #packages, …) scroll reliably. */
+  overflow-x: clip;
   /* Subtle font rendering sharpness */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* ── Display headings → Syne ─────────────────────────────────────────────
-   Applies to h1–h3 sitewide so all section headers and hero text
-   automatically use the more characterful display font.               */
+/* ── Display headings ────────────────────────────────────────────────────
+   Use Manrope at heavy weights for headings — clean, modern, and shares
+   the same font load as body copy (one fewer font request).
+   Slight negative tracking tightens large display sizes.              */
 h1, h2, h3 {
   font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
 /* ── Fraunces utility class (italic serif hero headline) ─────────────── */
@@ -48,7 +55,7 @@ h1, h2, h3 {
 
 /* ── Custom scrollbar ───────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 5px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #f0f9ff;
@@ -60,12 +67,23 @@ h1, h2, h3 {
 ::-webkit-scrollbar-thumb:hover {
   background: #0369a1;
 }
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #38bdf8 #f0f9ff;
+}
 
 /* ── Focus ring (keyboard nav) ──────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid #38bdf8;
   outline-offset: 3px;
-  border-radius: 4px;
+  border-radius: 6px;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18);
+}
+
+/* Suppress focus ring on mouse clicks for non-interactive containers */
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ── Input range styling ────────────────────────────────────────────────── */
@@ -90,4 +108,28 @@ input[type="range"]::-webkit-slider-thumb {
 }
 input[type="range"]::-webkit-slider-thumb:hover {
   box-shadow: 0 2px 16px rgba(2, 132, 199, 0.6);
+}
+
+/* ── Hide-scrollbar utility (used by the rebate row in Features) ────────── */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ── Reduced motion: respect OS-level preference ────────────────────────── */
+/* Disable infinite/decorative animations + ease scroll. Framer Motion
+   `whileHover` and one-shot entrance reveals are kept (they're short
+   and meaningful), but anything that loops forever is muted.            */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

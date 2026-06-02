@@ -73,8 +73,18 @@ export default function HowItWorks() {
   }
 
   return (
-    <section id="how-it-works" ref={ref} className="min-h-screen flex flex-col justify-center py-8 md:py-12 lg:py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
+    <section
+      id="how-it-works"
+      ref={ref}
+      className="relative overflow-hidden min-h-screen flex flex-col justify-center py-8 md:py-12 lg:py-16"
+      style={{ background: 'linear-gradient(180deg, #0c1a2e 0%, #0f2744 50%, #0c1a2e 100%)' }}
+    >
+      {/* Ambient glow + hairline to echo the rest of the dark sections */}
+      <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-sky-400/30 to-transparent pointer-events-none" />
+      <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-sky-500/[0.07] rounded-full blur-[120px] pointer-events-none translate-x-1/3" />
+      <div className="absolute bottom-1/4 left-0 w-[420px] h-[420px] bg-blue-600/[0.06] rounded-full blur-[110px] pointer-events-none -translate-x-1/3" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 w-full">
 
         {/* Section header */}
         <motion.div
@@ -83,13 +93,13 @@ export default function HowItWorks() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <span className="inline-block bg-sky-50 text-sky-700 text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2 md:mb-3">
+          <span className="inline-block bg-sky-500/15 text-sky-300 border border-sky-400/20 text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2 md:mb-3">
             How It Works
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-black text-gray-900 mb-2 md:mb-3">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-black text-white mb-2 md:mb-3">
             Go Solar in 3 Simple Steps
           </h2>
-          <p className="text-gray-500 text-sm sm:text-base md:text-lg max-w-xl mx-auto">
+          <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-xl mx-auto">
             From your first call to your first bill savings — we make switching to solar effortless
             for Victorian homeowners.
           </p>
@@ -127,7 +137,7 @@ export default function HowItWorks() {
                 {/* Step icon — flat background, animations preserved */}
                 <div className="relative mb-3 md:mb-4 lg:mb-5">
                   <motion.div
-                    className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-20 lg:h-20 rounded-full flex flex-col items-center justify-center z-10 shadow-md ${iconBg}`}
+                    className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 lg:w-20 lg:h-20 rounded-full flex flex-col items-center justify-center z-10 shadow-lg ring-4 ring-white/5 ${iconBg}`}
                     initial={{ scale: 0.5, opacity: 0 }}
                     animate={inView ? { scale: 1, opacity: 1, y: [0, -6, 0] } : {}}
                     transition={
@@ -153,20 +163,20 @@ export default function HowItWorks() {
                 {/* Arrow between steps (mobile) */}
                 {i < STEPS.length - 1 && (
                   <div className="lg:hidden flex justify-center w-full my-1">
-                    <ArrowRight size={16} className="text-sky-300 rotate-90" />
+                    <ArrowRight size={16} className="text-sky-400/60 rotate-90" />
                   </div>
                 )}
 
                 {/* Content */}
                 <div className="flex-1">
-                  <p className="text-[10px] sm:text-xs text-sky-600 font-bold uppercase tracking-wider mb-0.5">
+                  <p className="text-[10px] sm:text-xs text-sky-400 font-bold uppercase tracking-wider mb-0.5">
                     Step {number}
                   </p>
-                  <h3 className="text-base sm:text-lg md:text-xl font-black text-gray-900 mb-1.5 md:mb-2">{title}</h3>
-                  <p className="text-gray-500 text-xs sm:text-sm leading-snug mb-2 md:mb-3 line-clamp-3 sm:line-clamp-none">{description}</p>
+                  <h3 className="text-base sm:text-lg md:text-xl font-black text-white mb-1.5 md:mb-2">{title}</h3>
+                  <p className="text-slate-400 text-xs sm:text-sm leading-snug mb-2 md:mb-3 line-clamp-3 sm:line-clamp-none">{description}</p>
 
                   {/* Detail badge */}
-                  <span className="inline-block bg-sky-50 text-sky-700 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full border border-sky-100">
+                  <span className="inline-block bg-sky-500/10 text-sky-300 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full border border-sky-400/20">
                     ⏱ {detail}
                   </span>
                 </div>
@@ -182,12 +192,12 @@ export default function HowItWorks() {
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.9 }}
         >
-          <p className="text-gray-500 text-sm sm:text-base mb-3 md:mb-4">
+          <p className="text-slate-400 text-sm sm:text-base mb-3 md:mb-4">
             Ready to get started? It only takes 2 minutes to request your free Victorian home assessment.
           </p>
           <motion.button
             onClick={scrollToCTA}
-            className="inline-flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-sm sm:text-base px-6 py-3 md:px-8 md:py-4 rounded-full shadow-xl shadow-sky-600/25 transition-colors"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-bold text-sm sm:text-base px-6 py-3 md:px-8 md:py-4 rounded-full shadow-xl shadow-sky-600/25 transition-colors"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
           >
