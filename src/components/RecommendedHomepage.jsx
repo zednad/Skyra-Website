@@ -1,12 +1,13 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  SkyRa Energy — Homepage
-//  Full-scale implementation of the "03 Recommended" design exploration:
-//  hero (with built-in nav) → trust strip → live savings calculator →
+//  SkyRa Energy — Homepage (regulator-review variant)
+//  Compliance-conscious cut of the "03 Recommended" homepage: all unverified
+//  claims removed (no CEC accreditation, warranty, blanket savings %, "most
+//  popular", service SLAs, app features or testimonials) so nothing on the page
+//  asserts something not yet certified or enabled. The savings calculator is
+//  kept but clearly labelled an indicative estimate.
+//  Flow: hero (with built-in nav) → trust strip → savings calculator →
 //  what we install → packages (residential/commercial toggle) → how it works →
-//  testimonials → quote-form CTA → footer.
-//  Headings are upright (no italics) per brand preference.
-//  Motion: staggered hero load, scroll-triggered reveals, card stagger + hover
-//  lift, animated package switching, and a count-up on the savings figure.
+//  quote-form CTA → footer. Headings are upright (no italics) per brand pref.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState, useEffect } from 'react'
 import {
@@ -14,18 +15,13 @@ import {
 } from 'framer-motion'
 import {
   ArrowRight, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
-  ClipboardCheck, PencilRuler, Wrench, Power, Star, MapPin, ChevronDown,
+  ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown,
 } from 'lucide-react'
 
 const HERO_IMG =
   'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2670&auto=format&fit=crop'
 
 const EASE = [0.22, 1, 0.36, 1]
-
-// ── Feature flags ─────────────────────────────────────────────────────────────
-// Testimonials/reviews stay hidden until we have real customer reviews to show.
-// Flip to true to bring the reviews section back.
-const SHOW_REVIEWS = false
 
 /* ── Motion helpers ───────────────────────────────────────────────────────── */
 const fadeUp = {
@@ -138,7 +134,7 @@ function Hero() {
       <div className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]" />
       <Nav />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-20 pt-36 lg:px-12">
-        <div className="grid items-end gap-10 lg:grid-cols-[1.55fr_1fr]">
+        <div className="max-w-3xl">
           <motion.div variants={staggerParent(0.14, 0.25)} initial="hidden" animate="show">
             <motion.div
               variants={fadeUp}
@@ -150,14 +146,14 @@ function Hero() {
               variants={fadeUp}
               className="text-[clamp(46px,7.6vw,98px)] font-extrabold leading-[0.92] tracking-tight text-[#7DD3FC]"
             >
-              Save up to 70%.
+              Clean energy for your home.
             </motion.div>
             <motion.p
               variants={fadeUp}
               className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/85 sm:text-[18px]"
             >
-              SkyRa supplies and installs premium solar panels and home batteries across
-              Australia — backed by CEC-accredited installers and a 25-year warranty.
+              SkyRa supplies and installs solar panels, home batteries and inverters
+              for homes and businesses across Australia.
             </motion.p>
             <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
               <a href="#quote" className="inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04]">
@@ -170,24 +166,6 @@ function Hero() {
                 Book a free assessment
               </a>
             </motion.div>
-          </motion.div>
-          <motion.div
-            className="w-full max-w-[360px] overflow-hidden rounded-3xl border border-white/15 bg-white/[0.07] p-7 backdrop-blur-xl lg:ml-auto"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, delay: 0.7, ease: EASE }}
-          >
-            {[
-              ['70%', 'Average bill reduction'],
-              ['25-Yr', 'Warranty & expert install'],
-              ['CEC', 'Accredited installers'],
-            ].map(([v, l], i) => (
-              <div key={l}>
-                {i > 0 && <div className="my-5 h-px w-full bg-white/15" />}
-                <div className="text-[36px] font-extrabold leading-none text-white">{v}</div>
-                <div className="mt-1.5 text-[14px] font-medium text-white/75">{l}</div>
-              </div>
-            ))}
           </motion.div>
         </div>
       </div>
@@ -290,6 +268,11 @@ function Calculator() {
                 <a href="#quote" className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
                   Get my exact quote <ArrowRight size={18} />
                 </a>
+                <p className="mt-4 text-[12px] leading-relaxed text-slate-400">
+                  Indicative estimate only. Actual savings depend on your energy use,
+                  tariff, system size and site, and aren't guaranteed — we'll confirm
+                  figures in your written quote.
+                </p>
               </div>
             </div>
           </Reveal>
@@ -319,7 +302,7 @@ function Install() {
     {
       Icon: Zap,
       t: 'Smart Inverters',
-      s: 'Reliable inverters with built-in app monitoring.',
+      s: 'Reliable string and hybrid inverters.',
       c: 'from-cyan-500 to-sky-700',
       brands: ['Fronius', 'Sungrow', 'SMA', 'GoodWe', 'Enphase', 'SolarEdge'],
     },
@@ -334,7 +317,7 @@ function Install() {
           </h2>
           <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-slate-500">
             Panels, batteries and inverters from the industry's most trusted brands —
-            supplied and installed by one accredited team.
+            all supplied and installed by SkyRa.
           </p>
         </Reveal>
         <motion.div
@@ -381,12 +364,12 @@ function Packages() {
   const data = {
     residential: [
       { size: '6.6', panels: '15 × 440W', tag: 'Small homes', popular: false },
-      { size: '10.12', panels: '23 × 440W', tag: 'Most popular', popular: true },
+      { size: '10.12', panels: '23 × 440W', tag: 'Medium homes', popular: true },
       { size: '13.2', panels: '30 × 440W', tag: 'Large homes', popular: false },
     ],
     commercial: [
       { size: '20', panels: '46 × 440W', tag: 'Small business', popular: false },
-      { size: '30', panels: '69 × 440W', tag: 'Most popular', popular: true },
+      { size: '30', panels: '69 × 440W', tag: 'Mid-size business', popular: true },
       { size: '50', panels: '114 × 440W', tag: 'Warehouse', popular: false },
     ],
   }
@@ -443,18 +426,13 @@ function Packages() {
                     : 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200')
                 }
               >
-                {p.popular && (
-                  <span className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 px-5 py-2 text-[11px] font-extrabold uppercase tracking-wider text-white shadow-lg ring-4 ring-white">
-                    Most popular
-                  </span>
-                )}
                 <span className={'text-[12px] font-bold uppercase tracking-wide ' + (p.popular ? 'text-sky-400' : 'text-sky-600')}>{p.tag}</span>
                 <div className="mt-3 flex items-baseline gap-1.5">
                   <span className="text-[clamp(48px,6vw,64px)] font-extrabold leading-none tracking-tight">{p.size}</span>
                   <span className="text-[22px] font-bold text-slate-400">kW</span>
                 </div>
                 <div className={'mt-7 space-y-3.5 text-[15px] ' + (p.popular ? 'text-slate-300' : 'text-slate-600')}>
-                  {[`${p.panels} Tier-1 panels`, 'Smart hybrid inverter', 'Save up to 70% on bills', '25-year warranty'].map((f) => (
+                  {[`${p.panels} Tier-1 panels`, 'Smart hybrid inverter', 'Fully supplied & installed'].map((f) => (
                     <div key={f} className="flex items-center gap-3">
                       <span className={'grid h-6 w-6 shrink-0 place-items-center rounded-full ' + (p.popular ? 'bg-sky-500/20 text-sky-400' : 'bg-sky-100 text-sky-600')}>
                         <Check size={13} strokeWidth={3} />
@@ -486,10 +464,10 @@ function Packages() {
 /* ── How it works ─────────────────────────────────────────────────────────── */
 function HowItWorks() {
   const steps = [
-    { n: '01', t: 'Free survey', s: 'We assess your roof, usage and rebate eligibility.', Icon: ClipboardCheck },
-    { n: '02', t: 'System design', s: 'A tailored panel + battery layout and savings plan.', Icon: PencilRuler },
-    { n: '03', t: 'Pro install', s: 'CEC-accredited installers, usually within 3 weeks.', Icon: Wrench },
-    { n: '04', t: 'Switch on', s: 'Start generating, monitor savings from the app.', Icon: Power },
+    { n: '01', t: 'Free survey', s: 'We assess your roof and energy usage.', Icon: ClipboardCheck },
+    { n: '02', t: 'System design', s: 'A tailored panel and battery layout for your home.', Icon: PencilRuler },
+    { n: '03', t: 'Pro install', s: 'Professional installation by our team.', Icon: Wrench },
+    { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
   ]
   return (
     <section id="how-it-works" className="bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
@@ -497,7 +475,7 @@ function HowItWorks() {
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
           <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-white">
-            From sunlight to savings in four steps.
+            From first call to switch-on in four steps.
           </h2>
         </Reveal>
         <motion.div
@@ -531,64 +509,6 @@ function HowItWorks() {
   )
 }
 
-/* ── Testimonials ─────────────────────────────────────────────────────────── */
-function Testimonials() {
-  const t = [
-    { q: 'Our quarterly bill went from $620 to under $90. The install team was faultless and on time.', n: 'Priya R.', s: 'Glen Waverley, VIC' },
-    { q: 'Surveyed, quoted and switched on in three weeks. The app makes it easy to see the savings roll in.', n: 'Daniel K.', s: 'Newcastle, NSW' },
-    { q: 'Genuinely premium service. They handled the rebate paperwork and the battery just works.', n: 'Mei L.', s: 'Sunnybank, QLD' },
-  ]
-  return (
-    <section className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
-      <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <div className="flex flex-wrap items-end justify-between gap-5">
-            <h2 className="max-w-xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
-              Loved by homeowners <span className="text-sky-600">Australia-wide.</span>
-            </h2>
-            <div className="flex items-center gap-2 text-[14px] font-semibold text-slate-500">
-              <Star size={16} className="fill-amber-400 text-amber-400" /> 4.9 / 5 average · 2,000+ installs
-            </div>
-          </div>
-        </Reveal>
-        <motion.div
-          className="mt-14 grid gap-6 md:grid-cols-3 lg:gap-8"
-          variants={staggerParent()}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-80px' }}
-        >
-          {t.map((x) => (
-            <motion.div
-              key={x.n}
-              variants={fadeUp}
-              whileHover={{ y: -8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="flex flex-col rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
-            >
-              <div className="flex gap-0.5 text-amber-400">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={16} className="fill-amber-400" />)}
-              </div>
-              <p className="mt-5 flex-1 text-[16px] leading-relaxed text-slate-700">“{x.q}”</p>
-              <div className="mt-7 flex items-center gap-3.5">
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-sky-400 to-blue-600 text-[16px] font-bold text-white">
-                  {x.n[0]}
-                </span>
-                <div>
-                  <div className="text-[15px] font-bold text-slate-900">{x.n}</div>
-                  <div className="flex items-center gap-1 text-[13px] text-slate-400">
-                    <MapPin size={12} /> {x.s}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
-        </motion.div>
-      </div>
-    </section>
-  )
-}
-
 /* ── CTA + quote form ─────────────────────────────────────────────────────── */
 function CtaForm() {
   return (
@@ -603,11 +523,11 @@ function CtaForm() {
             power bill? <span className="text-[#7DD3FC]">Let's go.</span>
           </h2>
           <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-white/80">
-            Get a free, no-obligation quote tailored to your roof and rebate eligibility.
-            A SkyRa specialist will be in touch within one business day.
+            Get a free, no-obligation quote tailored to your roof and energy usage.
+            A SkyRa specialist will be in touch to talk it through.
           </p>
           <div className="mt-8 flex flex-wrap gap-6">
-            {['CEC accredited', 'No-obligation', '25-yr warranty'].map((l) => (
+            {['No-obligation', 'Free assessment', 'Tailored quote'].map((l) => (
               <span key={l} className="inline-flex items-center gap-2 text-[14px] font-semibold text-white/85">
                 <Check size={16} className="text-sky-400" /> {l}
               </span>
@@ -650,7 +570,7 @@ function Footer() {
           <a href="#how-it-works" className="cursor-pointer transition-colors hover:text-white">About</a>
           <a href="#quote" className="cursor-pointer transition-colors hover:text-white">Contact</a>
         </div>
-        <span className="text-[13px] text-slate-500">© 2026 SkyRa Energy · CEC Accredited</span>
+        <span className="text-[13px] text-slate-500">© 2026 SkyRa Energy</span>
       </div>
     </footer>
   )
@@ -666,7 +586,6 @@ export default function RecommendedHomepage() {
         <Install />
         <Packages />
         <HowItWorks />
-        {SHOW_REVIEWS && <Testimonials />}
         <CtaForm />
       </main>
       <Footer />
