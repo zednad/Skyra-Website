@@ -395,24 +395,29 @@ function Install() {
             <motion.div
               key={c.t}
               variants={fadeUp}
-              whileHover={{ y: -8 }}
+              whileHover={{ y: -6 }}
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="group flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl sm:p-9"
+              className="group flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow duration-300 hover:shadow-xl sm:p-8"
             >
-              <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg`}>
-                <c.Icon size={28} />
+              <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg shadow-slate-900/5`}>
+                <c.Icon size={25} strokeWidth={2} />
               </span>
-              <h3 className="mt-6 text-[22px] font-bold text-slate-900">{c.t}</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-slate-500">{c.s}</p>
-              <div className="mt-6 flex flex-wrap gap-2">
-                {c.brands.map((b) => (
-                  <span
-                    key={b}
-                    className="rounded-full bg-slate-100 px-3 py-1.5 text-[13px] font-semibold text-slate-600 ring-1 ring-slate-200/70"
-                  >
-                    {b}
-                  </span>
-                ))}
+              <h3 className="mt-5 text-[20px] font-bold tracking-tight text-slate-900">{c.t}</h3>
+              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-slate-500">{c.s}</p>
+              <div className="mt-6 border-t border-slate-100 pt-5">
+                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
+                  Brands we install
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {c.brands.map((b) => (
+                    <span
+                      key={b}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[12.5px] font-semibold text-slate-600 transition-colors group-hover:border-slate-300"
+                    >
+                      {b}
+                    </span>
+                  ))}
+                </div>
               </div>
             </motion.div>
           ))}
