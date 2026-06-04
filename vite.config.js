@@ -2,10 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// On GitHub Pages this project site is served from
-// https://zednad.github.io/Skyra-Website/, so production asset URLs must be
-// prefixed with that repo sub-path. Local dev (`serve`) stays at root.
-export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/Skyra-Website/' : '/',
+// Served from the custom apex domain https://skyraenergy.com.au/ via GitHub
+// Pages — i.e. at the site root, so base is '/' (Vite's default). The CNAME
+// file in public/ keeps the custom domain attached across Actions deployments.
+export default defineConfig({
   plugins: [react(), tailwindcss()],
-}))
+})
