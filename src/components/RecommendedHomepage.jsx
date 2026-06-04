@@ -9,17 +9,23 @@
 //  what we install → packages (residential/commercial toggle) → how it works →
 //  quote-form CTA → footer. Headings are upright (no italics) per brand pref.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useId } from 'react'
 import {
   motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
 } from 'framer-motion'
 import {
   ArrowRight, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
-  ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown,
+  ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown, Menu, X,
 } from 'lucide-react'
 
-const HERO_IMG =
-  'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&w=2670&auto=format&fit=crop'
+// Responsive hero. Unsplash resizes via the `w` param, so phones download a
+// ~640–1080px image instead of the full 2670px. `sizes="100vw"` (full-bleed).
+const HERO_BASE =
+  'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?q=80&auto=format&fit=crop'
+const HERO_SRCSET = [640, 828, 1080, 1440, 1920, 2670]
+  .map((w) => `${HERO_BASE}&w=${w} ${w}w`)
+  .join(', ')
+const HERO_IMG = `${HERO_BASE}&w=1280`
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -66,54 +72,112 @@ function AnimatedNumber({ value, formatFn }) {
   return <>{formatFn ? formatFn(shown) : Math.round(shown)}</>
 }
 
-/* Glowing brand orb */
-function SunOrb({ size = 26 }) {
+/* ── Brand logo ───────────────────────────────────────────────────────────────
+   SkyRa = Sky + Ra (the sun). A crafted sun mark: a sky-gradient disc with a
+   warm amber ray-burst and a soft glow. Crisp SVG so it stays sharp from the
+   24px footer mark up to large sizes. useId keeps gradient ids unique per use. */
+function SunMark({ size = 28, className = '' }) {
+  const uid = useId().replace(/:/g, '')
+  const core = `sk-core-${uid}`
   return (
-    <span
-      className="relative inline-block shrink-0 rounded-full"
-      style={{
-        width: size,
-        height: size,
-        background: 'radial-gradient(circle at 34% 30%, #BAE6FD, #0EA5E9 52%, #0369A1)',
-        boxShadow: '0 0 14px 2px rgba(14,165,233,0.55), inset 0 1px 1px rgba(255,255,255,0.45)',
-      }}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 40 40"
+      fill="none"
+      className={className}
+      style={{ filter: 'drop-shadow(0 1px 5px rgba(14,165,233,0.5))' }}
+      aria-hidden="true"
     >
-      <span
-        className="absolute inset-0 rounded-full"
-        style={{ background: 'radial-gradient(circle at 30% 26%, rgba(255,255,255,0.55), transparent 55%)' }}
-      />
-    </span>
+      <defs>
+        <radialGradient id={core} cx="36%" cy="30%" r="72%">
+          <stop offset="0%" stopColor="#EAF7FF" />
+          <stop offset="44%" stopColor="#5CC4F5" />
+          <stop offset="100%" stopColor="#0369A1" />
+        </radialGradient>
+      </defs>
+      <g stroke="#FBBF24" strokeWidth="2.4" strokeLinecap="round">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <line key={i} x1="20" y1="3.6" x2="20" y2="9.6" transform={`rotate(${i * 45} 20 20)`} />
+        ))}
+      </g>
+      <circle cx="20" cy="20" r="8.2" fill={`url(#${core})`} />
+      <circle cx="16.8" cy="16.8" r="2.5" fill="#FFFFFF" opacity="0.55" />
+    </svg>
   )
 }
 
 /* ── Nav ──────────────────────────────────────────────────────────────────── */
+const NAV_LINKS = [
+  ['Products', '#products'],
+  ['Packages', '#packages'],
+  ['Why Solar', '#why-solar'],
+]
+
 function Nav() {
+  const [open, setOpen] = useState(false)
   return (
     <motion.div
-      className="absolute inset-x-0 top-0 z-20 px-6 pt-6 lg:px-12"
+      className="absolute inset-x-0 top-0 z-30 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-12"
       initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-5 py-3 backdrop-blur-md">
-        <div className="flex items-center gap-2.5">
-          <SunOrb size={26} />
-          <span className="text-[19px] font-bold text-white">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
+        <a href="#top" className="flex items-center gap-2.5">
+          <SunMark size={28} />
+          <span className="text-[18px] font-bold text-white sm:text-[19px]">
             SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span>
           </span>
-        </div>
-        <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
-          <a href="#products" className="cursor-pointer transition-colors hover:text-white">Products</a>
-          <a href="#packages" className="cursor-pointer transition-colors hover:text-white">Packages</a>
-          <a href="#why-solar" className="cursor-pointer transition-colors hover:text-white">Why Solar</a>
-        </div>
-        <a href="#quote" className="inline-flex items-center gap-2.5 rounded-full bg-white py-2 pl-5 pr-2 text-[14px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03]">
-          Get Quote
-          <span className="grid h-8 w-8 place-items-center rounded-full bg-[#0F1A2E] text-white">
-            <Phone size={14} />
-          </span>
         </a>
+        <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
+          {NAV_LINKS.map(([label, href]) => (
+            <a key={href} href={href} className="cursor-pointer transition-colors hover:text-white">{label}</a>
+          ))}
+        </div>
+        <div className="flex items-center gap-2">
+          <a href="#quote" className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03] sm:gap-2.5 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]">
+            Get Quote
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-[#0F1A2E] text-white sm:h-8 sm:w-8">
+              <Phone size={13} />
+            </span>
+          </a>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-expanded={open}
+            className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 md:hidden"
+          >
+            {open ? <X size={18} /> : <Menu size={18} />}
+          </button>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {open && (
+          <motion.nav
+            className="mx-auto mt-2 max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-[#0C1A2E]/95 backdrop-blur-xl md:hidden"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.28, ease: EASE }}
+          >
+            <div className="flex flex-col p-2">
+              {NAV_LINKS.map(([label, href]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="rounded-xl px-4 py-3 text-[15px] font-semibold text-white/85 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  {label}
+                </a>
+              ))}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }
@@ -121,9 +185,12 @@ function Nav() {
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 function Hero() {
   return (
-    <section className="relative flex min-h-screen flex-col overflow-hidden bg-[#0C1A2E]">
+    <section id="top" className="relative flex min-h-screen flex-col overflow-hidden bg-[#0C1A2E]">
       <motion.img
         src={HERO_IMG}
+        srcSet={HERO_SRCSET}
+        sizes="100vw"
+        fetchPriority="high"
         alt="Solar panels on an Australian home"
         className="absolute inset-0 h-full w-full object-cover opacity-70"
         initial={{ scale: 1.12 }}
@@ -133,36 +200,33 @@ function Hero() {
       <div className="absolute inset-0 bg-gradient-to-t from-[#0C1A2E] via-[#0C1A2E]/40 to-black/40" />
       <div className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]" />
       <Nav />
-      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-6 pb-20 pt-36 lg:px-12">
+      <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-12 lg:pt-36">
         <div className="max-w-3xl">
           <motion.div variants={staggerParent(0.14, 0.25)} initial="hidden" animate="show">
-            <motion.div
+            <motion.h1
               variants={fadeUp}
-              className="text-[clamp(52px,8.5vw,108px)] font-extrabold leading-[0.9] tracking-tight text-white"
+              className="text-[clamp(44px,8.5vw,108px)] font-extrabold leading-[0.95] tracking-tight text-white"
             >
               Go Solar.
-            </motion.div>
-            <motion.div
-              variants={fadeUp}
-              className="text-[clamp(46px,7.6vw,98px)] font-extrabold leading-[0.92] tracking-tight text-[#7DD3FC]"
-            >
-              Clean energy for your home.
-            </motion.div>
+              <span className="mt-1 block text-[clamp(32px,7.6vw,98px)] leading-[0.95] text-[#7DD3FC]">
+                Clean energy for your home.
+              </span>
+            </motion.h1>
             <motion.p
               variants={fadeUp}
-              className="mt-7 max-w-xl text-[17px] leading-relaxed text-white/85 sm:text-[18px]"
+              className="mt-6 max-w-xl text-[16px] leading-relaxed text-white/85 sm:mt-7 sm:text-[18px]"
             >
               SkyRa supplies and installs solar panels, home batteries and inverters
               for homes and businesses across Australia.
             </motion.p>
-            <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4">
-              <a href="#quote" className="inline-flex items-center gap-3 rounded-full bg-white py-2.5 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04]">
+            <motion.div variants={fadeUp} className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
+              <a href="#quote" className="inline-flex w-full items-center justify-center gap-3 rounded-full bg-white py-3 pl-7 pr-2.5 text-[16px] font-bold text-[#0F1A2E] shadow-xl transition-transform hover:scale-[1.04] sm:w-auto sm:py-2.5">
                 Get Free Quote
-                <span className="grid h-11 w-11 place-items-center rounded-full bg-[#0F1A2E] text-white">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-[#0F1A2E] text-white sm:h-11 sm:w-11">
                   <ArrowRight size={18} />
                 </span>
               </a>
-              <a href="#quote" className="rounded-full border border-white/30 px-7 py-3.5 text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10">
+              <a href="#quote" className="w-full rounded-full border border-white/30 px-7 py-3.5 text-center text-[15px] font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/10 sm:w-auto">
                 Book a free assessment
               </a>
             </motion.div>
@@ -187,7 +251,7 @@ function TrustStrip() {
   return (
     <div className="border-y border-slate-100 bg-slate-50/70">
       <motion.div
-        className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-4 px-6 py-8 lg:px-8"
+        className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-5 py-7 sm:gap-x-10 sm:gap-y-4 sm:px-6 sm:py-8 lg:px-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -211,9 +275,9 @@ function Calculator() {
   const co2 = saving / 1000
   const pct = ((bill - 200) / (1200 - 200)) * 100
   return (
-    <section id="why-solar" className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+    <section id="why-solar" className="bg-white px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <span className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Try it</span>
             <h2 className="mt-3 text-[clamp(32px,4.4vw,52px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
@@ -241,7 +305,7 @@ function Calculator() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-9 text-white shadow-2xl lg:p-10">
+            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-7 text-white shadow-2xl sm:p-9 lg:p-10">
               <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]" />
               <div className="relative">
                 <div className="text-[13px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
@@ -308,7 +372,7 @@ function Install() {
     },
   ]
   return (
-    <section id="products" className="bg-slate-50 px-6 py-24 lg:px-8 lg:py-32">
+    <section id="products" className="bg-slate-50 px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">What we install</p>
@@ -321,7 +385,7 @@ function Install() {
           </p>
         </Reveal>
         <motion.div
-          className="mt-14 grid gap-6 md:grid-cols-3 lg:gap-8"
+          className="mt-10 grid gap-6 sm:mt-14 md:grid-cols-3 lg:gap-8"
           variants={staggerParent()}
           initial="hidden"
           whileInView="show"
@@ -333,7 +397,7 @@ function Install() {
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="group flex flex-col rounded-3xl bg-white p-9 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl"
+              className="group flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow hover:shadow-xl sm:p-9"
             >
               <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg`}>
                 <c.Icon size={28} />
@@ -374,7 +438,7 @@ function Packages() {
     ],
   }
   return (
-    <section id="packages" className="bg-white px-6 py-24 lg:px-8 lg:py-32">
+    <section id="packages" className="bg-white px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Our solutions</p>
@@ -403,7 +467,7 @@ function Packages() {
           </div>
         </Reveal>
       </div>
-      <div className="mx-auto mt-14 max-w-7xl">
+      <div className="mx-auto mt-10 max-w-7xl sm:mt-14">
         <AnimatePresence mode="wait">
           <motion.div
             key={tab}
@@ -420,7 +484,7 @@ function Packages() {
                 whileHover={{ y: -8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                 className={
-                  'relative flex flex-col rounded-[28px] p-9 ' +
+                  'relative flex flex-col rounded-[28px] p-7 sm:p-9 ' +
                   (p.popular
                     ? 'bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl md:-translate-y-4 ring-1 ring-slate-700'
                     : 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200')
@@ -470,7 +534,7 @@ function HowItWorks() {
     { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
   ]
   return (
-    <section id="how-it-works" className="bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+    <section id="how-it-works" className="bg-[#0C1A2E] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <Reveal>
           <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
@@ -479,7 +543,7 @@ function HowItWorks() {
           </h2>
         </Reveal>
         <motion.div
-          className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
+          className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
           variants={staggerParent(0.12)}
           initial="hidden"
           whileInView="show"
@@ -512,10 +576,10 @@ function HowItWorks() {
 /* ── CTA + quote form ─────────────────────────────────────────────────────── */
 function CtaForm() {
   return (
-    <section id="quote" className="relative overflow-hidden bg-[#0C1A2E] px-6 py-24 lg:px-8 lg:py-32">
+    <section id="quote" className="relative overflow-hidden bg-[#0C1A2E] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]" />
       <div className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]" />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         <Reveal>
           <h2 className="text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.02] tracking-tight text-white">
             Ready to cut your
@@ -535,7 +599,7 @@ function CtaForm() {
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-8 backdrop-blur-xl">
+          <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-6 backdrop-blur-xl sm:p-8">
             <div className="text-[18px] font-bold text-white">Get your free quote</div>
             <div className="mt-5 grid grid-cols-2 gap-4">
               {[['Full name', 'col-span-2'], ['Email', 'col-span-2'], ['Postcode', ''], ['Quarterly bill', '']].map(([ph, cls]) => (
@@ -558,13 +622,13 @@ function CtaForm() {
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="bg-[#08111E] px-6 py-14 lg:px-8">
+    <footer className="bg-[#08111E] px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
         <div className="flex items-center gap-2.5">
-          <SunOrb size={24} />
+          <SunMark size={26} />
           <span className="text-[17px] font-bold text-white">SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span></span>
         </div>
-        <div className="flex gap-8 text-[14px] text-slate-400">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] text-slate-400">
           <a href="#products" className="cursor-pointer transition-colors hover:text-white">Products</a>
           <a href="#packages" className="cursor-pointer transition-colors hover:text-white">Packages</a>
           <a href="#how-it-works" className="cursor-pointer transition-colors hover:text-white">About</a>
