@@ -12,9 +12,10 @@
 import { useState, useEffect, useId } from 'react'
 import {
   motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
+  useScroll, useSpring, useTransform,
 } from 'framer-motion'
 import {
-  ArrowRight, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
+  ArrowRight, ArrowUp, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
   ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown, Menu, X,
 } from 'lucide-react'
 
@@ -51,6 +52,60 @@ function Reveal({ children, className = '', delay = 0, y = 30 }) {
     >
       {children}
     </motion.div>
+  )
+}
+
+// Thin gradient bar along the top edge showing reading progress.
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 })
+  return (
+    <motion.div
+      className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-gradient-to-r from-sky-400 via-sky-500 to-amber-400"
+      style={{ scaleX }}
+      aria-hidden="true"
+    />
+  )
+}
+
+// Decorative glow orb that drifts slowly (static under reduced motion).
+function DriftOrb({ className, duration = 14, dx = 18, dy = -22 }) {
+  const reduce = useReducedMotion()
+  if (reduce) return <div className={className} />
+  return (
+    <motion.div
+      className={className}
+      animate={{ x: [0, dx, 0], y: [0, dy, 0] }}
+      transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
+    />
+  )
+}
+
+// Floating back-to-top button, appears after scrolling past the hero.
+function BackToTop() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 700)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.a
+          href="#top"
+          aria-label="Back to top"
+          className="fixed bottom-5 right-5 z-40 grid h-11 w-11 place-items-center rounded-full bg-[#0C1A2E]/90 text-white shadow-lg shadow-black/25 ring-1 ring-white/15 backdrop-blur transition-colors hover:bg-[#13294a]"
+          initial={{ opacity: 0, y: 16, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.9 }}
+          transition={{ duration: 0.25, ease: EASE }}
+        >
+          <ArrowUp size={18} />
+        </motion.a>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -116,14 +171,28 @@ const NAV_LINKS = [
 
 function Nav() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 32)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
     <motion.div
-      className="absolute inset-x-0 top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-6 lg:px-12"
+      className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-6 lg:px-12"
       initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-3 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
+      <div
+        className={
+          'mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-3 py-2.5 backdrop-blur-md transition-all duration-300 sm:px-5 sm:py-3 ' +
+          (scrolled
+            ? 'border-white/10 bg-[#0C1A2E]/90 shadow-lg shadow-black/25'
+            : 'border-white/10 bg-white/10')
+        }
+      >
         <a href="#top" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <SunMark size={28} />
           <span className="whitespace-nowrap text-[18px] font-bold text-white sm:text-[19px]">
@@ -184,6 +253,10 @@ function Nav() {
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 function Hero() {
+  const reduce = useReducedMotion()
+  const { scrollY } = useScroll()
+  // Background drifts down slower than the page scrolls (gentle parallax).
+  const parallaxY = useTransform(scrollY, [0, 700], [0, 110])
   return (
     <section id="top" className="relative flex min-h-screen flex-col overflow-hidden bg-[#0C1A2E]">
       <motion.img
@@ -192,13 +265,19 @@ function Hero() {
         sizes="100vw"
         fetchPriority="high"
         alt="Solar panels on an Australian home"
-        className="absolute inset-0 h-full w-full object-cover opacity-70"
+        className="absolute inset-x-0 top-0 h-[115%] w-full object-cover opacity-70"
+        style={{ y: reduce ? 0 : parallaxY }}
         initial={{ scale: 1.12 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.6, ease: EASE }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#0C1A2E] via-[#0C1A2E]/40 to-black/40" />
-      <div className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]" />
+      <DriftOrb
+        className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]"
+        duration={16}
+        dx={-26}
+        dy={28}
+      />
       <Nav />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-12 lg:pt-36">
         <div className="max-w-3xl">
@@ -208,7 +287,7 @@ function Hero() {
               className="text-[clamp(44px,8.5vw,108px)] font-extrabold leading-[0.95] tracking-tight text-white"
             >
               Go Solar.
-              <span className="mt-1 block text-[clamp(32px,7.6vw,98px)] leading-[0.95] text-[#7DD3FC]">
+              <span className="text-shimmer mt-1 block pb-1 text-[clamp(32px,7.6vw,98px)] leading-[0.95]">
                 Clean energy for your home.
               </span>
             </motion.h1>
@@ -248,19 +327,35 @@ function Hero() {
 
 /* ── Trust strip ──────────────────────────────────────────────────────────── */
 function TrustStrip() {
+  // Brands drawn from the "What we install" card lists below.
+  const brands = ['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius', 'REC', 'LONGi', 'SMA', 'GoodWe', 'Enphase']
+  const fade = {
+    maskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+  }
   return (
     <div className="border-y border-slate-100 bg-slate-50/70">
       <motion.div
-        className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-5 py-7 sm:gap-x-10 sm:gap-y-4 sm:px-6 sm:py-8 lg:px-8"
+        className="mx-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-8 lg:px-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <span className="text-[13px] font-semibold uppercase tracking-wider text-slate-400">Tier-1 brands we install</span>
-        {['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius'].map((b) => (
-          <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
-        ))}
+        <p className="text-center text-[13px] font-semibold uppercase tracking-wider text-slate-400">
+          Tier-1 brands we install
+        </p>
+        <div className="mt-4 overflow-hidden" style={fade}>
+          <div className="flex w-max animate-marquee">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex items-center gap-x-10 pr-10 sm:gap-x-14 sm:pr-14" aria-hidden={copy === 1}>
+                {brands.map((b) => (
+                  <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </motion.div>
     </div>
   )
@@ -306,7 +401,12 @@ function Calculator() {
           </Reveal>
           <Reveal delay={0.1}>
             <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-6 text-white shadow-2xl sm:p-9 lg:p-10">
-              <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]" />
+              <DriftOrb
+                className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]"
+                duration={12}
+                dx={-20}
+                dy={18}
+              />
               <div className="relative">
                 <div className="text-[13px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
                 <div className="mt-2 text-[clamp(48px,8vw,80px)] font-extrabold leading-none">
@@ -329,7 +429,7 @@ function Calculator() {
                     <div className="mt-1 text-[12px] text-slate-400">CO₂ avoided / yr</div>
                   </div>
                 </div>
-                <a href="#quote" className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
+                <a href="#quote" className="btn-sheen mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
                   Get my exact quote <ArrowRight size={18} />
                 </a>
                 <p className="mt-4 text-[12px] leading-relaxed text-slate-400">
@@ -399,7 +499,7 @@ function Install() {
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
               className="group flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow duration-300 hover:shadow-xl sm:p-8"
             >
-              <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg shadow-slate-900/5`}>
+              <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg shadow-slate-900/5 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110`}>
                 <c.Icon size={25} strokeWidth={2} />
               </span>
               <h3 className="mt-5 text-[20px] font-bold tracking-tight text-slate-900">{c.t}</h3>
@@ -513,7 +613,7 @@ function Packages() {
                 <a
                   href="#quote"
                   className={
-                    'mt-9 block w-full rounded-2xl py-4 text-center text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
+                    'btn-sheen mt-9 block w-full rounded-2xl py-4 text-center text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
                     (p.popular
                       ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg shadow-sky-500/25'
                       : 'bg-slate-900 text-white')
@@ -560,13 +660,13 @@ function HowItWorks() {
               variants={fadeUp}
               whileHover={{ y: -8 }}
               transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-colors hover:bg-white/[0.07]"
+              className="group rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-colors hover:bg-white/[0.07]"
             >
               <div className="flex items-center justify-between">
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30">
+                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30 transition-all duration-300 group-hover:scale-110 group-hover:bg-sky-500/25">
                   <s.Icon size={24} />
                 </span>
-                <span className="text-[44px] font-extrabold text-white/10">{s.n}</span>
+                <span className="text-[44px] font-extrabold text-white/10 transition-colors duration-300 group-hover:text-sky-400/25">{s.n}</span>
               </div>
               <h3 className="mt-6 text-[19px] font-bold text-white">{s.t}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s.s}</p>
@@ -582,8 +682,18 @@ function HowItWorks() {
 function CtaForm() {
   return (
     <section id="quote" className="relative overflow-hidden bg-[#0C1A2E] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
-      <div className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]" />
-      <div className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]" />
+      <DriftOrb
+        className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]"
+        duration={15}
+        dx={24}
+        dy={-20}
+      />
+      <DriftOrb
+        className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]"
+        duration={18}
+        dx={-18}
+        dy={16}
+      />
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         <Reveal>
           <h2 className="text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.02] tracking-tight text-white">
@@ -648,6 +758,8 @@ function Footer() {
 export default function RecommendedHomepage() {
   return (
     <div className="min-h-screen bg-white">
+      <ScrollProgress />
+      <BackToTop />
       <main>
         <Hero />
         <TrustStrip />
