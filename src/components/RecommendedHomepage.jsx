@@ -118,16 +118,16 @@ function Nav() {
   const [open, setOpen] = useState(false)
   return (
     <motion.div
-      className="absolute inset-x-0 top-0 z-30 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-12"
+      className="absolute inset-x-0 top-0 z-30 px-3 pt-3 sm:px-6 sm:pt-6 lg:px-12"
       initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
-        <a href="#top" className="flex items-center gap-2.5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-3 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
+        <a href="#top" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <SunMark size={28} />
-          <span className="text-[18px] font-bold text-white sm:text-[19px]">
-            SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span>
+          <span className="whitespace-nowrap text-[18px] font-bold text-white sm:text-[19px]">
+            SkyRa<span className="hidden font-light text-[#7DD3FC] min-[380px]:inline"> Energy</span>
           </span>
         </a>
         <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
@@ -136,7 +136,7 @@ function Nav() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <a href="#quote" className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03] sm:gap-2.5 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]">
+          <a href="#quote" className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03] sm:gap-2.5 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]">
             Get Quote
             <span className="grid h-7 w-7 place-items-center rounded-full bg-[#0F1A2E] text-white sm:h-8 sm:w-8">
               <Phone size={13} />
@@ -147,7 +147,7 @@ function Nav() {
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 md:hidden"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 md:hidden"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -305,7 +305,7 @@ function Calculator() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-7 text-white shadow-2xl sm:p-9 lg:p-10">
+            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-6 text-white shadow-2xl sm:p-9 lg:p-10">
               <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]" />
               <div className="relative">
                 <div className="text-[13px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
@@ -313,17 +313,17 @@ function Calculator() {
                   $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
                   <span className="text-[22px] font-semibold text-slate-400"> /yr</span>
                 </div>
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 sm:p-5">
                     <Gauge size={20} className="text-sky-400" />
-                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                    <div className="mt-3 whitespace-nowrap text-[22px] font-extrabold leading-none sm:text-[26px]">
                       <AnimatedNumber value={payback} formatFn={(v) => v.toFixed(1)} /> yr
                     </div>
                     <div className="mt-1 text-[12px] text-slate-400">Estimated payback</div>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 sm:p-5">
                     <Sun size={20} className="text-amber-400" />
-                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                    <div className="mt-3 whitespace-nowrap text-[22px] font-extrabold leading-none sm:text-[26px]">
                       <AnimatedNumber value={co2} formatFn={(v) => v.toFixed(1)} />t
                     </div>
                     <div className="mt-1 text-[12px] text-slate-400">CO₂ avoided / yr</div>
@@ -455,7 +455,7 @@ function Packages() {
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className="relative rounded-full px-8 py-3 text-[14px] font-bold capitalize transition-colors"
+                className="relative rounded-full px-5 py-3 text-[14px] font-bold capitalize transition-colors sm:px-8"
               >
                 {tab === t && (
                   <motion.span
