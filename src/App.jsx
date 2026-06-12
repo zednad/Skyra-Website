@@ -1,5 +1,5 @@
-import RecommendedHomepage from './components/RecommendedHomepage'
+import ExperienceHome from './experience/ExperienceHome'
 
 export default function App() {
-  return <RecommendedHomepage />
+  return <ExperienceHome />
 }
