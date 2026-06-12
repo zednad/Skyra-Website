@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- SkyRa "Dawn Disc" mark: golden sun over deep sky, split at the horizon -->
+  <defs>
+    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#FDE047"/>
+      <stop offset="0.55" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#075985"/>
+    </linearGradient>
+  </defs>
+  <path d="M4.6 22.4 A19.5 19.5 0 0 1 43.4 22.4 Z" fill="url(#warm)"/>
+  <path d="M4.6 25.6 A19.5 19.5 0 0 0 43.4 25.6 Z" fill="url(#cool)"/>
+</svg>
