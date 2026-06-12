@@ -39,7 +39,7 @@ body {
    Slight negative tracking tightens large display sizes.              */
 h1, h2, h3 {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 /* ── Fraunces utility class (italic serif hero headline) ─────────────── */
@@ -98,16 +98,17 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
-  background: #0284c7;
+  background: #ffffff;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);
-  transition: box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08), 0 4px 12px rgba(2, 132, 199, 0.3);
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 input[type="range"]::-webkit-slider-thumb:hover {
-  box-shadow: 0 2px 16px rgba(2, 132, 199, 0.6);
+  transform: scale(1.08);
+  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08), 0 6px 18px rgba(2, 132, 199, 0.45);
 }
 
 /* ── Hide-scrollbar utility (used by the rebate row in Features) ────────── */
