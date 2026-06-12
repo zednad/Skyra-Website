@@ -9,7 +9,7 @@
 //  what we install → packages (residential/commercial toggle) → how it works →
 //  quote-form CTA → footer. Headings are upright (no italics) per brand pref.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect, useId } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import {
   motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
   useScroll, useSpring, useTransform,
@@ -721,14 +721,90 @@ function Packages() {
   )
 }
 
-/* ── How it works ─────────────────────────────────────────────────────────── */
+/* ── How it works ─────────────────────────────────────────────────────────────
+   Scroll-driven timeline. Each step "pops up" individually as it scrolls into
+   view (spring scale + lift), tied together by a connector line that fills as
+   you move through the section — a glowing node lights up at each step. The
+   connector reads vertically on mobile/tablet (single column) and horizontally
+   on desktop (four across). Honours prefers-reduced-motion: with it on, steps
+   render in place and the line/nodes show fully lit (no scroll-linked motion). */
+const HOW_STEPS = [
+  { n: '01', t: 'Free survey', s: 'We assess your roof and energy usage.', Icon: ClipboardCheck },
+  { n: '02', t: 'System design', s: 'A tailored panel and battery layout for your home.', Icon: PencilRuler },
+  { n: '03', t: 'Pro install', s: 'Professional installation by our team.', Icon: Wrench },
+  { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
+]
+
+// A glowing timeline node that lights up as the scroll progress passes it.
+function StepNode({ progress, index, total, reduce, icon }) {
+  // Light up just before the matching card centres in the viewport.
+  const lit = (index + 0.4) / total
+  const glow = useTransform(progress, [lit - 0.12, lit], [0, 1])
+  const litStyle = reduce ? { opacity: 1 } : { opacity: glow }
+  return (
+    <span className="relative grid h-10 w-10 place-items-center">
+      {/* base ring */}
+      <span className="absolute inset-0 rounded-full bg-[#060B16] ring-1 ring-white/15" />
+      {/* lit fill + glow */}
+      <motion.span
+        className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 ring-1 ring-sky-300/60"
+        style={{ ...litStyle, boxShadow: '0 0 18px 2px rgba(56,189,248,0.55)' }}
+      />
+      <span className="relative z-10 text-white">{icon}</span>
+    </span>
+  )
+}
+
+// One step. Pops up with a spring the first time it enters the viewport.
+function StepCard({ step, index, total, progress, reduce }) {
+  const { n, t, s, Icon } = step
+  return (
+    <motion.div
+      className="relative"
+      initial={reduce ? false : { opacity: 0, y: 56, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '0px 0px -18% 0px' }}
+      transition={{ type: 'spring', stiffness: 130, damping: 17, mass: 0.7, delay: index * 0.04 }}
+    >
+      {/* Node sitting on the connector line — left of the card on mobile/tablet,
+          centred above it on desktop. */}
+      <div className="absolute left-[3px] top-7 lg:left-1/2 lg:top-auto lg:-translate-x-1/2 lg:-top-[68px] z-10">
+        <StepNode
+          progress={progress}
+          index={index}
+          total={total}
+          reduce={reduce}
+          icon={<Icon size={18} />}
+        />
+      </div>
+
+      <motion.div
+        whileHover={{ y: -8 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+        className="group h-full rounded-3xl border border-white/10 bg-white/[0.04] p-7 pl-20 transition-colors hover:bg-white/[0.07] lg:pl-7 lg:pt-7"
+      >
+        <span className="text-[44px] font-extrabold leading-none text-white/10 transition-colors duration-300 group-hover:text-sky-400/25">{n}</span>
+        <h3 className="mt-4 text-[19px] font-bold text-white">{t}</h3>
+        <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s}</p>
+      </motion.div>
+    </motion.div>
+  )
+}
+
 function HowItWorks() {
-  const steps = [
-    { n: '01', t: 'Free survey', s: 'We assess your roof and energy usage.', Icon: ClipboardCheck },
-    { n: '02', t: 'System design', s: 'A tailored panel and battery layout for your home.', Icon: PencilRuler },
-    { n: '03', t: 'Pro install', s: 'Professional installation by our team.', Icon: Wrench },
-    { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
-  ]
+  const reduce = useReducedMotion()
+  const ref = useRef(null)
+  // Track scroll through the timeline: line starts filling as the block enters
+  // the lower viewport and completes a little before it leaves the top.
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start 80%', 'end 55%'],
+  })
+  // Always a real MotionValue (transforms must run unconditionally); whether we
+  // *apply* the scroll-linked styles is gated on `reduce` at each use site.
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 })
+  const total = HOW_STEPS.length
+
   return (
     <section id="how-it-works" className="bg-[#060B16] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
@@ -738,32 +814,36 @@ function HowItWorks() {
             From first call to switch-on in four steps.
           </h2>
         </Reveal>
-        <motion.div
-          className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
-          variants={staggerParent(0.12)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-80px' }}
-        >
-          {steps.map((s) => (
+
+        <div ref={ref} className="relative mt-14 sm:mt-16 lg:mt-28">
+          {/* Connector track — vertical on mobile/tablet (single column). */}
+          <div className="lg:hidden absolute left-[22px] top-8 bottom-8 w-[2px] rounded-full bg-white/10">
             <motion.div
-              key={s.n}
-              variants={fadeUp}
-              whileHover={{ y: -8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="group rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-colors hover:bg-white/[0.07]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30 transition-all duration-300 group-hover:scale-110 group-hover:bg-sky-500/25">
-                  <s.Icon size={24} />
-                </span>
-                <span className="text-[44px] font-extrabold text-white/10 transition-colors duration-300 group-hover:text-sky-400/25">{s.n}</span>
-              </div>
-              <h3 className="mt-6 text-[19px] font-bold text-white">{s.t}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s.s}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+              className="h-full w-full origin-top rounded-full bg-gradient-to-b from-sky-400 to-blue-600"
+              style={reduce ? { scaleY: 1 } : { scaleY: progress }}
+            />
+          </div>
+          {/* Connector track — horizontal on desktop, spanning node centres. */}
+          <div className="hidden lg:block absolute left-[12.5%] right-[12.5%] -top-[48px] h-[2px] rounded-full bg-white/10">
+            <motion.div
+              className="h-full w-full origin-left rounded-full bg-gradient-to-r from-sky-400 to-blue-600"
+              style={reduce ? { scaleX: 1 } : { scaleX: progress }}
+            />
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-4 lg:gap-6">
+            {HOW_STEPS.map((step, i) => (
+              <StepCard
+                key={step.n}
+                step={step}
+                index={i}
+                total={total}
+                progress={progress}
+                reduce={reduce}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )
