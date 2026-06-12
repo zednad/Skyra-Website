@@ -9,12 +9,13 @@
 //  what we install → packages (residential/commercial toggle) → how it works →
 //  quote-form CTA → footer. Headings are upright (no italics) per brand pref.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect, useId } from 'react'
+import { useState, useEffect, useId, useRef } from 'react'
 import {
   motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
+  useScroll, useSpring, useTransform,
 } from 'framer-motion'
 import {
-  ArrowRight, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
+  ArrowRight, ArrowUp, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
   ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown, Menu, X,
 } from 'lucide-react'
 
@@ -54,6 +55,60 @@ function Reveal({ children, className = '', delay = 0, y = 30 }) {
   )
 }
 
+// Thin gradient bar along the top edge showing reading progress.
+function ScrollProgress() {
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, { stiffness: 140, damping: 30, mass: 0.4 })
+  return (
+    <motion.div
+      className="fixed inset-x-0 top-0 z-50 h-[3px] origin-left bg-gradient-to-r from-sky-400 via-sky-500 to-amber-400"
+      style={{ scaleX }}
+      aria-hidden="true"
+    />
+  )
+}
+
+// Decorative glow orb that drifts slowly (static under reduced motion).
+function DriftOrb({ className, duration = 14, dx = 18, dy = -22 }) {
+  const reduce = useReducedMotion()
+  if (reduce) return <div className={className} />
+  return (
+    <motion.div
+      className={className}
+      animate={{ x: [0, dx, 0], y: [0, dy, 0] }}
+      transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
+    />
+  )
+}
+
+// Floating back-to-top button, appears after scrolling past the hero.
+function BackToTop() {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 700)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.a
+          href="#top"
+          aria-label="Back to top"
+          className="fixed bottom-5 right-5 z-40 grid h-11 w-11 place-items-center rounded-full bg-[#0C1A2E]/90 text-white shadow-lg shadow-black/25 ring-1 ring-white/15 backdrop-blur transition-colors hover:bg-[#13294a]"
+          initial={{ opacity: 0, y: 16, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 16, scale: 0.9 }}
+          transition={{ duration: 0.25, ease: EASE }}
+        >
+          <ArrowUp size={18} />
+        </motion.a>
+      )}
+    </AnimatePresence>
+  )
+}
+
 // Count-up number (respects reduced motion). With reduced motion we render the
 // value directly (no state sync in the effect); otherwise we animate and update
 // via framer's async onUpdate callback.
@@ -73,36 +128,37 @@ function AnimatedNumber({ value, formatFn }) {
 }
 
 /* ── Brand logo ───────────────────────────────────────────────────────────────
-   SkyRa = Sky + Ra (the sun). A crafted sun mark: a sky-gradient disc with a
-   warm amber ray-burst and a soft glow. Crisp SVG so it stays sharp from the
-   24px footer mark up to large sizes. useId keeps gradient ids unique per use. */
+   "Dawn Disc" — SkyRa = Sky + Ra (the sun). Sun and sky meeting at the
+   horizon, reduced to a single coin: a golden upper half over a deep sky
+   lower half, split by a hairline of light. Crisp from 16px favicon to
+   large lockups. useId keeps gradient ids unique per use. */
 function SunMark({ size = 28, className = '' }) {
   const uid = useId().replace(/:/g, '')
-  const core = `sk-core-${uid}`
+  const warm = `sk-warm-${uid}`
+  const cool = `sk-cool-${uid}`
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 40 40"
+      viewBox="0 0 48 48"
       fill="none"
       className={className}
-      style={{ filter: 'drop-shadow(0 1px 5px rgba(14,165,233,0.5))' }}
+      style={{ filter: 'drop-shadow(0 1px 5px rgba(14,165,233,0.45))' }}
       aria-hidden="true"
     >
       <defs>
-        <radialGradient id={core} cx="36%" cy="30%" r="72%">
-          <stop offset="0%" stopColor="#EAF7FF" />
-          <stop offset="44%" stopColor="#5CC4F5" />
-          <stop offset="100%" stopColor="#0369A1" />
-        </radialGradient>
+        <linearGradient id={warm} x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#FDE047" />
+          <stop offset="0.55" stopColor="#FBBF24" />
+          <stop offset="1" stopColor="#F59E0B" />
+        </linearGradient>
+        <linearGradient id={cool} x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#38BDF8" />
+          <stop offset="1" stopColor="#075985" />
+        </linearGradient>
       </defs>
-      <g stroke="#FBBF24" strokeWidth="2.4" strokeLinecap="round">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <line key={i} x1="20" y1="3.6" x2="20" y2="9.6" transform={`rotate(${i * 45} 20 20)`} />
-        ))}
-      </g>
-      <circle cx="20" cy="20" r="8.2" fill={`url(#${core})`} />
-      <circle cx="16.8" cy="16.8" r="2.5" fill="#FFFFFF" opacity="0.55" />
+      <path d="M4.6 22.4 A19.5 19.5 0 0 1 43.4 22.4 Z" fill={`url(#${warm})`} />
+      <path d="M4.6 25.6 A19.5 19.5 0 0 0 43.4 25.6 Z" fill={`url(#${cool})`} />
     </svg>
   )
 }
@@ -116,18 +172,32 @@ const NAV_LINKS = [
 
 function Nav() {
   const [open, setOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 32)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
   return (
     <motion.div
-      className="absolute inset-x-0 top-0 z-30 px-4 pt-4 sm:px-6 sm:pt-6 lg:px-12"
+      className="fixed inset-x-0 top-0 z-40 px-3 pt-3 sm:px-6 sm:pt-6 lg:px-12"
       initial={{ opacity: 0, y: -24 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8, ease: EASE }}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between rounded-2xl border border-white/10 bg-white/10 px-4 py-2.5 backdrop-blur-md sm:px-5 sm:py-3">
-        <a href="#top" className="flex items-center gap-2.5">
+      <div
+        className={
+          'mx-auto flex max-w-7xl items-center justify-between rounded-2xl border px-3 py-2.5 backdrop-blur-md transition-all duration-300 sm:px-5 sm:py-3 ' +
+          (scrolled
+            ? 'border-white/10 bg-[#060B16]/90 shadow-lg shadow-black/30'
+            : 'border-white/10 bg-white/10')
+        }
+      >
+        <a href="#top" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <SunMark size={28} />
-          <span className="text-[18px] font-bold text-white sm:text-[19px]">
-            SkyRa<span className="font-light text-[#7DD3FC]"> Energy</span>
+          <span className="whitespace-nowrap text-[18px] font-bold text-white sm:text-[19px]">
+            SkyRa<span className="hidden font-light text-[#7DD3FC] min-[380px]:inline"> Energy</span>
           </span>
         </a>
         <div className="hidden items-center gap-8 text-[14px] font-medium text-white/85 md:flex">
@@ -136,7 +206,7 @@ function Nav() {
           ))}
         </div>
         <div className="flex items-center gap-2">
-          <a href="#quote" className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03] sm:gap-2.5 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]">
+          <a href="#quote" className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-white py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-[#0F1A2E] transition-transform hover:scale-[1.03] sm:gap-2.5 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]">
             Get Quote
             <span className="grid h-7 w-7 place-items-center rounded-full bg-[#0F1A2E] text-white sm:h-8 sm:w-8">
               <Phone size={13} />
@@ -147,7 +217,7 @@ function Nav() {
             onClick={() => setOpen((o) => !o)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
-            className="grid h-10 w-10 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 md:hidden"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/15 bg-white/10 text-white transition-colors hover:bg-white/20 md:hidden"
           >
             {open ? <X size={18} /> : <Menu size={18} />}
           </button>
@@ -157,7 +227,7 @@ function Nav() {
       <AnimatePresence>
         {open && (
           <motion.nav
-            className="mx-auto mt-2 max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-[#0C1A2E]/95 backdrop-blur-xl md:hidden"
+            className="mx-auto mt-2 max-w-7xl overflow-hidden rounded-2xl border border-white/10 bg-[#060B16]/95 backdrop-blur-xl md:hidden"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
@@ -184,31 +254,50 @@ function Nav() {
 
 /* ── Hero ─────────────────────────────────────────────────────────────────── */
 function Hero() {
+  const reduce = useReducedMotion()
+  const { scrollY } = useScroll()
+  // Background drifts down slower than the page scrolls (gentle parallax).
+  const parallaxY = useTransform(scrollY, [0, 700], [0, 110])
   return (
-    <section id="top" className="relative flex min-h-screen flex-col overflow-hidden bg-[#0C1A2E]">
+    <section id="top" className="relative flex min-h-screen flex-col overflow-hidden bg-[#060B16]">
       <motion.img
         src={HERO_IMG}
         srcSet={HERO_SRCSET}
         sizes="100vw"
         fetchPriority="high"
         alt="Solar panels on an Australian home"
-        className="absolute inset-0 h-full w-full object-cover opacity-70"
+        className="absolute inset-x-0 top-0 h-[115%] w-full object-cover opacity-70"
+        style={{ y: reduce ? 0 : parallaxY }}
         initial={{ scale: 1.12 }}
         animate={{ scale: 1 }}
         transition={{ duration: 1.6, ease: EASE }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0C1A2E] via-[#0C1A2E]/40 to-black/40" />
-      <div className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-[#060B16] via-[#060B16]/45 to-black/45" />
+      <DriftOrb
+        className="pointer-events-none absolute -right-24 top-16 h-96 w-[36rem] rounded-full bg-[#0EA5E9]/30 blur-[110px]"
+        duration={16}
+        dx={-26}
+        dy={28}
+      />
       <Nav />
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-12 lg:pt-36">
         <div className="max-w-3xl">
           <motion.div variants={staggerParent(0.14, 0.25)} initial="hidden" animate="show">
+            <motion.div
+              variants={fadeUp}
+              className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/[0.07] px-4 py-1.5 backdrop-blur-md"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+              <span className="text-[11px] font-semibold uppercase tracking-[0.24em] text-white/80 sm:text-[12px]">
+                Solar · Batteries · Inverters
+              </span>
+            </motion.div>
             <motion.h1
               variants={fadeUp}
               className="text-[clamp(44px,8.5vw,108px)] font-extrabold leading-[0.95] tracking-tight text-white"
             >
               Go Solar.
-              <span className="mt-1 block text-[clamp(32px,7.6vw,98px)] leading-[0.95] text-[#7DD3FC]">
+              <span className="text-shimmer mt-1 block pb-1 text-[clamp(32px,7.6vw,98px)] leading-[0.95]">
                 Clean energy for your home.
               </span>
             </motion.h1>
@@ -248,19 +337,35 @@ function Hero() {
 
 /* ── Trust strip ──────────────────────────────────────────────────────────── */
 function TrustStrip() {
+  // Brands drawn from the "What we install" card lists below.
+  const brands = ['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius', 'REC', 'LONGi', 'SMA', 'GoodWe', 'Enphase']
+  const fade = {
+    maskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+    WebkitMaskImage: 'linear-gradient(to right, transparent, black 12%, black 88%, transparent)',
+  }
   return (
     <div className="border-y border-slate-100 bg-slate-50/70">
       <motion.div
-        className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-6 gap-y-3 px-5 py-7 sm:gap-x-10 sm:gap-y-4 sm:px-6 sm:py-8 lg:px-8"
+        className="mx-auto max-w-7xl px-5 py-7 sm:px-6 sm:py-8 lg:px-8"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <span className="text-[13px] font-semibold uppercase tracking-wider text-slate-400">Tier-1 brands we install</span>
-        {['Jinko', 'Tesla', 'Trina', 'Sungrow', 'Fronius'].map((b) => (
-          <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
-        ))}
+        <p className="text-center text-[13px] font-semibold uppercase tracking-wider text-slate-400">
+          Tier-1 brands we install
+        </p>
+        <div className="mt-4 overflow-hidden" style={fade}>
+          <div className="flex w-max animate-marquee">
+            {[0, 1].map((copy) => (
+              <div key={copy} className="flex items-center gap-x-10 pr-10 sm:gap-x-14 sm:pr-14" aria-hidden={copy === 1}>
+                {brands.map((b) => (
+                  <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-400">{b}</span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </motion.div>
     </div>
   )
@@ -279,7 +384,7 @@ function Calculator() {
       <div className="mx-auto max-w-7xl">
         <div className="grid items-center gap-8 sm:gap-12 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <span className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Try it</span>
+            <span className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-600">Try it</span>
             <h2 className="mt-3 text-[clamp(32px,4.4vw,52px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
               See your saving in
               <span className="text-sky-600"> seconds.</span>
@@ -305,31 +410,36 @@ function Calculator() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="relative overflow-hidden rounded-[28px] bg-[#0C1A2E] p-7 text-white shadow-2xl sm:p-9 lg:p-10">
-              <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]" />
+            <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-b from-[#0D1828] to-[#060B16] p-6 text-white shadow-2xl shadow-slate-900/20 ring-1 ring-white/10 sm:p-9 lg:p-10">
+              <DriftOrb
+                className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-[#0EA5E9]/30 blur-[70px]"
+                duration={12}
+                dx={-20}
+                dy={18}
+              />
               <div className="relative">
-                <div className="text-[13px] font-semibold uppercase tracking-wider text-sky-300/80">Estimated saving</div>
-                <div className="mt-2 text-[clamp(48px,8vw,80px)] font-extrabold leading-none">
+                <div className="text-[12px] font-semibold uppercase tracking-[0.24em] text-sky-300/80">Estimated saving</div>
+                <div className="mt-2 bg-gradient-to-br from-white via-white to-sky-300 bg-clip-text text-[clamp(48px,8vw,80px)] font-extrabold leading-none text-transparent">
                   $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
                   <span className="text-[22px] font-semibold text-slate-400"> /yr</span>
                 </div>
-                <div className="mt-8 grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 sm:p-5">
                     <Gauge size={20} className="text-sky-400" />
-                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                    <div className="mt-3 whitespace-nowrap text-[22px] font-extrabold leading-none sm:text-[26px]">
                       <AnimatedNumber value={payback} formatFn={(v) => v.toFixed(1)} /> yr
                     </div>
                     <div className="mt-1 text-[12px] text-slate-400">Estimated payback</div>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-5">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-4 sm:p-5">
                     <Sun size={20} className="text-amber-400" />
-                    <div className="mt-3 text-[26px] font-extrabold leading-none">
+                    <div className="mt-3 whitespace-nowrap text-[22px] font-extrabold leading-none sm:text-[26px]">
                       <AnimatedNumber value={co2} formatFn={(v) => v.toFixed(1)} />t
                     </div>
                     <div className="mt-1 text-[12px] text-slate-400">CO₂ avoided / yr</div>
                   </div>
                 </div>
-                <a href="#quote" className="mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
+                <a href="#quote" className="btn-sheen mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-400 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
                   Get my exact quote <ArrowRight size={18} />
                 </a>
                 <p className="mt-4 text-[12px] leading-relaxed text-slate-400">
@@ -346,82 +456,156 @@ function Calculator() {
   )
 }
 
-/* ── What we install — panels, batteries & inverters ──────────────────────── */
-function Install() {
-  const cards = [
-    {
-      Icon: Sun,
-      t: 'Solar Panels',
-      s: 'Premium Tier-1 mono panels from the brands homeowners trust.',
-      c: 'from-sky-400 to-blue-600',
-      brands: ['Jinko', 'Trina', 'REC', 'LONGi', 'Canadian Solar', 'Q CELLS'],
-    },
-    {
-      Icon: BatteryCharging,
-      t: 'Home Batteries',
-      s: 'Store the day, power the night with leading hybrid batteries.',
-      c: 'from-amber-400 to-orange-600',
-      brands: ['Tesla', 'Sungrow', 'Sigenergy', 'BYD', 'LG', 'Fox ESS'],
-    },
-    {
-      Icon: Zap,
-      t: 'Smart Inverters',
-      s: 'Reliable string and hybrid inverters.',
-      c: 'from-cyan-500 to-sky-700',
-      brands: ['Fronius', 'Sungrow', 'SMA', 'GoodWe', 'Enphase', 'SolarEdge'],
-    },
-  ]
+/* ── What we install — cinematic bento showcase ───────────────────────────── */
+const tileImg = (id, w) =>
+  `https://images.unsplash.com/photo-${id}?q=80&auto=format&fit=crop&w=${w}`
+const TILE_ROOF = '1613665813446-82a78c468a1d' // rooftop array at golden hour
+const TILE_FIELD = '1509391366360-2e959784a276' // panel rows under an open sky
+
+function BentoTile({ className = '', delay = 0, children }) {
   return (
-    <section id="products" className="bg-slate-50 px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
+    <motion.div
+      initial={{ opacity: 0, y: 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{ duration: 0.8, delay, ease: EASE }}
+      className={'group relative overflow-hidden rounded-[2rem] ring-1 ring-white/10 sm:rounded-[2.5rem] ' + className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+// Quiet dot-separated brand list — premium restraint instead of pill chips.
+function BrandsLine({ brands, className = '' }) {
+  return (
+    <p className={'text-[13px] font-medium leading-relaxed tracking-wide ' + className}>
+      {brands.join('  ·  ')}
+    </p>
+  )
+}
+
+function Install() {
+  return (
+    <section id="products" className="bg-[#060B16] px-5 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-36">
       <div className="mx-auto max-w-7xl">
-        <Reveal>
-          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">What we install</p>
-          <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
-            One supplier for the whole system.
+        <Reveal className="text-center">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-400">What we install</p>
+          <h2 className="mx-auto mt-4 max-w-3xl text-[clamp(34px,5vw,64px)] font-extrabold leading-[1.02] tracking-tight text-white">
+            One supplier for the
+            <span className="block bg-gradient-to-r from-sky-300 via-sky-400 to-blue-500 bg-clip-text text-transparent">
+              whole system.
+            </span>
           </h2>
-          <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-slate-500">
-            Panels, batteries and inverters from the industry's most trusted brands —
-            all supplied and installed by SkyRa.
+          <p className="mx-auto mt-5 max-w-xl text-[16px] leading-relaxed text-slate-400 sm:text-[17px]">
+            Panels, batteries and inverters from the industry's most trusted
+            brands — supplied and installed as one seamless system.
           </p>
         </Reveal>
-        <motion.div
-          className="mt-10 grid gap-6 sm:mt-14 md:grid-cols-3 lg:gap-8"
-          variants={staggerParent()}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-80px' }}
-        >
-          {cards.map((c) => (
-            <motion.div
-              key={c.t}
-              variants={fadeUp}
-              whileHover={{ y: -6 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="group flex flex-col rounded-3xl bg-white p-7 shadow-sm ring-1 ring-slate-200/70 transition-shadow duration-300 hover:shadow-xl sm:p-8"
-            >
-              <span className={`grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br ${c.c} text-white shadow-lg shadow-slate-900/5`}>
-                <c.Icon size={25} strokeWidth={2} />
+
+        <div className="mt-12 grid gap-4 sm:mt-16 sm:gap-5 lg:grid-cols-6">
+          {/* Solar panels — feature photo tile */}
+          <BentoTile className="lg:col-span-4">
+            <img
+              src={tileImg(TILE_ROOF, 1200)}
+              srcSet={`${tileImg(TILE_ROOF, 800)} 800w, ${tileImg(TILE_ROOF, 1200)} 1200w, ${tileImg(TILE_ROOF, 1600)} 1600w`}
+              sizes="(min-width: 1024px) 62vw, 100vw"
+              alt="Rooftop solar array at golden hour"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#04070D] via-[#04070D]/30 to-transparent" />
+            <div className="relative flex min-h-[380px] flex-col justify-end p-7 sm:min-h-[480px] sm:p-10">
+              <h3 className="text-[26px] font-bold tracking-tight text-white sm:text-[32px]">Solar Panels</h3>
+              <p className="mt-2 max-w-md text-[15px] leading-relaxed text-slate-300 sm:text-[16px]">
+                Premium Tier-1 mono panels from the brands homeowners trust.
+              </p>
+              <BrandsLine
+                brands={['Jinko', 'Trina', 'REC', 'LONGi', 'Canadian Solar', 'Q CELLS']}
+                className="mt-5 text-white/55"
+              />
+            </div>
+          </BentoTile>
+
+          {/* Home batteries — glass tile */}
+          <BentoTile className="bg-gradient-to-b from-[#101A2C] to-[#070D19] lg:col-span-2" delay={0.08}>
+            <DriftOrb
+              className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-amber-400/15 blur-[70px]"
+              duration={13}
+              dx={-14}
+              dy={16}
+            />
+            <div className="relative flex h-full min-h-[340px] flex-col p-7 sm:min-h-[480px] sm:p-9">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10 backdrop-blur transition-transform duration-300 group-hover:scale-110">
+                <BatteryCharging size={26} className="text-amber-400" />
               </span>
-              <h3 className="mt-5 text-[20px] font-bold tracking-tight text-slate-900">{c.t}</h3>
-              <p className="mt-2 flex-1 text-[15px] leading-relaxed text-slate-500">{c.s}</p>
-              <div className="mt-6 border-t border-slate-100 pt-5">
-                <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">
-                  Brands we install
+              <div className="mt-auto pt-10">
+                <h3 className="text-[24px] font-bold tracking-tight text-white sm:text-[28px]">Home Batteries</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-slate-400">
+                  Store the day, power the night with leading hybrid batteries.
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {c.brands.map((b) => (
-                    <span
-                      key={b}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[12.5px] font-semibold text-slate-600 transition-colors group-hover:border-slate-300"
-                    >
-                      {b}
-                    </span>
-                  ))}
-                </div>
+                <BrandsLine
+                  brands={['Tesla', 'Sungrow', 'Sigenergy', 'BYD', 'LG', 'Fox ESS']}
+                  className="mt-5 text-white/45"
+                />
               </div>
-            </motion.div>
-          ))}
-        </motion.div>
+            </div>
+          </BentoTile>
+
+          {/* Smart inverters — glass tile */}
+          <BentoTile className="bg-gradient-to-b from-[#0C1730] to-[#070D19] lg:col-span-2" delay={0.05}>
+            <DriftOrb
+              className="pointer-events-none absolute -left-16 -top-20 h-56 w-56 rounded-full bg-sky-400/15 blur-[70px]"
+              duration={15}
+              dx={16}
+              dy={14}
+            />
+            <div className="relative flex h-full min-h-[340px] flex-col p-7 sm:p-9">
+              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.06] ring-1 ring-white/10 backdrop-blur transition-transform duration-300 group-hover:scale-110">
+                <Zap size={26} className="text-sky-400" />
+              </span>
+              <div className="mt-auto pt-10">
+                <h3 className="text-[24px] font-bold tracking-tight text-white sm:text-[28px]">Smart Inverters</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-slate-400">
+                  Reliable string and hybrid inverters at the heart of your system.
+                </p>
+                <BrandsLine
+                  brands={['Fronius', 'Sungrow', 'SMA', 'GoodWe', 'Enphase', 'SolarEdge']}
+                  className="mt-5 text-white/45"
+                />
+              </div>
+            </div>
+          </BentoTile>
+
+          {/* Matched system — wide photo tile */}
+          <BentoTile className="lg:col-span-4" delay={0.12}>
+            <img
+              src={tileImg(TILE_FIELD, 1200)}
+              srcSet={`${tileImg(TILE_FIELD, 800)} 800w, ${tileImg(TILE_FIELD, 1200)} 1200w, ${tileImg(TILE_FIELD, 1600)} 1600w`}
+              sizes="(min-width: 1024px) 62vw, 100vw"
+              alt="Rows of solar panels under an open sky"
+              loading="lazy"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#04070D]/90 via-[#04070D]/55 to-[#04070D]/15" />
+            <div className="relative flex min-h-[340px] flex-col justify-center p-7 sm:p-10">
+              <h3 className="max-w-sm text-[24px] font-bold tracking-tight text-white sm:text-[28px]">
+                Matched end to end.
+              </h3>
+              <p className="mt-2 max-w-sm text-[15px] leading-relaxed text-slate-300">
+                Every panel, battery and inverter is sized and paired by our team,
+                so your system works as one.
+              </p>
+              <a
+                href="#quote"
+                className="group/link mt-6 inline-flex items-center gap-2 text-[15px] font-semibold text-sky-300 transition-colors hover:text-sky-200"
+              >
+                Get a free quote
+                <ArrowRight size={16} className="transition-transform duration-300 group-hover/link:translate-x-1" />
+              </a>
+            </div>
+          </BentoTile>
+        </div>
       </div>
     </section>
   )
@@ -446,16 +630,16 @@ function Packages() {
     <section id="packages" className="bg-white px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl text-center">
         <Reveal>
-          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-600">Our solutions</p>
-          <h2 className="mt-3 text-[clamp(32px,4.6vw,56px)] font-extrabold tracking-tight text-slate-900">
-            Premium solar <span className="text-sky-600">packages</span>
+          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-600">Our solutions</p>
+          <h2 className="mt-4 text-[clamp(32px,4.6vw,56px)] font-extrabold tracking-tight text-slate-900">
+            Premium solar <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">packages</span>
           </h2>
           <div className="mt-8 inline-flex rounded-full bg-slate-100 p-2">
             {['residential', 'commercial'].map((t) => (
               <button
                 key={t}
                 onClick={() => setTab(t)}
-                className="relative rounded-full px-8 py-3 text-[14px] font-bold capitalize transition-colors"
+                className="relative rounded-full px-5 py-3 text-[14px] font-bold capitalize transition-colors sm:px-8"
               >
                 {tab === t && (
                   <motion.span
@@ -489,15 +673,22 @@ function Packages() {
                 whileHover={{ y: -8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 22 }}
                 className={
-                  'relative flex flex-col rounded-[28px] p-7 sm:p-9 ' +
+                  'relative flex flex-col rounded-[32px] p-7 sm:p-9 ' +
                   (p.popular
-                    ? 'bg-gradient-to-b from-slate-900 to-slate-800 text-white shadow-2xl md:-translate-y-4 ring-1 ring-slate-700'
-                    : 'bg-white text-slate-900 shadow-sm ring-1 ring-slate-200')
+                    ? 'bg-gradient-to-b from-[#0D1828] to-[#060B16] text-white shadow-2xl shadow-slate-900/25 md:-translate-y-4 ring-1 ring-white/10'
+                    : 'bg-white text-slate-900 shadow-[0_4px_30px_rgba(2,8,23,0.05)] ring-1 ring-slate-200/80')
                 }
               >
-                <span className={'text-[12px] font-bold uppercase tracking-wide ' + (p.popular ? 'text-sky-400' : 'text-sky-600')}>{p.tag}</span>
+                <span className={'text-[12px] font-semibold uppercase tracking-[0.18em] ' + (p.popular ? 'text-sky-400' : 'text-sky-600')}>{p.tag}</span>
                 <div className="mt-3 flex items-baseline gap-1.5">
-                  <span className="text-[clamp(48px,6vw,64px)] font-extrabold leading-none tracking-tight">{p.size}</span>
+                  <span
+                    className={
+                      'text-[clamp(48px,6vw,64px)] font-extrabold leading-none tracking-tight ' +
+                      (p.popular ? 'bg-gradient-to-br from-white via-white to-sky-300 bg-clip-text text-transparent' : '')
+                    }
+                  >
+                    {p.size}
+                  </span>
                   <span className="text-[22px] font-bold text-slate-400">kW</span>
                 </div>
                 <div className={'mt-7 space-y-3.5 text-[15px] ' + (p.popular ? 'text-slate-300' : 'text-slate-600')}>
@@ -513,7 +704,7 @@ function Packages() {
                 <a
                   href="#quote"
                   className={
-                    'mt-9 block w-full rounded-2xl py-4 text-center text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
+                    'btn-sheen mt-9 block w-full rounded-2xl py-4 text-center text-[15px] font-bold transition-transform hover:scale-[1.02] ' +
                     (p.popular
                       ? 'bg-gradient-to-r from-sky-400 to-blue-600 text-white shadow-lg shadow-sky-500/25'
                       : 'bg-slate-900 text-white')
@@ -530,49 +721,129 @@ function Packages() {
   )
 }
 
-/* ── How it works ─────────────────────────────────────────────────────────── */
-function HowItWorks() {
-  const steps = [
-    { n: '01', t: 'Free survey', s: 'We assess your roof and energy usage.', Icon: ClipboardCheck },
-    { n: '02', t: 'System design', s: 'A tailored panel and battery layout for your home.', Icon: PencilRuler },
-    { n: '03', t: 'Pro install', s: 'Professional installation by our team.', Icon: Wrench },
-    { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
-  ]
+/* ── How it works ─────────────────────────────────────────────────────────────
+   Scroll-driven timeline. Each step "pops up" individually as it scrolls into
+   view (spring scale + lift), tied together by a connector line that fills as
+   you move through the section — a glowing node lights up at each step. The
+   connector reads vertically on mobile/tablet (single column) and horizontally
+   on desktop (four across). Honours prefers-reduced-motion: with it on, steps
+   render in place and the line/nodes show fully lit (no scroll-linked motion). */
+const HOW_STEPS = [
+  { n: '01', t: 'Free survey', s: 'We assess your roof and energy usage.', Icon: ClipboardCheck },
+  { n: '02', t: 'System design', s: 'A tailored panel and battery layout for your home.', Icon: PencilRuler },
+  { n: '03', t: 'Pro install', s: 'Professional installation by our team.', Icon: Wrench },
+  { n: '04', t: 'Switch on', s: 'Start generating clean power from day one.', Icon: Power },
+]
+
+// A glowing timeline node that lights up as the scroll progress passes it.
+function StepNode({ progress, index, total, reduce, icon }) {
+  // Light up just before the matching card centres in the viewport.
+  const lit = (index + 0.4) / total
+  const glow = useTransform(progress, [lit - 0.12, lit], [0, 1])
+  const litStyle = reduce ? { opacity: 1 } : { opacity: glow }
   return (
-    <section id="how-it-works" className="bg-[#0C1A2E] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
+    <span className="relative grid h-10 w-10 place-items-center">
+      {/* base ring */}
+      <span className="absolute inset-0 rounded-full bg-[#060B16] ring-1 ring-white/15" />
+      {/* lit fill + glow */}
+      <motion.span
+        className="absolute inset-0 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 ring-1 ring-sky-300/60"
+        style={{ ...litStyle, boxShadow: '0 0 18px 2px rgba(56,189,248,0.55)' }}
+      />
+      <span className="relative z-10 text-white">{icon}</span>
+    </span>
+  )
+}
+
+// One step. Pops up with a spring the first time it enters the viewport.
+function StepCard({ step, index, total, progress, reduce }) {
+  const { n, t, s, Icon } = step
+  return (
+    <motion.div
+      className="relative"
+      initial={reduce ? false : { opacity: 0, y: 56, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '0px 0px -18% 0px' }}
+      transition={{ type: 'spring', stiffness: 130, damping: 17, mass: 0.7, delay: index * 0.04 }}
+    >
+      {/* Node sitting on the connector line — left of the card on mobile/tablet,
+          centred above it on desktop. */}
+      <div className="absolute left-[3px] top-7 lg:left-1/2 lg:top-auto lg:-translate-x-1/2 lg:-top-[68px] z-10">
+        <StepNode
+          progress={progress}
+          index={index}
+          total={total}
+          reduce={reduce}
+          icon={<Icon size={18} />}
+        />
+      </div>
+
+      <motion.div
+        whileHover={{ y: -8 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+        className="group h-full rounded-3xl border border-white/10 bg-white/[0.04] p-7 pl-20 transition-colors hover:bg-white/[0.07] lg:pl-7 lg:pt-7"
+      >
+        <span className="text-[44px] font-extrabold leading-none text-white/10 transition-colors duration-300 group-hover:text-sky-400/25">{n}</span>
+        <h3 className="mt-4 text-[19px] font-bold text-white">{t}</h3>
+        <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s}</p>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function HowItWorks() {
+  const reduce = useReducedMotion()
+  const ref = useRef(null)
+  // Track scroll through the timeline: line starts filling as the block enters
+  // the lower viewport and completes a little before it leaves the top.
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start 80%', 'end 55%'],
+  })
+  // Always a real MotionValue (transforms must run unconditionally); whether we
+  // *apply* the scroll-linked styles is gated on `reduce` at each use site.
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 })
+  const total = HOW_STEPS.length
+
+  return (
+    <section id="how-it-works" className="bg-[#060B16] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <div className="mx-auto max-w-7xl">
         <Reveal>
-          <p className="text-[13px] font-bold uppercase tracking-[0.2em] text-sky-400">How it works</p>
-          <h2 className="mt-3 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-white">
+          <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-400">How it works</p>
+          <h2 className="mt-4 max-w-2xl text-[clamp(30px,4vw,48px)] font-extrabold leading-[1.05] tracking-tight text-white">
             From first call to switch-on in four steps.
           </h2>
         </Reveal>
-        <motion.div
-          className="mt-10 grid gap-6 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4 lg:gap-8"
-          variants={staggerParent(0.12)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, margin: '-80px' }}
-        >
-          {steps.map((s) => (
+
+        <div ref={ref} className="relative mt-14 sm:mt-16 lg:mt-28">
+          {/* Connector track — vertical on mobile/tablet (single column). */}
+          <div className="lg:hidden absolute left-[22px] top-8 bottom-8 w-[2px] rounded-full bg-white/10">
             <motion.div
-              key={s.n}
-              variants={fadeUp}
-              whileHover={{ y: -8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-              className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 transition-colors hover:bg-white/[0.07]"
-            >
-              <div className="flex items-center justify-between">
-                <span className="grid h-14 w-14 place-items-center rounded-2xl bg-sky-500/15 text-sky-400 ring-1 ring-sky-400/30">
-                  <s.Icon size={24} />
-                </span>
-                <span className="text-[44px] font-extrabold text-white/10">{s.n}</span>
-              </div>
-              <h3 className="mt-6 text-[19px] font-bold text-white">{s.t}</h3>
-              <p className="mt-2 text-[15px] leading-relaxed text-slate-400">{s.s}</p>
-            </motion.div>
-          ))}
-        </motion.div>
+              className="h-full w-full origin-top rounded-full bg-gradient-to-b from-sky-400 to-blue-600"
+              style={reduce ? { scaleY: 1 } : { scaleY: progress }}
+            />
+          </div>
+          {/* Connector track — horizontal on desktop, spanning node centres. */}
+          <div className="hidden lg:block absolute left-[12.5%] right-[12.5%] -top-[48px] h-[2px] rounded-full bg-white/10">
+            <motion.div
+              className="h-full w-full origin-left rounded-full bg-gradient-to-r from-sky-400 to-blue-600"
+              style={reduce ? { scaleX: 1 } : { scaleX: progress }}
+            />
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-4 lg:gap-6">
+            {HOW_STEPS.map((step, i) => (
+              <StepCard
+                key={step.n}
+                step={step}
+                index={i}
+                total={total}
+                progress={progress}
+                reduce={reduce}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )
@@ -581,9 +852,19 @@ function HowItWorks() {
 /* ── CTA + quote form ─────────────────────────────────────────────────────── */
 function CtaForm() {
   return (
-    <section id="quote" className="relative overflow-hidden bg-[#0C1A2E] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
-      <div className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]" />
-      <div className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]" />
+    <section id="quote" className="relative overflow-hidden bg-[#060B16] px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
+      <DriftOrb
+        className="pointer-events-none absolute -left-20 bottom-0 h-96 w-[32rem] rounded-full bg-[#0EA5E9]/20 blur-[110px]"
+        duration={15}
+        dx={24}
+        dy={-20}
+      />
+      <DriftOrb
+        className="pointer-events-none absolute -right-12 -top-12 h-80 w-96 rounded-full bg-[#F59E0B]/15 blur-[110px]"
+        duration={18}
+        dx={-18}
+        dy={16}
+      />
       <div className="relative mx-auto grid max-w-7xl items-center gap-10 sm:gap-12 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
         <Reveal>
           <h2 className="text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.02] tracking-tight text-white">
@@ -604,7 +885,7 @@ function CtaForm() {
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="rounded-[28px] border border-white/10 bg-white/[0.06] p-6 backdrop-blur-xl sm:p-8">
+          <div className="rounded-[32px] bg-white/[0.05] p-6 ring-1 ring-white/10 backdrop-blur-xl sm:p-8">
             <div className="text-[18px] font-bold text-white">Get your free quote</div>
             <div className="mt-5 grid grid-cols-2 gap-4">
               {[['Full name', 'col-span-2'], ['Email', 'col-span-2'], ['Postcode', ''], ['Quarterly bill', '']].map(([ph, cls]) => (
@@ -627,7 +908,7 @@ function CtaForm() {
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="bg-[#08111E] px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
+    <footer className="bg-[#04070D] px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
         <div className="flex items-center gap-2.5">
           <SunMark size={26} />
@@ -648,6 +929,8 @@ function Footer() {
 export default function RecommendedHomepage() {
   return (
     <div className="min-h-screen bg-white">
+      <ScrollProgress />
+      <BackToTop />
       <main>
         <Hero />
         <TrustStrip />
