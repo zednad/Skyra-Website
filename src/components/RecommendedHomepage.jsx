@@ -128,36 +128,37 @@ function AnimatedNumber({ value, formatFn }) {
 }
 
 /* ── Brand logo ───────────────────────────────────────────────────────────────
-   SkyRa = Sky + Ra (the sun). A crafted sun mark: a sky-gradient disc with a
-   warm amber ray-burst and a soft glow. Crisp SVG so it stays sharp from the
-   24px footer mark up to large sizes. useId keeps gradient ids unique per use. */
+   "Dawn Disc" — SkyRa = Sky + Ra (the sun). Sun and sky meeting at the
+   horizon, reduced to a single coin: a golden upper half over a deep sky
+   lower half, split by a hairline of light. Crisp from 16px favicon to
+   large lockups. useId keeps gradient ids unique per use. */
 function SunMark({ size = 28, className = '' }) {
   const uid = useId().replace(/:/g, '')
-  const core = `sk-core-${uid}`
+  const warm = `sk-warm-${uid}`
+  const cool = `sk-cool-${uid}`
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 40 40"
+      viewBox="0 0 48 48"
       fill="none"
       className={className}
-      style={{ filter: 'drop-shadow(0 1px 5px rgba(14,165,233,0.5))' }}
+      style={{ filter: 'drop-shadow(0 1px 5px rgba(14,165,233,0.45))' }}
       aria-hidden="true"
     >
       <defs>
-        <radialGradient id={core} cx="36%" cy="30%" r="72%">
-          <stop offset="0%" stopColor="#EAF7FF" />
-          <stop offset="44%" stopColor="#5CC4F5" />
-          <stop offset="100%" stopColor="#0369A1" />
-        </radialGradient>
+        <linearGradient id={warm} x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#FDE047" />
+          <stop offset="0.55" stopColor="#FBBF24" />
+          <stop offset="1" stopColor="#F59E0B" />
+        </linearGradient>
+        <linearGradient id={cool} x1="0" y1="0" x2="0" y2="1">
+          <stop stopColor="#38BDF8" />
+          <stop offset="1" stopColor="#075985" />
+        </linearGradient>
       </defs>
-      <g stroke="#FBBF24" strokeWidth="2.4" strokeLinecap="round">
-        {Array.from({ length: 8 }).map((_, i) => (
-          <line key={i} x1="20" y1="3.6" x2="20" y2="9.6" transform={`rotate(${i * 45} 20 20)`} />
-        ))}
-      </g>
-      <circle cx="20" cy="20" r="8.2" fill={`url(#${core})`} />
-      <circle cx="16.8" cy="16.8" r="2.5" fill="#FFFFFF" opacity="0.55" />
+      <path d="M4.6 22.4 A19.5 19.5 0 0 1 43.4 22.4 Z" fill={`url(#${warm})`} />
+      <path d="M4.6 25.6 A19.5 19.5 0 0 0 43.4 25.6 Z" fill={`url(#${cool})`} />
     </svg>
   )
 }
