@@ -603,9 +603,10 @@ function Calculator() {
 const tileImg = (id, w) =>
   `https://images.unsplash.com/${id}?q=80&auto=format&fit=crop&w=${w}`
 const TILE_PANELS = 'photo-1637417494521-78b4d1d33029'        // home roof full of solar panels
-const TILE_BATTERY = 'photo-1660053094665-a21094758e8b'       // wall-mounted home battery
-const TILE_INVERTER = 'photo-1780445392417-68b9dccc45f2'      // wall-mounted inverter + system
 const TILE_HOME = 'flagged/photo-1566838803980-56bfa5300e8c'  // craftsman home, whole system
+// Battery & inverter use local brand product shots (served from /public/images).
+const IMG_BATTERY = '/images/products/foxess-eq4800.jpg'      // Fox ESS battery + inverter on a wall
+const IMG_INVERTER = '/images/products/afore-inverter.webp'   // hybrid inverter on a home wall
 
 function BentoTile({ className = '', delay = 0, children }) {
   return (
@@ -675,17 +676,15 @@ function Install() {
             </div>
           </BentoTile>
 
-          {/* Home batteries — photo tile */}
+          {/* Home batteries — photo tile (Fox ESS product shot) */}
           <BentoTile className="ring-1 ring-slate-900/5 lg:col-span-2" delay={0.08}>
             <img
-              src={tileImg(TILE_BATTERY, 800)}
-              srcSet={`${tileImg(TILE_BATTERY, 600)} 600w, ${tileImg(TILE_BATTERY, 800)} 800w, ${tileImg(TILE_BATTERY, 1100)} 1100w`}
-              sizes="(min-width: 1024px) 31vw, 100vw"
-              alt="Wall-mounted home battery storage unit"
+              src={IMG_BATTERY}
+              alt="Fox ESS home battery and inverter mounted on a home wall"
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
+              className="absolute inset-0 h-full w-full object-cover object-[50%_38%] transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#04070D] via-[#04070D]/45 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#04070D] via-[#04070D]/15 to-transparent" />
             <div className="relative flex h-full min-h-[340px] flex-col justify-end p-7 sm:min-h-[480px] sm:p-9">
               <span className="mb-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-md">
                 <BatteryCharging size={22} className="text-amber-300" />
@@ -701,17 +700,15 @@ function Install() {
             </div>
           </BentoTile>
 
-          {/* Smart inverters — photo tile */}
+          {/* Smart inverters — photo tile (Afore hybrid inverter) */}
           <BentoTile className="ring-1 ring-slate-900/5 lg:col-span-2" delay={0.05}>
             <img
-              src={tileImg(TILE_INVERTER, 800)}
-              srcSet={`${tileImg(TILE_INVERTER, 600)} 600w, ${tileImg(TILE_INVERTER, 800)} 800w, ${tileImg(TILE_INVERTER, 1100)} 1100w`}
-              sizes="(min-width: 1024px) 31vw, 100vw"
-              alt="Wall-mounted solar inverter and energy system"
+              src={IMG_INVERTER}
+              alt="Solar hybrid inverter mounted on a home exterior wall"
               loading="lazy"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
+              className="absolute inset-0 h-full w-full object-cover object-[60%_45%] transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#04070D] via-[#04070D]/45 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#04070D] via-[#04070D]/15 to-transparent" />
             <div className="relative flex h-full min-h-[340px] flex-col justify-end p-7 sm:min-h-[480px] sm:p-9">
               <span className="mb-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur-md">
                 <Zap size={22} className="text-sky-300" />
