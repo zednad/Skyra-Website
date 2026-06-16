@@ -53,24 +53,24 @@ h1, h2, h3 {
   color: #0c1a2e;
 }
 
-/* ── Custom scrollbar ───────────────────────────────────────────────────── */
+/* ── Scrollbar — neutral, no brand colour ───────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #f0f9ff;
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #38bdf8, #0284c7);
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #0369a1;
+  background: #94a3b8;
 }
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #38bdf8 #f0f9ff;
+  scrollbar-color: #cbd5e1 transparent;
 }
 
 /* ── Focus ring (keyboard nav) ──────────────────────────────────────────── */
@@ -134,12 +134,14 @@ section[id] {
   animation: marquee 30s linear infinite;
 }
 
-/* ── Shimmering gradient text (hero accent line) ────────────────────────── */
+/* ── Shimmering gradient text (hero accent line) ──────────────────────────
+   Tuned to read on a LIGHT background — saturated sky→blue stops so the
+   accent line stays legible on white/sky-50. */
 @keyframes text-shimmer {
   to { background-position: -200% 0; }
 }
 .text-shimmer {
-  background: linear-gradient(110deg, #7dd3fc 0%, #e0f2fe 28%, #38bdf8 50%, #7dd3fc 72%, #7dd3fc 100%);
+  background: linear-gradient(110deg, #0ea5e9 0%, #2563eb 28%, #0284c7 50%, #0ea5e9 72%, #0ea5e9 100%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
