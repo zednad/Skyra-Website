@@ -17,8 +17,22 @@ import {
 import {
   ArrowRight, ArrowUp, Phone, Check, Zap, Sun, BatteryCharging, Gauge,
   ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown, Menu, X, MapPin,
-  Users, ShieldCheck, Home,
+  Users, ShieldCheck, Home, Loader2,
 } from 'lucide-react'
+
+/* ── Quote form backend (Formspree) ───────────────────────────────────────────
+   The quote form posts to Formspree, which works on static hosts like GitHub
+   Pages — no server of your own required.
+
+   ONE-TIME SET-UP:
+     1. Sign up free at https://formspree.io and click "New Form".
+     2. Set the form's notification email to wherever you want leads to land.
+     3. Formspree gives you an endpoint like  https://formspree.io/f/abcdwxyz
+     4. Paste the ID (the part after /f/) into FORMSPREE_ID below and redeploy.
+
+   Until that's done, submitting shows a friendly "not connected yet" message. */
+const FORMSPREE_ID = 'mqeojppk'
+const FORMSPREE_ENDPOINT = `https://formspree.io/f/mqeojppk`
 
 // Responsive hero image (solar panels on a residential home). Unsplash resizes
 // via the `w` param, so phones download a ~640–1080px image instead of the full.
@@ -991,8 +1005,47 @@ function HowItWorks() {
   )
 }
 
-/* ── CTA + quote form ─────────────────────────────────────────────────────── */
+/* ── CTA + quote form ───────────────────────────────────────────────────────
+   Real, working quote form. Submits to Formspree via fetch (see FORMSPREE_ID
+   config near the top of this file). Handles submitting / success / error
+   states and includes a honeypot field for basic spam protection. */
+const fieldCls =
+  'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-[14px] text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-sky-400 focus:bg-white focus:ring-2 focus:ring-sky-100'
+
 function CtaForm() {
+  const [status, setStatus] = useState('idle') // idle | submitting | success | error
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    const form = e.currentTarget
+    if (FORMSPREE_ID === 'YOUR_FORM_ID') {
+      setError('The form isn’t connected yet — add your Formspree form ID in the code to start collecting responses.')
+      setStatus('error')
+      return
+    }
+    setStatus('submitting')
+    setError('')
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { Accept: 'application/json' },
+      })
+      if (res.ok) {
+        setStatus('success')
+        form.reset()
+      } else {
+        const json = await res.json().catch(() => null)
+        setError(json?.errors?.map((x) => x.message).join(', ') || 'Something went wrong. Please try again.')
+        setStatus('error')
+      }
+    } catch {
+      setError('Network error — please check your connection and try again.')
+      setStatus('error')
+    }
+  }
+
   return (
     <section id="quote" className="relative overflow-hidden bg-gradient-to-b from-white to-sky-50 px-5 py-16 sm:px-6 sm:py-20 lg:px-8 lg:py-32">
       <DriftOrb
@@ -1030,20 +1083,102 @@ function CtaForm() {
           </div>
         </Reveal>
         <Reveal delay={0.1}>
-          <div className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl shadow-sky-900/10 sm:p-8">
-            <div className="text-[18px] font-bold text-slate-900">Get your free quote</div>
-            <div className="mt-5 grid grid-cols-2 gap-4">
-              {[['Full name', 'col-span-2'], ['Email', 'col-span-2'], ['Postcode', ''], ['Quarterly bill', '']].map(([ph, cls]) => (
-                <div key={ph} className={cls}>
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-[14px] text-slate-400">{ph}</div>
+          <AnimatePresence mode="wait">
+            {status === 'success' ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                className="rounded-[32px] border border-slate-200 bg-white p-8 text-center shadow-2xl shadow-sky-900/10 sm:p-10"
+              >
+                <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30">
+                  <Check size={30} strokeWidth={3} />
                 </div>
-              ))}
-            </div>
-            <button className="btn-sheen mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
-              Get my free quote <ArrowRight size={18} />
-            </button>
-            <p className="mt-4 text-center text-[12px] text-slate-400">No spam. We never share your details.</p>
-          </div>
+                <h3 className="mt-5 text-[24px] font-extrabold tracking-tight text-slate-900">Request received!</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
+                  Thanks for reaching out. A SkyRa specialist will be in touch shortly
+                  to talk through your free, no-obligation quote.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStatus('idle')}
+                  className="mt-6 text-[14px] font-semibold text-sky-600 transition-colors hover:text-sky-700"
+                >
+                  Submit another request
+                </button>
+              </motion.div>
+            ) : (
+              <motion.form
+                key="form"
+                onSubmit={handleSubmit}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+                className="rounded-[32px] border border-slate-200 bg-white p-6 shadow-2xl shadow-sky-900/10 sm:p-8"
+              >
+                <div className="text-[18px] font-bold text-slate-900">Get your free quote</div>
+                <p className="mt-1 text-[13px] text-slate-400">Tell us a little about your place — it takes 30 seconds.</p>
+
+                {/* honeypot — hidden from people, catches bots */}
+                <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
+                <input type="hidden" name="_subject" value="New SkyRa quote request" />
+
+                <div className="mt-5 grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label htmlFor="qf-name" className="sr-only">Full name</label>
+                    <input id="qf-name" name="name" type="text" required autoComplete="name" placeholder="Full name" className={fieldCls} />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label htmlFor="qf-email" className="sr-only">Email</label>
+                    <input id="qf-email" name="email" type="email" required autoComplete="email" placeholder="Email" className={fieldCls} />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label htmlFor="qf-phone" className="sr-only">Phone</label>
+                    <input id="qf-phone" name="phone" type="tel" autoComplete="tel" placeholder="Phone (optional)" className={fieldCls} />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label htmlFor="qf-postcode" className="sr-only">Postcode</label>
+                    <input id="qf-postcode" name="postcode" type="text" required inputMode="numeric" autoComplete="postal-code" placeholder="Postcode" className={fieldCls} />
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <label htmlFor="qf-bill" className="sr-only">Average quarterly bill</label>
+                    <select id="qf-bill" name="quarterly_bill" defaultValue="" className={fieldCls + ' appearance-none'}>
+                      <option value="" disabled>Quarterly bill</option>
+                      <option>Under $300</option>
+                      <option>$300 – $600</option>
+                      <option>$600 – $900</option>
+                      <option>$900+</option>
+                    </select>
+                  </div>
+                  <div className="col-span-2">
+                    <label htmlFor="qf-message" className="sr-only">Anything else?</label>
+                    <textarea id="qf-message" name="message" rows={3} placeholder="Anything else we should know? (optional)" className={fieldCls + ' resize-none'} />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={status === 'submitting'}
+                  className="btn-sheen mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:scale-100"
+                >
+                  {status === 'submitting' ? (
+                    <><Loader2 size={18} className="animate-spin" /> Sending…</>
+                  ) : (
+                    <>Get my free quote <ArrowRight size={18} /></>
+                  )}
+                </button>
+
+                {status === 'error' && (
+                  <p role="alert" className="mt-3 text-center text-[13px] font-medium text-red-600">{error}</p>
+                )}
+
+                <p className="mt-4 text-center text-[12px] text-slate-400">No spam. We never share your details.</p>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </Reveal>
       </div>
     </section>
