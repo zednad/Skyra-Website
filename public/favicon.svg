@@ -1,16 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
-  <!-- SkyRa "Dawn Disc" mark: golden sun over deep sky, split at the horizon -->
+  <!-- SkyRa Energy — radiant sun mark (derived from the brand logo) -->
   <defs>
-    <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
-      <stop stop-color="#FDE047"/>
-      <stop offset="0.55" stop-color="#FBBF24"/>
-      <stop offset="1" stop-color="#F59E0B"/>
-    </linearGradient>
-    <linearGradient id="cool" x1="0" y1="0" x2="0" y2="1">
-      <stop stop-color="#38BDF8"/>
-      <stop offset="1" stop-color="#075985"/>
+    <radialGradient id="disc" cx="42%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#FFF6CF"/>
+      <stop offset="0.45" stop-color="#FDD835"/>
+      <stop offset="1" stop-color="#F6A609"/>
+    </radialGradient>
+    <linearGradient id="ray" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FDC830"/>
+      <stop offset="1" stop-color="#F58A07"/>
     </linearGradient>
   </defs>
-  <path d="M4.6 22.4 A19.5 19.5 0 0 1 43.4 22.4 Z" fill="url(#warm)"/>
-  <path d="M4.6 25.6 A19.5 19.5 0 0 0 43.4 25.6 Z" fill="url(#cool)"/>
+  <g fill="url(#ray)">
+    <path d="M33.49 23.47 L46.50 24.00 L33.49 24.53 Z M32.48 28.28 L43.49 35.25 L31.95 29.20 Z M29.20 31.95 L35.25 43.49 L28.28 32.48 Z M24.53 33.49 L24.00 46.50 L23.47 33.49 Z M19.72 32.48 L12.75 43.49 L18.80 31.95 Z M16.05 29.20 L4.51 35.25 L15.52 28.28 Z M14.51 24.53 L1.50 24.00 L14.51 23.47 Z M15.52 19.72 L4.51 12.75 L16.05 18.80 Z M18.80 16.05 L12.75 4.51 L19.72 15.52 Z M23.47 14.51 L24.00 1.50 L24.53 14.51 Z M28.28 15.52 L35.25 4.51 L29.20 16.05 Z M31.95 18.80 L43.49 12.75 L32.48 19.72 Z"/>
+    <path d="M33.33 25.78 L40.90 28.53 L32.97 27.12 Z M31.19 30.21 L36.37 36.37 L30.21 31.19 Z M27.12 32.97 L28.53 40.90 L25.78 33.33 Z M22.22 33.33 L19.47 40.90 L20.88 32.97 Z M17.79 31.19 L11.63 36.37 L16.81 30.21 Z M15.03 27.12 L7.10 28.53 L14.67 25.78 Z M14.67 22.22 L7.10 19.47 L15.03 20.88 Z M16.81 17.79 L11.63 11.63 L17.79 16.81 Z M20.88 15.03 L19.47 7.10 L22.22 14.67 Z M25.78 14.67 L28.53 7.10 L27.12 15.03 Z M30.21 16.81 L36.37 11.63 L31.19 17.79 Z M32.97 20.88 L40.90 19.47 L33.33 22.22 Z" opacity="0.85"/>
+  </g>
+  <circle cx="24" cy="24" r="9.6" fill="url(#disc)"/>
+  <circle cx="24" cy="24" r="9.6" fill="none" stroke="#F8B313" stroke-width="0.6" opacity="0.5"/>
 </svg>

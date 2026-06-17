@@ -9,7 +9,7 @@
 //  what we install → packages (residential/commercial toggle) → how it works →
 //  quote-form CTA → footer. Headings are upright (no italics) per brand pref.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState, useEffect, useId, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   motion, AnimatePresence, animate, useMotionValue, useReducedMotion,
   useScroll, useSpring, useTransform,
@@ -19,6 +19,7 @@ import {
   ClipboardCheck, PencilRuler, Wrench, Power, ChevronDown, Menu, X, MapPin,
   Users, ShieldCheck, Home, Loader2,
 } from 'lucide-react'
+import skyraLogo from '../assets/skyra-logo.webp'
 
 /* ── Quote form backend (Formspree) ───────────────────────────────────────────
    The quote form posts to Formspree, which works on static hosts like GitHub
@@ -129,42 +130,6 @@ function AnimatedNumber({ value, formatFn }) {
   return <>{formatFn ? formatFn(shown) : Math.round(shown)}</>
 }
 
-/* ── Brand logo ───────────────────────────────────────────────────────────────
-   "Dawn Disc" — SkyRa = Sky + Ra (the sun). Sun and sky meeting at the
-   horizon, reduced to a single coin: a golden upper half over a deep sky
-   lower half, split by a hairline of light. Crisp from 16px favicon to
-   large lockups. useId keeps gradient ids unique per use. */
-function SunMark({ size = 28, className = '' }) {
-  const uid = useId().replace(/:/g, '')
-  const warm = `sk-warm-${uid}`
-  const cool = `sk-cool-${uid}`
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 48 48"
-      fill="none"
-      className={className}
-      style={{ filter: 'drop-shadow(0 2px 6px rgba(2,132,199,0.28))' }}
-      aria-hidden="true"
-    >
-      <defs>
-        <linearGradient id={warm} x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#FDE047" />
-          <stop offset="0.55" stopColor="#FBBF24" />
-          <stop offset="1" stopColor="#F59E0B" />
-        </linearGradient>
-        <linearGradient id={cool} x1="0" y1="0" x2="0" y2="1">
-          <stop stopColor="#38BDF8" />
-          <stop offset="1" stopColor="#075985" />
-        </linearGradient>
-      </defs>
-      <path d="M4.6 22.4 A19.5 19.5 0 0 1 43.4 22.4 Z" fill={`url(#${warm})`} />
-      <path d="M4.6 25.6 A19.5 19.5 0 0 0 43.4 25.6 Z" fill={`url(#${cool})`} />
-    </svg>
-  )
-}
-
 /* ── Nav ───────────────────────────────────────────────────────────────────
    Floating light pill. Translucent white with a hairline border + soft shadow;
    condenses to a more solid, tighter bar on scroll. */
@@ -226,11 +191,14 @@ function Nav() {
             : 'border-white/60 bg-white/55 shadow-md shadow-slate-900/[0.04] backdrop-blur-md')
         }
       >
-        <a href="#top" className="flex shrink-0 items-center gap-2 pl-2 sm:gap-2.5">
-          <SunMark size={28} />
-          <span className="whitespace-nowrap text-[18px] font-extrabold tracking-tight text-slate-900 sm:text-[19px]">
-            SkyRa<span className="hidden font-medium text-sky-600 min-[380px]:inline"> Energy</span>
-          </span>
+        <a href="#top" className="flex shrink-0 items-center pl-1.5">
+          <img
+            src={skyraLogo}
+            alt="SkyRa Energy"
+            className="h-10 w-auto sm:h-12"
+            width="480"
+            height="284"
+          />
         </a>
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-8 text-[14px] font-semibold text-slate-600 lg:flex">
           {NAV_LINKS.map(([label, href]) => {
@@ -1308,9 +1276,8 @@ function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
-        <div className="flex items-center gap-2.5">
-          <SunMark size={26} />
-          <span className="text-[17px] font-extrabold tracking-tight text-slate-900">SkyRa<span className="font-medium text-sky-600"> Energy</span></span>
+        <div className="flex items-center">
+          <img src={skyraLogo} alt="SkyRa Energy" className="h-12 w-auto" width="480" height="284" />
         </div>
         <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] text-slate-500">
           <a href="#products" className="cursor-pointer transition-colors hover:text-sky-600">Products</a>
