@@ -35,14 +35,13 @@ import skyraLogo from '../assets/skyra-logo.webp'
 const FORMSPREE_ID = 'mqeojppk'
 const FORMSPREE_ENDPOINT = `https://formspree.io/f/mqeojppk`
 
-// Responsive hero image (solar panels on a residential home). Unsplash resizes
-// via the `w` param, so phones download a ~640–1080px image instead of the full.
-const HERO_BASE =
-  'https://images.unsplash.com/photo-1655300256335-beef51a914fe?q=80&auto=format&fit=crop'
-const HERO_SRCSET = [640, 828, 1080, 1440]
-  .map((w) => `${HERO_BASE}&w=${w} ${w}w`)
+// Responsive hero image (solar panels on a residential home). Self-hosted
+// WebP renditions so phones download the small size and nothing depends on a
+// third-party image CDN.
+const HERO_SRCSET = [640, 960, 1280]
+  .map((w) => `/images/hero/solar-home-${w}.webp ${w}w`)
   .join(', ')
-const HERO_IMG = `${HERO_BASE}&w=1080`
+const HERO_IMG = '/images/hero/solar-home-960.webp'
 
 const EASE = [0.22, 1, 0.36, 1]
 
@@ -99,7 +98,7 @@ function BackToTop() {
         <motion.a
           href="#top"
           aria-label="Back to top"
-          className="fixed bottom-5 right-5 z-40 grid h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 ring-1 ring-white/40 transition-transform hover:scale-105"
+          className="fixed bottom-5 right-5 z-40 hidden h-11 w-11 place-items-center rounded-full bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-500/30 ring-1 ring-white/40 transition-transform hover:scale-105 sm:grid"
           initial={{ opacity: 0, y: 16, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.9 }}
@@ -191,11 +190,11 @@ function Nav() {
             : 'border-white/60 bg-white/55 shadow-md shadow-slate-900/[0.04] backdrop-blur-md')
         }
       >
-        <a href="#top" className="flex shrink-0 items-center pl-1.5">
+        <a href="#top" className="flex shrink-0 items-center py-0.5 pl-2.5">
           <img
             src={skyraLogo}
             alt="SkyRa Energy"
-            className="h-10 w-auto sm:h-12"
+            className="h-9 w-auto sm:h-11"
             width="480"
             height="284"
           />
@@ -484,7 +483,7 @@ function TrustStrip() {
             {[0, 1].map((copy) => (
               <div key={copy} className="flex items-center gap-x-10 pr-10 sm:gap-x-14 sm:pr-14" aria-hidden={copy === 1}>
                 {brands.map((b) => (
-                  <span key={b} className="text-[20px] font-extrabold tracking-tight text-slate-300">{b}</span>
+                  <span key={b} className="text-[17px] font-bold tracking-wide text-slate-400">{b}</span>
                 ))}
               </div>
             ))}
@@ -566,7 +565,7 @@ function Calculator() {
                 <a href="#quote" className="btn-sheen mt-7 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 to-blue-600 py-4 text-[16px] font-bold text-white shadow-lg shadow-sky-500/25 transition-transform hover:scale-[1.02]">
                   Get my exact quote <ArrowRight size={18} />
                 </a>
-                <p className="mt-4 text-[12px] leading-relaxed text-slate-400">
+                <p className="mt-4 text-[12px] leading-relaxed text-slate-500">
                   Indicative estimate only. Actual savings depend on your energy use,
                   tariff, system size and site, and aren't guaranteed — we'll confirm
                   figures in your written quote.
@@ -581,11 +580,12 @@ function Calculator() {
 }
 
 /* ── What we install — cinematic bento showcase ───────────────────────────── */
-// `id` is the full Unsplash path segment, e.g. 'photo-…' or 'flagged/photo-…'.
-const tileImg = (id, w) =>
-  `https://images.unsplash.com/${id}?q=80&auto=format&fit=crop&w=${w}`
-const TILE_PANELS = 'photo-1637417494521-78b4d1d33029'        // home roof full of solar panels
-const TILE_HOME = 'flagged/photo-1566838803980-56bfa5300e8c'  // craftsman home, whole system
+// Photo tiles are self-hosted WebP renditions under /public/images/hero.
+const tileImg = (name, w) => `/images/hero/${name}-${w}.webp`
+const tileSrcSet = (name) =>
+  [800, 1200, 1600].map((w) => `${tileImg(name, w)} ${w}w`).join(', ')
+const TILE_PANELS = 'panels-roof'   // sunny home with a large rooftop array
+const TILE_HOME = 'matched-roof'    // aerial of panels on a corrugated metal roof
 // Battery & inverter use local brand product shots (served from /public/images).
 const IMG_BATTERY = '/images/products/foxess-eq4800.jpg'      // Fox ESS battery + inverter on a wall
 const IMG_INVERTER = '/images/products/afore-inverter.webp'   // hybrid inverter on a home wall
@@ -621,7 +621,7 @@ function Install() {
           <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-600">What we install</p>
           <h2 className="mx-auto mt-4 max-w-3xl text-[clamp(34px,5vw,64px)] font-extrabold leading-[1.02] tracking-tight text-slate-900">
             One supplier for the
-            <span className="block bg-gradient-to-r from-sky-500 via-sky-600 to-blue-600 bg-clip-text text-transparent">
+            <span className="block text-sky-600">
               whole system.
             </span>
           </h2>
@@ -636,7 +636,7 @@ function Install() {
           <BentoTile className="ring-1 ring-slate-900/5 lg:col-span-4">
             <img
               src={tileImg(TILE_PANELS, 1200)}
-              srcSet={`${tileImg(TILE_PANELS, 800)} 800w, ${tileImg(TILE_PANELS, 1200)} 1200w, ${tileImg(TILE_PANELS, 1600)} 1600w`}
+              srcSet={tileSrcSet(TILE_PANELS)}
               sizes="(min-width: 1024px) 62vw, 100vw"
               alt="Solar panels covering a residential roof"
               loading="lazy"
@@ -710,9 +710,9 @@ function Install() {
           <BentoTile className="ring-1 ring-slate-900/5 lg:col-span-4" delay={0.12}>
             <img
               src={tileImg(TILE_HOME, 1200)}
-              srcSet={`${tileImg(TILE_HOME, 800)} 800w, ${tileImg(TILE_HOME, 1200)} 1200w, ${tileImg(TILE_HOME, 1600)} 1600w`}
+              srcSet={tileSrcSet(TILE_HOME)}
               sizes="(min-width: 1024px) 62vw, 100vw"
-              alt="Modern home running on a complete solar system"
+              alt="Aerial view of solar panels installed across a home's metal roof"
               loading="lazy"
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
             />
@@ -761,7 +761,7 @@ function Packages() {
         <Reveal>
           <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-600">Our solutions</p>
           <h2 className="mt-4 text-[clamp(32px,4.6vw,56px)] font-extrabold tracking-tight text-slate-900">
-            Premium solar <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">packages</span>
+            Premium solar <span className="text-sky-600">packages</span>
           </h2>
           <div className="mt-8 inline-flex rounded-full border border-slate-200 bg-slate-100 p-1.5">
             {['residential', 'commercial'].map((t) => (
@@ -1033,7 +1033,7 @@ function CtaForm() {
           <h2 className="text-[clamp(34px,5vw,60px)] font-extrabold leading-[1.02] tracking-tight text-slate-900">
             Ready to cut your
             <br />
-            power bill? <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent">Let's go.</span>
+            power bill? <span className="text-sky-600">Let's go.</span>
           </h2>
           <p className="mt-6 max-w-lg text-[17px] leading-relaxed text-slate-600">
             Get a free, no-obligation quote tailored to your roof and energy usage.
@@ -1113,7 +1113,7 @@ function CtaForm() {
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <label htmlFor="qf-bill" className="sr-only">Average quarterly bill</label>
-                    <select id="qf-bill" name="quarterly_bill" defaultValue="" className={fieldCls + ' appearance-none'}>
+                    <select id="qf-bill" name="quarterly_bill" defaultValue="" className={fieldCls + " appearance-none has-[option[value='']:checked]:text-slate-400"}>
                       <option value="" disabled>Quarterly bill</option>
                       <option>Under $300</option>
                       <option>$300 – $600</option>
@@ -1143,7 +1143,7 @@ function CtaForm() {
                   <p role="alert" className="mt-3 text-center text-[13px] font-medium text-red-600">{error}</p>
                 )}
 
-                <p className="mt-4 text-center text-[12px] text-slate-400">No spam. We never share your details.</p>
+                <p className="mt-4 text-center text-[12px] text-slate-500">No spam. We never share your details.</p>
               </motion.form>
             )}
           </AnimatePresence>
@@ -1169,7 +1169,7 @@ function WhySkyra() {
           <p className="text-[12px] font-semibold uppercase tracking-[0.3em] text-sky-600">Why SkyRa</p>
           <h2 className="mt-4 text-[clamp(30px,4.4vw,52px)] font-extrabold leading-[1.05] tracking-tight text-slate-900">
             One partner for your whole
-            <span className="bg-gradient-to-r from-sky-500 to-blue-600 bg-clip-text text-transparent"> switch to solar.</span>
+            <span className="text-sky-600"> switch to solar.</span>
           </h2>
           <p className="mt-5 text-[17px] leading-relaxed text-slate-500">
             From the first site visit to switch-on, you deal with one team that owns
@@ -1274,12 +1274,15 @@ function Faq() {
 /* ── Footer ───────────────────────────────────────────────────────────────── */
 function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white px-5 py-10 sm:px-6 sm:py-14 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-5 sm:flex-row">
-        <div className="flex items-center">
+    <footer className="border-t border-slate-200 bg-white px-5 py-12 sm:px-6 sm:py-16 lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 sm:flex-row">
+        <div className="flex flex-col items-center gap-2 sm:items-start">
           <img src={skyraLogo} alt="SkyRa Energy" className="h-12 w-auto" width="480" height="284" />
+          <p className="text-[13px] font-medium text-slate-500">
+            Solar · Batteries · Inverters — Australia-wide
+          </p>
         </div>
-        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] text-slate-500">
+        <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-[14px] font-semibold text-slate-600">
           <a href="#products" className="cursor-pointer transition-colors hover:text-sky-600">Products</a>
           <a href="#packages" className="cursor-pointer transition-colors hover:text-sky-600">Packages</a>
           <a href="#why-skyra" className="cursor-pointer transition-colors hover:text-sky-600">Why SkyRa</a>
