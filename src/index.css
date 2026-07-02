@@ -133,6 +133,44 @@ section[id] {
 .animate-marquee {
   animation: marquee 30s linear infinite;
 }
+/* Pause the marquee while the visitor reads it */
+.marquee-hover:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* ── Energy pulses (EnergyStory scene) ──────────────────────────────────────
+   Dashed stroke + animated dashoffset = glowing dots travelling along wires. */
+.energy-pulse {
+  stroke-dasharray: 6 26;
+  stroke-linecap: round;
+  animation: pulse-flow 1.4s linear infinite;
+}
+@keyframes pulse-flow {
+  to { stroke-dashoffset: -64; }
+}
+
+/* ── Cursor spotlight on cards ──────────────────────────────────────────────
+   --mx/--my are set from a mousemove handler; the glow follows the cursor. */
+.card-spotlight {
+  position: relative;
+}
+.card-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(56, 189, 248, 0.14),
+    transparent 65%
+  );
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.card-spotlight:hover::after {
+  opacity: 1;
+}
 
 /* ── Shimmering gradient text (hero accent line) ──────────────────────────
    Tuned to read on a LIGHT background — saturated sky→blue stops so the
