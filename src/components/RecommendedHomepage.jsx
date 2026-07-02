@@ -20,6 +20,7 @@ import {
   Users, ShieldCheck, Home, Loader2,
 } from 'lucide-react'
 import skyraLogo from '../assets/skyra-logo.webp'
+import EnergyStory from './EnergyStory'
 
 /* ── Quote form backend (Formspree) ───────────────────────────────────────────
    The quote form posts to Formspree, which works on static hosts like GitHub
@@ -54,6 +55,43 @@ const staggerParent = (stagger = 0.12, delay = 0) => ({
   hidden: {},
   show: { transition: { staggerChildren: stagger, delayChildren: delay } },
 })
+
+// Sets --mx/--my so the .card-spotlight glow follows the cursor.
+function trackSpotlight(e) {
+  const r = e.currentTarget.getBoundingClientRect()
+  e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
+  e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
+}
+
+// Wraps a CTA so it leans a few pixels toward the cursor (mouse only).
+function Magnetic({ children, className = '' }) {
+  const reduce = useReducedMotion()
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const sx = useSpring(x, { stiffness: 300, damping: 22, mass: 0.5 })
+  const sy = useSpring(y, { stiffness: 300, damping: 22, mass: 0.5 })
+  const clamp = (v) => Math.max(-7, Math.min(7, v))
+  function onMove(e) {
+    const r = e.currentTarget.getBoundingClientRect()
+    x.set(clamp((e.clientX - r.left - r.width / 2) * 0.18))
+    y.set(clamp((e.clientY - r.top - r.height / 2) * 0.3))
+  }
+  function onLeave() {
+    x.set(0)
+    y.set(0)
+  }
+  if (reduce) return <div className={className}>{children}</div>
+  return (
+    <motion.div
+      className={className}
+      style={{ x: sx, y: sy }}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+    >
+      {children}
+    </motion.div>
+  )
+}
 
 // Scroll-triggered reveal wrapper
 function Reveal({ children, className = '', delay = 0, y = 30 }) {
@@ -223,15 +261,17 @@ function Nav() {
           })}
         </div>
         <div className="flex items-center gap-2">
-          <a
-            href="#quote"
-            className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-sky-500 to-blue-600 py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-white shadow-md shadow-sky-500/25 transition-all hover:shadow-lg hover:shadow-sky-500/40 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]"
-          >
-            Get Quote
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 transition-transform group-hover:rotate-12 sm:h-8 sm:w-8">
-              <Phone size={13} />
-            </span>
-          </a>
+          <Magnetic className="shrink-0">
+            <a
+              href="#quote"
+              className="group inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-full bg-gradient-to-r from-sky-500 to-blue-600 py-1.5 pl-4 pr-1.5 text-[13px] font-bold text-white shadow-md shadow-sky-500/25 transition-all hover:shadow-lg hover:shadow-sky-500/40 sm:py-2 sm:pl-5 sm:pr-2 sm:text-[14px]"
+            >
+              Get Quote
+              <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 transition-transform group-hover:rotate-12 sm:h-8 sm:w-8">
+                <Phone size={13} />
+              </span>
+            </a>
+          </Magnetic>
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
@@ -281,6 +321,27 @@ function Hero() {
   const { scrollY } = useScroll()
   // Image drifts up a touch slower than the page (gentle parallax).
   const imgY = useTransform(scrollY, [0, 700], [0, -40])
+  // 3D tilt: normalised cursor position over the visual (-0.5 … 0.5).
+  const mx = useMotionValue(0)
+  const my = useMotionValue(0)
+  const tiltSpring = { stiffness: 150, damping: 18, mass: 0.6 }
+  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [5, -5]), tiltSpring)
+  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-5, 5]), tiltSpring)
+  // Floating cards drift a little further than the photo — depth parallax.
+  const floatX = useSpring(useTransform(mx, [-0.5, 0.5], [-14, 14]), tiltSpring)
+  const floatY = useSpring(useTransform(my, [-0.5, 0.5], [-10, 10]), tiltSpring)
+  // The chip counter-drifts for a second layer of depth.
+  const chipX = useSpring(useTransform(mx, [-0.5, 0.5], [9, -9]), tiltSpring)
+  const chipY = useSpring(useTransform(my, [-0.5, 0.5], [7, -7]), tiltSpring)
+  function onTiltMove(e) {
+    const r = e.currentTarget.getBoundingClientRect()
+    mx.set((e.clientX - r.left) / r.width - 0.5)
+    my.set((e.clientY - r.top) / r.height - 0.5)
+  }
+  function onTiltLeave() {
+    mx.set(0)
+    my.set(0)
+  }
   return (
     <section
       id="top"
@@ -327,12 +388,32 @@ function Hero() {
           </motion.div>
 
           <motion.h1
-            variants={fadeUp}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.07 } } }}
             className="text-[clamp(40px,6.6vw,76px)] font-extrabold leading-[1.02] tracking-tight text-slate-900"
           >
-            Power your home with
-            <span className="text-shimmer mt-1 block pb-1 leading-[1.02]">
-              clean solar energy.
+            {'Power your home with'.split(' ').map((word) => (
+              <span key={word} className="-mb-[0.12em] mr-[0.24em] inline-block overflow-hidden pb-[0.12em] align-top">
+                <motion.span
+                  className="inline-block"
+                  variants={{
+                    hidden: { y: '110%' },
+                    show: { y: '0%', transition: { duration: 0.7, ease: EASE } },
+                  }}
+                >
+                  {word}
+                </motion.span>
+              </span>
+            ))}
+            <span className="block overflow-hidden">
+              <motion.span
+                className="text-shimmer mt-1 block pb-1 leading-[1.02]"
+                variants={{
+                  hidden: { y: '110%' },
+                  show: { y: '0%', transition: { duration: 0.8, ease: EASE } },
+                }}
+              >
+                clean solar energy.
+              </motion.span>
             </span>
           </motion.h1>
 
@@ -349,15 +430,17 @@ function Hero() {
             variants={fadeUp}
             className="mt-8 flex flex-col gap-3 sm:mt-9 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4"
           >
-            <a
-              href="#quote"
-              className="btn-sheen group inline-flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 py-3 pl-7 pr-2.5 text-[16px] font-bold text-white shadow-xl shadow-sky-500/30 transition-all hover:shadow-2xl hover:shadow-sky-500/40 sm:w-auto sm:py-2.5"
-            >
-              Get Free Quote
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-white/20 transition-transform group-hover:translate-x-0.5 sm:h-11 sm:w-11">
-                <ArrowRight size={18} />
-              </span>
-            </a>
+            <Magnetic className="w-full sm:w-auto">
+              <a
+                href="#quote"
+                className="btn-sheen group inline-flex w-full items-center justify-center gap-3 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 py-3 pl-7 pr-2.5 text-[16px] font-bold text-white shadow-xl shadow-sky-500/30 transition-all hover:shadow-2xl hover:shadow-sky-500/40 sm:py-2.5"
+              >
+                Get Free Quote
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-white/20 transition-transform group-hover:translate-x-0.5 sm:h-11 sm:w-11">
+                  <ArrowRight size={18} />
+                </span>
+              </a>
+            </Magnetic>
             <a
               href="#why-solar"
               className="w-full rounded-full border border-slate-300 bg-white/70 px-7 py-3.5 text-center text-[15px] font-semibold text-slate-700 backdrop-blur-sm transition-colors hover:border-slate-400 hover:bg-white sm:w-auto"
@@ -392,11 +475,16 @@ function Hero() {
           initial={{ opacity: 0, scale: 0.96, y: 24 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 1, ease: EASE, delay: 0.2 }}
+          onMouseMove={reduce ? undefined : onTiltMove}
+          onMouseLeave={reduce ? undefined : onTiltLeave}
         >
           {/* soft colour halo behind the card */}
           <div className="pointer-events-none absolute -inset-6 -z-10 rounded-[3rem] bg-gradient-to-tr from-sky-200/50 via-transparent to-amber-200/40 blur-2xl" />
 
-          <div className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/20 ring-1 ring-slate-900/5 sm:rounded-[2.5rem]">
+          <motion.div
+            className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-sky-900/20 ring-1 ring-slate-900/5 sm:rounded-[2.5rem]"
+            style={reduce ? {} : { rotateX, rotateY, transformPerspective: 1100 }}
+          >
             <motion.img
               src={HERO_IMG}
               srcSet={HERO_SRCSET}
@@ -411,11 +499,15 @@ function Hero() {
             />
             {/* subtle top sheen for depth */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-white/15" />
-          </div>
+          </motion.div>
 
-          {/* floating glass card — savings teaser */}
+          {/* floating glass card — savings teaser (drifts with the cursor for depth) */}
           <motion.div
-            className="absolute -bottom-5 -left-3 flex items-center gap-3.5 rounded-2xl border border-white/70 bg-white/85 p-3.5 shadow-xl shadow-sky-900/15 backdrop-blur-md sm:-left-6 sm:gap-4 sm:p-4"
+            className="absolute -bottom-5 -left-3 sm:-left-6"
+            style={reduce ? {} : { x: floatX, y: floatY }}
+          >
+          <motion.div
+            className="flex items-center gap-3.5 rounded-2xl border border-white/70 bg-white/85 p-3.5 shadow-xl shadow-sky-900/15 backdrop-blur-md sm:gap-4 sm:p-4"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE, delay: 0.7 }}
@@ -432,16 +524,22 @@ function Hero() {
               </div>
             </div>
           </motion.div>
+          </motion.div>
 
-          {/* floating chip — battery */}
+          {/* floating chip — battery (counter-drifts, second depth layer) */}
           <motion.div
-            className="absolute -right-2 top-6 inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/85 px-3.5 py-2 shadow-lg shadow-sky-900/10 backdrop-blur-md sm:-right-5"
+            className="absolute -right-2 top-6 sm:-right-5"
+            style={reduce ? {} : { x: chipX, y: chipY }}
+          >
+          <motion.div
+            className="inline-flex items-center gap-2 rounded-full border border-white/70 bg-white/85 px-3.5 py-2 shadow-lg shadow-sky-900/10 backdrop-blur-md"
             initial={{ opacity: 0, y: -14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease: EASE, delay: 0.95 }}
           >
             <BatteryCharging size={16} className="text-amber-500" />
             <span className="text-[13px] font-bold text-slate-800">Store by day, use by night</span>
+          </motion.div>
           </motion.div>
         </motion.div>
       </div>
@@ -478,7 +576,7 @@ function TrustStrip() {
         <p className="text-center text-[13px] font-semibold uppercase tracking-wider text-slate-400">
           Tier-1 brands we install
         </p>
-        <div className="mt-4 overflow-hidden" style={fade}>
+        <div className="marquee-hover mt-4 overflow-hidden" style={fade}>
           <div className="flex w-max animate-marquee">
             {[0, 1].map((copy) => (
               <div key={copy} className="flex items-center gap-x-10 pr-10 sm:gap-x-14 sm:pr-14" aria-hidden={copy === 1}>
@@ -533,7 +631,10 @@ function Calculator() {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <div className="relative overflow-hidden rounded-[32px] bg-white p-6 shadow-2xl shadow-sky-900/10 ring-1 ring-slate-200/80 sm:p-9 lg:p-10">
+            <div
+              className="card-spotlight relative overflow-hidden rounded-[32px] bg-white p-6 shadow-2xl shadow-sky-900/10 ring-1 ring-slate-200/80 sm:p-9 lg:p-10"
+              onMouseMove={trackSpotlight}
+            >
               <DriftOrb
                 className="pointer-events-none absolute -right-12 -top-16 h-56 w-72 rounded-full bg-sky-200/50 blur-[70px]"
                 duration={12}
@@ -546,6 +647,41 @@ function Calculator() {
                   $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
                   <span className="text-[22px] font-semibold text-slate-400"> /yr</span>
                 </div>
+
+                {/* before / after — annual bill bars (scaled to the slider max) */}
+                <div className="mt-7 space-y-3.5">
+                  <div>
+                    <div className="flex items-baseline justify-between text-[12px] font-semibold">
+                      <span className="text-slate-500">Bill without solar</span>
+                      <span className="text-slate-700">
+                        $<AnimatedNumber value={annual} formatFn={(v) => Math.round(v).toLocaleString()} />/yr
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-slate-100">
+                      <motion.div
+                        className="h-full rounded-full bg-slate-400"
+                        animate={{ width: `${(annual / 4800) * 100}%` }}
+                        transition={{ type: 'spring', stiffness: 170, damping: 26 }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-baseline justify-between text-[12px] font-semibold">
+                      <span className="text-sky-700">With a SkyRa system (est.)</span>
+                      <span className="text-sky-700">
+                        $<AnimatedNumber value={annual - saving} formatFn={(v) => Math.round(v).toLocaleString()} />/yr
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-3 overflow-hidden rounded-full bg-slate-100">
+                      <motion.div
+                        className="h-full rounded-full bg-gradient-to-r from-sky-500 to-blue-600"
+                        animate={{ width: `${((annual - saving) / 4800) * 100}%` }}
+                        transition={{ type: 'spring', stiffness: 170, damping: 26 }}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-4">
                   <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 sm:p-5">
                     <Gauge size={20} className="text-sky-600" />
@@ -801,8 +937,9 @@ function Packages() {
                 variants={fadeUp}
                 whileHover={{ y: -8 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                onMouseMove={trackSpotlight}
                 className={
-                  'relative flex flex-col rounded-[32px] p-7 sm:p-9 ' +
+                  'card-spotlight relative flex flex-col rounded-[32px] p-7 sm:p-9 ' +
                   (p.popular
                     ? 'bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-2xl shadow-sky-500/30 ring-1 ring-white/20 md:-translate-y-4'
                     : 'bg-white text-slate-900 shadow-[0_4px_30px_rgba(2,8,23,0.06)] ring-1 ring-slate-200')
@@ -905,7 +1042,8 @@ function StepCard({ step, index, total, progress, reduce }) {
       <motion.div
         whileHover={{ y: -8 }}
         transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-        className="group h-full rounded-3xl border border-slate-200 bg-white p-7 pl-20 shadow-[0_4px_30px_rgba(2,8,23,0.05)] transition-shadow hover:shadow-[0_12px_40px_rgba(2,132,199,0.12)] lg:pl-7 lg:pt-7"
+        className="card-spotlight group h-full rounded-3xl border border-slate-200 bg-white p-7 pl-20 shadow-[0_4px_30px_rgba(2,8,23,0.05)] transition-shadow hover:shadow-[0_12px_40px_rgba(2,132,199,0.12)] lg:pl-7 lg:pt-7"
+        onMouseMove={trackSpotlight}
       >
         <span className="text-[44px] font-extrabold leading-none text-slate-200 transition-colors duration-300 group-hover:text-sky-300">{n}</span>
         <h3 className="mt-4 text-[19px] font-bold text-slate-900">{t}</h3>
@@ -1179,7 +1317,10 @@ function WhySkyra() {
         <div className="mt-12 grid gap-5 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
           {WHY_ITEMS.map(({ Icon, t, s }, i) => (
             <Reveal key={t} delay={i * 0.08}>
-              <div className="group h-full rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_4px_30px_rgba(2,8,23,0.05)] transition-shadow hover:shadow-[0_12px_40px_rgba(2,132,199,0.12)]">
+              <div
+                className="card-spotlight group h-full rounded-3xl border border-slate-200 bg-white p-7 shadow-[0_4px_30px_rgba(2,8,23,0.05)] transition-shadow hover:shadow-[0_12px_40px_rgba(2,132,199,0.12)]"
+                onMouseMove={trackSpotlight}
+              >
                 <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-md shadow-sky-500/30 transition-transform duration-300 group-hover:scale-110">
                   <Icon size={26} />
                 </span>
@@ -1304,6 +1445,7 @@ export default function RecommendedHomepage() {
         <TrustStrip />
         <Calculator />
         <Install />
+        <EnergyStory />
         <WhySkyra />
         <Packages />
         <HowItWorks />
