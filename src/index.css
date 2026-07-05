@@ -1,98 +1,66 @@
 @import "tailwindcss";
 
-/* ── CSS Variables ──────────────────────────────────────────────────────── */
+/* ── Brand tokens ─────────────────────────────────────────────────────────
+   Grounded palette for a real trade business: deep navy surfaces, warm
+   amber CTAs (solar = warmth), slate neutrals, photography everywhere.  */
 :root {
-  --font-body:    'Manrope', system-ui, -apple-system, sans-serif;
-  --font-display: 'Manrope', system-ui, -apple-system, sans-serif;
-  --font-serif:   'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', system-ui, -apple-system, sans-serif;
 
-  --clr-sky:      #0284c7;
-  --clr-sky-light:#38bdf8;
-  --clr-amber:    #f59e0b;
-  --clr-navy:     #0c1a2e;
+  --clr-navy:       #0a1b2e;   /* header/footer/dark sections   */
+  --clr-navy-soft:  #12283f;   /* raised cards on navy          */
+  --clr-amber:      #f59e0b;   /* primary CTA                   */
+  --clr-amber-deep: #d97706;   /* CTA hover                     */
+  --clr-sky:        #0284c7;   /* links + small accents         */
+  --clr-paper:      #faf9f7;   /* warm section background       */
 }
 
-/* ── Base ───────────────────────────────────────────────────────────────── */
+/* ── Base ─────────────────────────────────────────────────────────────── */
 html {
   scroll-behavior: smooth;
-  /* Reserve scrollbar space so the page doesn't shift when content grows */
   scrollbar-gutter: stable;
 }
 
 body {
   font-family: var(--font-body);
-  color: #111827;
+  color: #0f172a;
   background: #ffffff;
-  /* `clip` (not `hidden`) prevents horizontal overflow without turning <body>
-     into a scroll container — keeps the viewport as the scroller so in-page
-     anchor links (#products, #packages, …) scroll reliably. */
   overflow-x: clip;
-  /* Subtle font rendering sharpness */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* ── Display headings ────────────────────────────────────────────────────
-   Use Manrope at heavy weights for headings — clean, modern, and shares
-   the same font load as body copy (one fewer font request).
-   Slight negative tracking tightens large display sizes.              */
 h1, h2, h3 {
-  font-family: var(--font-display);
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
 }
 
-/* ── Fraunces utility class (italic serif hero headline) ─────────────── */
-.font-fraunces {
-  font-family: var(--font-serif);
-}
-
-/* ── Text selection ─────────────────────────────────────────────────────── */
 ::selection {
-  background: rgba(56, 189, 248, 0.25);
-  color: #0c1a2e;
+  background: rgba(245, 158, 11, 0.25);
+  color: #0a1b2e;
 }
 
-/* ── Scrollbar — neutral, no brand colour ───────────────────────────────── */
-::-webkit-scrollbar {
-  width: 10px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-/* Firefox */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
+/* ── Scrollbar ────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+* { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
 
-/* ── Focus ring (keyboard nav) ──────────────────────────────────────────── */
+/* ── Focus ring ───────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid #38bdf8;
+  outline: 2px solid #f59e0b;
   outline-offset: 3px;
   border-radius: 6px;
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.18);
 }
+:focus:not(:focus-visible) { outline: none; }
 
-/* Suppress focus ring on mouse clicks for non-interactive containers */
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* ── Input range styling ────────────────────────────────────────────────── */
+/* ── Range input (savings calculator) ─────────────────────────────────── */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
   border-radius: 9999px;
-  background: #bae6fd;
+  background: #fde68a;
   outline: none;
 }
 input[type="range"]::-webkit-slider-thumb {
@@ -103,43 +71,25 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   background: #ffffff;
   cursor: pointer;
-  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08), 0 4px 12px rgba(2, 132, 199, 0.3);
+  border: none;
+  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08);
   transition: box-shadow 0.2s, transform 0.2s;
 }
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.08);
-  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08), 0 6px 18px rgba(2, 132, 199, 0.45);
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.08); }
+input[type="range"]::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 1px 4px rgba(2, 8, 23, 0.35), 0 0 0 1px rgba(2, 8, 23, 0.08);
 }
 
-/* ── Hide-scrollbar utility (used by the rebate row in Features) ────────── */
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
+/* ── Anchor offset for the sticky header ──────────────────────────────── */
+section[id] { scroll-margin-top: 96px; }
 
-/* ── Anchor offset for the fixed navbar ─────────────────────────────────── */
-section[id] {
-  scroll-margin-top: 84px;
-}
-
-/* ── Brand marquee (trust strip) ────────────────────────────────────────── */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}
-/* Pause the marquee while the visitor reads it */
-.marquee-hover:hover .animate-marquee {
-  animation-play-state: paused;
-}
-
-/* ── Energy pulses (EnergyStory scene) ──────────────────────────────────────
-   Dashed stroke + animated dashoffset = glowing dots travelling along wires. */
+/* ── Energy pulses (EnergyStory scene) ────────────────────────────────── */
 .energy-pulse {
   stroke-dasharray: 6 26;
   stroke-linecap: round;
@@ -149,66 +99,7 @@ section[id] {
   to { stroke-dashoffset: -64; }
 }
 
-/* ── Cursor spotlight on cards ──────────────────────────────────────────────
-   --mx/--my are set from a mousemove handler; the glow follows the cursor. */
-.card-spotlight {
-  position: relative;
-}
-.card-spotlight::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(
-    240px circle at var(--mx, 50%) var(--my, 50%),
-    rgba(56, 189, 248, 0.14),
-    transparent 65%
-  );
-  opacity: 0;
-  transition: opacity 0.3s;
-  pointer-events: none;
-}
-.card-spotlight:hover::after {
-  opacity: 1;
-}
-
-/* ── Shimmering gradient text (hero accent line) ──────────────────────────
-   Tuned to read on a LIGHT background — saturated sky→blue stops so the
-   accent line stays legible on white/sky-50. */
-@keyframes text-shimmer {
-  to { background-position: -200% 0; }
-}
-.text-shimmer {
-  background: linear-gradient(110deg, #0ea5e9 0%, #2563eb 28%, #0284c7 50%, #0ea5e9 72%, #0ea5e9 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: text-shimmer 7s linear infinite;
-}
-
-/* ── Button sheen: light sweep across CTAs on hover ─────────────────────── */
-.btn-sheen {
-  position: relative;
-  overflow: hidden;
-}
-.btn-sheen::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.45) 50%, transparent 60%);
-  transform: translateX(-160%);
-  pointer-events: none;
-}
-.btn-sheen:hover::after {
-  transform: translateX(160%);
-  transition: transform 0.65s ease;
-}
-
-/* ── Reduced motion: respect OS-level preference ────────────────────────── */
-/* Disable infinite/decorative animations + ease scroll. Framer Motion
-   `whileHover` and one-shot entrance reveals are kept (they're short
-   and meaningful), but anything that loops forever is muted.            */
+/* ── Reduced motion ───────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

@@ -10,13 +10,12 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { useRef, useState } from 'react'
 import {
-  // eslint-disable-next-line no-unused-vars -- `motion` is used in JSX; this config has no jsx-uses-vars rule
   motion, useMotionValue, useMotionValueEvent, useScroll, useSpring,
   useTransform, useReducedMotion,
 } from 'framer-motion'
 import { Sun, BatteryCharging, Home } from 'lucide-react'
 
-const PHOTO = '/images/hero/panels-roof-1600.webp'
+const PHOTO = '/images/photos/bento-panels-1400.webp'
 
 const STARS = [
   [70, 60, 1.6], [180, 120, 1.1], [300, 50, 1.4], [420, 95, 1.0], [520, 40, 1.5],

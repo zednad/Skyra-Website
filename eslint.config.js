@@ -23,7 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // This config has no jsx-uses-vars rule (eslint-plugin-react isn't
+      // installed), so identifiers used only inside JSX would flag as unused:
+      // capitalised components, destructured icon props, and framer-motion's
+      // lowercase `motion.*` members are all exempted here instead.
+      'no-unused-vars': ['error', { varsIgnorePattern: '^([A-Z_]|motion$)', argsIgnorePattern: '^[A-Z_]' }],
+      // Shared modules export a few constants (EASE, endpoints) alongside components.
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
 ])
