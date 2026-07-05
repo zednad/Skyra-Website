@@ -45,7 +45,7 @@ function Hero() {
           </h1>
           <p className="mt-5 max-w-xl text-[17px] leading-relaxed text-slate-200 sm:text-[18px]">
             Around 30% off home batteries with the federal rebate. We design the
-            system, handle the paperwork and install it as one job — for homes
+            system, handle the paperwork and install it as one job, for homes
             and businesses across Australia.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -63,7 +63,7 @@ function Hero() {
   )
 }
 
-/* ── What we install — photo bento ────────────────────────────────────── */
+/* ── What we install - photo bento ────────────────────────────────────── */
 function BentoTile({ to, title, text, base, widths, img, alt, className = '', delay = 0, sizes }) {
   return (
     <Reveal delay={delay} className={className}>
@@ -109,7 +109,7 @@ function WhatWeInstall() {
           <Kicker>What we install</Kicker>
           <H2>One supplier for the whole system.</H2>
           <p className="mt-4 text-[16px] leading-relaxed text-slate-600">
-            Panels, batteries and inverters — sized and paired by the same team
+            Panels, batteries and inverters, sized and paired by the same team
             that installs them, so everything works as one.
           </p>
         </Reveal>
@@ -118,7 +118,7 @@ function WhatWeInstall() {
             className="lg:col-span-4"
             to="/solar"
             title="Solar panels"
-            text="Premium Tier-1 panels, laid out for your roof and your usage — not a one-size-fits-all kit."
+            text="Premium Tier-1 panels, laid out for your roof and your usage, not a one-size-fits-all kit."
             base="bento-panels"
             widths={[800, 1400]}
             sizes="(min-width:1024px) 62vw, 100vw"
@@ -129,7 +129,7 @@ function WhatWeInstall() {
             delay={0.06}
             to="/batteries"
             title="Home batteries"
-            text="Store the day, power the night — with backup for the moments the grid drops out."
+            text="Store the day, power the night, with backup for the moments the grid drops out."
             base="battery-garage"
             widths={[640, 1100]}
             sizes="(min-width:1024px) 32vw, 100vw"
@@ -140,7 +140,7 @@ function WhatWeInstall() {
             delay={0.04}
             to="/solar"
             title="Smart inverters"
-            text="The quiet workhorse of the system — hybrid-ready and monitored from your phone."
+            text="The quiet workhorse of the system: hybrid-ready and monitored from your phone."
             img="/images/products/afore-inverter.webp"
             alt="Hybrid solar inverter mounted on a home wall"
           />
@@ -161,13 +161,13 @@ function WhatWeInstall() {
   )
 }
 
-/* ── Why SkyRa — photo cards ──────────────────────────────────────────── */
+/* ── Why SkyRa - photo cards ──────────────────────────────────────────── */
 const WHY = [
   {
     base: 'why-team',
     alt: 'SkyRa installer on a rooftop',
     t: 'Installed by our team',
-    s: 'The people who quote your job are the people who put it on your roof — one team, accountable end to end.',
+    s: 'The people who quote your job are the people who put it on your roof: one team, accountable end to end.',
   },
   {
     base: 'install-detail',
@@ -180,7 +180,7 @@ const WHY = [
     base: 'consult-table',
     alt: 'SkyRa consultant explaining a design at a kitchen table',
     t: 'Paperwork handled',
-    s: 'Rebate applications, grid approvals and metering — we run the process so you don’t have to chase anyone.',
+    s: 'Rebate applications, grid approvals and metering: we run the process so you don’t have to chase anyone.',
   },
   {
     base: 'handover',
@@ -316,8 +316,8 @@ function Packages() {
             ))}
           </motion.div>
         <p className="mt-6 text-center text-[13px] text-slate-400">
-          Every quote is designed for your specific roof, usage and switchboard —
-          these sizes are a starting point, not a limit.
+          Every quote is designed for your specific roof, usage and switchboard,
+          so these sizes are a starting point, not a limit.
         </p>
       </div>
     </section>
@@ -326,13 +326,13 @@ function Packages() {
 
 /* ── FAQ content ──────────────────────────────────────────────────────── */
 const FAQS = [
-  ['How does the ~30% battery rebate work?', 'The federal Cheaper Home Batteries Program discounts the installed cost of eligible battery systems (roughly 30% for typical home sizes). It works through small-scale technology certificates (STCs), which we apply as an upfront price reduction on your quote — you don’t claim anything yourself. Eligibility criteria apply.'],
+  ['How does the ~30% battery rebate work?', 'The federal Cheaper Home Batteries Program discounts the installed cost of eligible battery systems (roughly 30% for typical home sizes). It works through small-scale technology certificates (STCs), which we apply as an upfront price reduction on your quote. You don’t claim anything yourself. Eligibility criteria apply.'],
   ['Do solar panels still get a rebate too?', 'Yes. Eligible solar systems attract STC incentives that reduce the upfront price. The amount depends on your system size, location and install date, and the scheme phases down each year to 2030.'],
-  ['What’s included in a SkyRa system?', 'Panels, inverter, mounting, wiring, switchboard work and full installation — plus an optional home battery. We supply and fit everything as one matched system and handle grid approval paperwork.'],
+  ['What’s included in a SkyRa system?', 'Panels, inverter, mounting, wiring, switchboard work and full installation, plus an optional home battery. We supply and fit everything as one matched system and handle grid approval paperwork.'],
   ['How much could I save?', 'It depends on your usage, tariff, roof and system size. The calculator above gives an indicative estimate; your written quote includes figures modelled on your actual bill.'],
   ['How long does installation take?', 'Most home installs are completed in a single day once the design is approved and the rebate paperwork is in place. You’ll get a clear timeline with your quote.'],
-  ['Will a battery keep the lights on in a blackout?', 'With a backup-capable battery and the right switchboard configuration, yes — essential circuits keep running when the grid drops out. Tell us blackout protection matters and we’ll design for it.'],
-  ['Do you do commercial systems?', 'Yes — we design and install commercial systems for warehouses, offices and retail, engineered around your daytime load and tariff.'],
+  ['Will a battery keep the lights on in a blackout?', 'With a backup-capable battery and the right switchboard configuration, yes: essential circuits keep running when the grid drops out. Tell us blackout protection matters and we’ll design for it.'],
+  ['Do you do commercial systems?', 'Yes. We design and install commercial systems for warehouses, offices and retail, engineered around your daytime load and tariff.'],
   ['Is the quote really free?', 'Completely. The assessment and written quote are free, and there’s no obligation to proceed.'],
 ]
 
@@ -340,8 +340,8 @@ export default function Home() {
   return (
     <>
       <Meta
-        title="SkyRa Energy — Solar Panels & Home Batteries, Installed Australia-wide"
-        description="Solar panels, home batteries and inverters designed, supplied and installed by one team. Around 30% off batteries with the federal rebate — free, no-obligation quotes."
+        title="SkyRa Energy | Solar Panels & Home Batteries, Installed Australia-wide"
+        description="Solar panels, home batteries and inverters designed, supplied and installed by one team. Around 30% off batteries with the federal rebate. Free, no-obligation quotes."
       />
       <Hero />
       <div className="py-14 sm:py-16">

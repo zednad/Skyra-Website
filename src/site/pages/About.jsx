@@ -1,4 +1,4 @@
-// /about — the SkyRa story. Copy stays honest: no invented history, counts
+// /about - the SkyRa story. Copy stays honest: no invented history, counts
 // or credentials (plan §6); photos are atmosphere, not captioned as staff.
 import { HeartHandshake, Ruler, ShieldCheck, Truck } from 'lucide-react'
 import PageHero from '../PageHero'
@@ -15,7 +15,7 @@ function Story() {
           <div className="mt-5 space-y-4 text-[16px] leading-relaxed text-slate-600">
             <p>
               SkyRa exists because buying solar in Australia had become
-              confusing on purpose — inflated "discounts", mystery hardware,
+              confusing on purpose: inflated "discounts", mystery hardware,
               and a different subcontractor at every step.
             </p>
             <p>
@@ -24,7 +24,7 @@ function Story() {
               it properly. Plain numbers, named hardware, no pressure tactics.
             </p>
             <p>
-              Solar panels, batteries and inverters for homes and businesses —
+              Solar panels, batteries and inverters for homes and businesses,
               supplied and installed across Australia.
             </p>
           </div>
@@ -47,7 +47,7 @@ function Values() {
   const items = [
     { Icon: Ruler, t: 'Design before discounts', s: 'The right system beats the cheap system. Everything starts from your roof and your usage data.' },
     { Icon: ShieldCheck, t: 'Hardware we’d put on our own roof', s: 'Tier-1 panels and proven inverters and batteries with real Australian support behind them.' },
-    { Icon: Truck, t: 'One accountable team', s: 'Quote, design, paperwork, install, handover — one crew owns the whole job, so nothing is “someone else’s problem”.' },
+    { Icon: Truck, t: 'One accountable team', s: 'Quote, design, paperwork, install, handover: one crew owns the whole job, so nothing is “someone else’s problem”.' },
     { Icon: HeartHandshake, t: 'Straight answers', s: 'If solar or a battery doesn’t stack up for your place yet, we’ll tell you that too.' },
   ]
   return (
@@ -104,15 +104,15 @@ export default function About() {
   return (
     <>
       <Meta
-        title="About SkyRa Energy — One Team, Whole System"
-        description="SkyRa designs, supplies and installs solar and battery systems as one accountable team — plain numbers, named hardware, and rebate paperwork handled."
+        title="About SkyRa Energy | One Team, Whole System"
+        description="SkyRa designs, supplies and installs solar and battery systems as one accountable team: plain numbers, named hardware, and rebate paperwork handled."
       />
       <PageHero
         base="about-portrait"
         alt="Solar installer at sunrise beside his work van"
         kicker="About SkyRa"
         title="One team, from first look to switch-on."
-        text="We design, supply and install the whole system ourselves — and give you numbers you can hold us to."
+        text="We design, supply and install the whole system ourselves, and we give you numbers you can hold us to."
         position="object-[70%_30%]"
       />
       <Story />

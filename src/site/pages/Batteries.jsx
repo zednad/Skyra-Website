@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  /batteries — the rebate landing page. Program figures below are the public
+//  /batteries - the rebate landing page. Program figures below are the public
 //  Cheaper Home Batteries Program settings current at July 2026; they carry
 //  an eligibility disclaimer and are confirmed per-quote (plan §6).
 // ─────────────────────────────────────────────────────────────────────────────
@@ -25,21 +25,21 @@ function RebateMath() {
           <p className="mt-4 text-[16px] leading-relaxed text-slate-600">
             The Cheaper Home Batteries Program discounts eligible battery systems
             from 5 to 100 kWh. The discount works through small-scale technology
-            certificates (STCs) — we claim them for you and take the value
+            certificates (STCs). We claim them for you and take the value
             straight off the installed price. There's no income or means test.
           </p>
           <ul className="mt-7 space-y-4">
             {[
-              ['Worth roughly $252 per usable kWh', 'for typical home batteries installed from 1 May 2026 — around 30% of installed cost.'],
-              ['Full rate up to 14 kWh usable', 'then a reduced rate from 14–28 kWh and a small contribution up to 50 kWh — most homes fit inside the full-rate band.'],
-              ['Accredited install required', 'systems must use approved products and an accredited installer to qualify — which is how we install anyway.'],
+              ['Worth roughly $252 per usable kWh', 'For typical home batteries installed from 1 May 2026, around 30% of installed cost.'],
+              ['Full rate up to 14 kWh usable', 'Then a reduced rate from 14–28 kWh and a small contribution up to 50 kWh. Most homes fit inside the full-rate band.'],
+              ['Accredited install required', 'Systems must use approved products and an accredited installer to qualify, which is how we install anyway.'],
             ].map(([head, rest]) => (
               <li key={head} className="flex gap-3.5">
                 <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full bg-amber-100 text-amber-700">
                   <BatteryCharging size={15} />
                 </span>
                 <p className="text-[15px] leading-relaxed text-slate-600">
-                  <strong className="font-bold text-slate-900">{head}</strong> — {rest}
+                  <strong className="font-bold text-slate-900">{head}</strong>. {rest}
                 </p>
               </li>
             ))}
@@ -47,7 +47,7 @@ function RebateMath() {
           <p className="mt-6 text-[12.5px] leading-relaxed text-slate-400">
             Program settings current at July 2026 and subject to change; discount
             varies with battery model, size and location. Eligibility criteria
-            apply — your written quote shows the exact figure for your system.
+            apply, and your written quote shows the exact figure for your system.
           </p>
         </Reveal>
 
@@ -73,8 +73,8 @@ function RebateMath() {
 function WhyBattery() {
   const items = [
     { Icon: PlugZap, t: 'Slash the evening peak', s: 'Evening power is the most expensive power. A battery shifts your cheap solar into the hours you actually use it.' },
-    { Icon: ShieldCheck, t: 'Backup when it counts', s: 'Backup-capable designs keep essential circuits running through blackouts — fridge, lights, Wi-Fi.' },
-    { Icon: Home, t: 'Sized to your home', s: 'We model your usage to size the battery properly — big enough to matter, not bigger than you need.' },
+    { Icon: ShieldCheck, t: 'Backup when it counts', s: 'Backup-capable designs keep essential circuits running through blackouts: fridge, lights, Wi-Fi.' },
+    { Icon: Home, t: 'Sized to your home', s: 'We model your usage to size the battery properly: big enough to matter, not bigger than you need.' },
   ]
   return (
     <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -134,26 +134,26 @@ function BatteryProducts() {
 }
 
 const FAQS = [
-  ['Am I eligible for the battery rebate?', 'Most owner-occupied homes with a suitable switchboard are. The battery must be an approved product between 5 and 100 kWh installed by an accredited installer — we confirm eligibility as part of your free assessment.'],
+  ['Am I eligible for the battery rebate?', 'Most owner-occupied homes with a suitable switchboard are. The battery must be an approved product between 5 and 100 kWh installed by an accredited installer. We confirm eligibility as part of your free assessment.'],
   ['Can I add a battery to my existing solar?', 'Usually yes. Depending on your current inverter we’ll quote either an AC-coupled battery that works alongside it, or a hybrid upgrade. Send us your inverter model and we’ll tell you your options.'],
-  ['How big a battery do I need?', 'A typical home uses 8–16 kWh overnight. We model your actual usage pattern and size the battery so it fills and empties most days — that’s where the payback is best.'],
-  ['Does the battery work during a blackout?', 'Only backup-configured systems do. If blackout protection matters to you, say so — we’ll design the switchboard side for essential-circuit backup from day one.'],
-  ['Can I claim the rebate myself?', 'You never need to — the discount is applied upfront on your invoice and we handle the certificate process behind it.'],
+  ['How big a battery do I need?', 'A typical home uses 8–16 kWh overnight. We model your actual usage pattern and size the battery so it fills and empties most days. That’s where the payback is best.'],
+  ['Does the battery work during a blackout?', 'Only backup-configured systems do. If blackout protection matters to you, say so, and we’ll design the switchboard side for essential-circuit backup from day one.'],
+  ['Can I claim the rebate myself?', 'You never need to. The discount is applied upfront on your invoice and we handle the certificate process behind it.'],
 ]
 
 export default function Batteries() {
   return (
     <>
       <Meta
-        title="Home Batteries — ~30% Federal Rebate | SkyRa Energy"
-        description="Home battery storage installed by one local team. Around 30% off with the federal Cheaper Home Batteries Program — we size the system and handle all rebate paperwork."
+        title="Home Batteries with a ~30% Federal Rebate | SkyRa Energy"
+        description="Home battery storage installed by one local team. Around 30% off with the federal Cheaper Home Batteries Program. We size the system and handle all rebate paperwork."
       />
       <PageHero
         base="home-night"
         alt="Australian home at dusk running on battery power"
         kicker="Home batteries"
         title="Power your evenings with the sun you banked at noon."
-        text="Around 30% off the installed cost of eligible batteries under the federal rebate — designed, installed and configured by one team."
+        text="Around 30% off the installed cost of eligible batteries under the federal rebate, designed, installed and configured by one team."
         secondCta="How the rebate works"
         secondTo="/rebates"
         position="object-[50%_60%]"

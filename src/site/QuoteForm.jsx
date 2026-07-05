@@ -50,7 +50,7 @@ export default function QuoteForm({ compact = false }) {
         setStatus('error')
       }
     } catch {
-      setError('Network error — please check your connection and try again.')
+      setError('Network error. Please check your connection and try again.')
       setStatus('error')
     }
   }
@@ -68,7 +68,7 @@ export default function QuoteForm({ compact = false }) {
         </div>
         <h3 className="mt-5 text-[22px] font-extrabold tracking-tight text-slate-900">Request received</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
-          Thanks — a SkyRa specialist will be in touch shortly to arrange your
+          Thanks. A SkyRa specialist will be in touch shortly to arrange your
           free, no-obligation quote.
         </p>
         <button
@@ -107,7 +107,7 @@ export default function QuoteForm({ compact = false }) {
         </div>
       </div>
       <p className="mt-1 text-[13px] text-slate-400">
-        {step === 1 ? 'Step 1 of 2 — about your place' : 'Step 2 of 2 — where to send it'}
+        {step === 1 ? 'Step 1 of 2: about your place' : 'Step 2 of 2: where to send it'}
       </p>
 
       {/* honeypot */}

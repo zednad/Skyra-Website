@@ -1,4 +1,4 @@
-// /contact — quote form front and centre.
+// /contact - quote form front and centre.
 import { CheckCircle2 } from 'lucide-react'
 import QuoteForm from '../QuoteForm'
 import { Kicker, Meta, Photo, Reveal } from '../shared'
@@ -8,7 +8,7 @@ export default function Contact() {
     <>
       <Meta
         title="Get a Free Solar & Battery Quote | SkyRa Energy"
-        description="Tell us about your place and power bill — SkyRa comes back with a tailored, no-obligation solar and battery quote with every eligible rebate applied."
+        description="Tell us about your place and power bill and SkyRa comes back with a tailored, no-obligation solar and battery quote with every eligible rebate applied."
       />
       <section className="bg-[#faf9f7] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1.05fr] lg:gap-16">
@@ -26,7 +26,7 @@ export default function Contact() {
               {[
                 'Free and genuinely no-obligation',
                 'Every eligible rebate applied upfront',
-                'Plain numbers and named hardware — no mystery kit',
+                'Plain numbers and named hardware, no mystery kit',
                 'Residential and commercial systems',
               ].map((l) => (
                 <li key={l} className="flex items-center gap-3 text-[15px] font-semibold text-slate-700">

@@ -1,4 +1,4 @@
-// /solar — residential solar panels.
+// /solar - residential solar panels.
 import { Layers, SunMedium, Wrench } from 'lucide-react'
 import PageHero from '../PageHero'
 import { CalculatorSection, CtaBand, FaqSection, QuoteSection, StepsSection } from '../sections'
@@ -6,8 +6,8 @@ import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 
 function Approach() {
   const items = [
-    { Icon: SunMedium, t: 'Tier-1 panels only', s: 'All-black mono panels from established Tier-1 manufacturers with strong Australian warranty support — no obscure imports.' },
-    { Icon: Layers, t: 'Designed for your roof', s: 'Orientation, shading and your actual usage pattern drive the layout — not whatever fits the cheapest kit.' },
+    { Icon: SunMedium, t: 'Tier-1 panels only', s: 'All-black mono panels from established Tier-1 manufacturers with strong Australian warranty support and no obscure imports.' },
+    { Icon: Layers, t: 'Designed for your roof', s: 'Orientation, shading and your actual usage pattern drive the layout, not whatever fits the cheapest kit.' },
     { Icon: Wrench, t: 'Installed properly', s: 'Quality rails and clamps, tidy cable runs, correct switchboard protection, and a clean finish you can look at with pride.' },
   ]
   return (
@@ -19,7 +19,7 @@ function Approach() {
             <H2>Panels chosen for decades, not for the brochure.</H2>
             <p className="mt-4 text-[16px] leading-relaxed text-slate-600">
               A solar system lives on your roof for 25 years. We only fit
-              hardware we're confident will still be supported then — and we
+              hardware we're confident will still be supported then, and we
               install it like it has to survive an inspection, because it does.
             </p>
             <ul className="mt-8 space-y-6">
@@ -74,18 +74,18 @@ function Approach() {
 }
 
 const FAQS = [
-  ['How many panels do I need?', 'A typical family home lands between 6.6 and 13.2 kW (15–30 panels). We size from your bill and daytime usage rather than guessing — oversizing slightly is usually worth it for batteries and future EVs.'],
+  ['How many panels do I need?', 'A typical family home lands between 6.6 and 13.2 kW (15–30 panels). We size from your bill and daytime usage rather than guessing. Oversizing slightly is usually worth it for batteries and future EVs.'],
   ['Is my roof suitable?', 'Most are. Tile, Colorbond and metal decks are all fine; orientation and shading matter more than roof type. The free assessment answers this definitively for your address.'],
-  ['What rebate applies to panels?', 'Eligible systems attract STC incentives that come straight off the quoted price — the amount depends on system size, your location and the install date. We handle the whole process.'],
-  ['Should I get a battery at the same time?', 'If you can, yes — the federal battery rebate (~30% off) plus a single combined install usually beats retrofitting later. Every quote shows both options so you can decide with numbers.'],
-  ['What warranties come with the system?', 'Panel product and performance warranties, inverter and workmanship warranties all apply — the specific terms depend on the hardware in your design and are set out clearly in your written quote.'],
+  ['What rebate applies to panels?', 'Eligible systems attract STC incentives that come straight off the quoted price. The amount depends on system size, your location and the install date. We handle the whole process.'],
+  ['Should I get a battery at the same time?', 'If you can, yes. The federal battery rebate (~30% off) plus a single combined install usually beats retrofitting later. Every quote shows both options so you can decide with numbers.'],
+  ['What warranties come with the system?', 'Panel product and performance warranties, inverter and workmanship warranties all apply. The specific terms depend on the hardware in your design and are set out clearly in your written quote.'],
 ]
 
 export default function Solar() {
   return (
     <>
       <Meta
-        title="Residential Solar Panels — Tier-1, Installed by One Team | SkyRa Energy"
+        title="Residential Solar Panels, Installed by One Team | SkyRa Energy"
         description="Tier-1 solar panels designed for your roof and usage, installed cleanly by one local team. Free assessments, STC rebates handled, battery-ready designs."
       />
       <PageHero
@@ -93,7 +93,7 @@ export default function Solar() {
         alt="All-black solar array installed on a terracotta roof"
         kicker="Residential solar"
         title="A roof that pays its own way."
-        text="Tier-1 panels, sized to your usage, installed cleanly by the same team that designed them — with every eligible incentive applied to your quote."
+        text="Tier-1 panels, sized to your usage, installed cleanly by the same team that designed them, with every eligible incentive applied to your quote."
         secondCta="Estimate my savings"
         secondTo="/solar#calculator"
       />

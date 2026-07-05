@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  Site chrome: announcement bar (rebate hook), sticky header with real nav,
 //  fat navy footer, and a mobile bottom quote bar. No phone number is shown
-//  anywhere until the business publishes one (compliance rule — see plan §6).
+//  anywhere until the business publishes one (compliance rule - see plan §6).
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
@@ -27,7 +27,7 @@ function AnnouncementBar() {
       <span className="mr-2 rounded-md bg-amber-400/15 px-2 py-0.5 font-bold text-amber-300">
         Rebates
       </span>
-      <span className="sm:hidden">Around 30% off home batteries — federal rebate</span>
+      <span className="sm:hidden">Around 30% off home batteries with the federal rebate</span>
       <span className="hidden sm:inline">
         Around 30% off home batteries under the federal Cheaper Home Batteries Program
       </span>
@@ -58,7 +58,7 @@ function Header() {
       }
     >
       <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="flex shrink-0 items-center" aria-label="SkyRa Energy — home">
+        <Link to="/" className="flex shrink-0 items-center" aria-label="SkyRa Energy home">
           <img src={skyraLogo} alt="SkyRa Energy" className="h-10 w-auto sm:h-11" width="480" height="284" />
         </Link>
 
@@ -146,7 +146,7 @@ function Footer() {
             <img src={skyraLogo} alt="SkyRa Energy" className="h-9 w-auto" width="480" height="284" />
           </div>
           <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-slate-400">
-            Solar panels, home batteries and inverters — designed, supplied and
+            Solar panels, home batteries and inverters, designed, supplied and
             installed as one system for homes and businesses across Australia.
           </p>
         </div>
@@ -172,7 +172,7 @@ function Footer() {
         <div>
           <h3 className="text-[13px] font-bold uppercase tracking-wider text-slate-500">Get started</h3>
           <p className="mt-4 text-[14px] leading-relaxed text-slate-400">
-            Tell us about your place and power bill — we'll come back with a
+            Tell us about your place and power bill and we'll come back with a
             tailored, no-obligation quote.
           </p>
           <Link

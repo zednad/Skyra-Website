@@ -1,9 +1,9 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  EnergyStory — pinned, scroll-driven "store by day, use by night" scene.
+//  EnergyStory - pinned, scroll-driven "store by day, use by night" scene.
 //  A real photo of a solar home is graded from bright day through golden dusk
 //  into night as the visitor scrolls: stars fade in, warm light pools glow
 //  around the house, and a row of glass status chips (Panels → Battery → Home)
-//  shows the energy flow with animated pulse connectors — amber by day
+//  shows the energy flow with animated pulse connectors - amber by day
 //  (panels charging the battery), sky-blue at night (battery powering the
 //  home). Built with Framer Motion only; no new dependencies.
 //  Reduced motion: unpinned, daytime state, captions listed in a grid.
@@ -39,7 +39,7 @@ const CAPTIONS = [
   {
     kicker: '03 · Night',
     title: 'Power your night',
-    body: 'When the sun sets, your battery takes over — clean power after dark.',
+    body: 'When the sun sets, your battery takes over with clean power after dark.',
     range: [0.64, 0.74, 0.98, 1],
   },
 ]

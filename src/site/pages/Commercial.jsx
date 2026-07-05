@@ -1,4 +1,4 @@
-// /commercial — commercial & industrial solar.
+// /commercial - commercial & industrial solar.
 import { BarChart3, Building2, CalendarClock } from 'lucide-react'
 import PageHero from '../PageHero'
 import { CtaBand, FaqSection, QuoteSection, StepsSection } from '../sections'
@@ -7,7 +7,7 @@ import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 function Value() {
   const items = [
     { Icon: BarChart3, t: 'Built around your load profile', s: 'Commercial solar pays best when generation matches consumption. We design from your interval data, not a rule of thumb.' },
-    { Icon: CalendarClock, t: 'Installed around your operations', s: 'Weekend and staged installs, safe work method statements, and site inductions handled — minimal disruption to trading.' },
+    { Icon: CalendarClock, t: 'Installed around your operations', s: 'Weekend and staged installs, safe work method statements, and site inductions handled, with minimal disruption to trading.' },
     { Icon: Building2, t: 'From office to warehouse scale', s: 'Systems from ~20 kW to hundreds of kW, engineered for your roof structure, switchboard capacity and network rules.' },
   ]
   return (
@@ -52,10 +52,10 @@ function Value() {
 }
 
 const FAQS = [
-  ['What size system does my business need?', 'It depends on your daytime consumption and roof area. From your recent bills (ideally interval data) we model the size that maximises self-consumption — that’s where commercial payback lives.'],
+  ['What size system does my business need?', 'It depends on your daytime consumption and roof area. From your recent bills (ideally interval data) we model the size that maximises self-consumption, which is where commercial payback lives.'],
   ['What incentives apply to businesses?', 'Systems up to 100 kW attract STCs like residential systems; larger systems earn LGCs over time. Batteries from 5–100 kWh can also qualify for the federal battery program. We put the applicable incentives directly in your proposal.'],
-  ['Will installation disrupt trading?', 'We plan installs around your operations — staged works, weekends and clear site management. Most sub-100 kW systems are installed within days.'],
-  ['Can you work with our landlord or body corporate?', 'Yes — we prepare the documentation owners and property managers ask for, including structural, electrical and insurance paperwork.'],
+  ['Will installation disrupt trading?', 'We plan installs around your operations: staged works, weekends and clear site management. Most sub-100 kW systems are installed within days.'],
+  ['Can you work with our landlord or body corporate?', 'Yes. We prepare the documentation owners and property managers ask for, including structural, electrical and insurance paperwork.'],
 ]
 
 export default function Commercial() {
@@ -63,14 +63,14 @@ export default function Commercial() {
     <>
       <Meta
         title="Commercial Solar Systems | SkyRa Energy"
-        description="Commercial solar engineered around your load profile and tariff. One accountable team for design, approvals and installation — from 20 kW to warehouse scale."
+        description="Commercial solar engineered around your load profile and tariff. One accountable team for design, approvals and installation, from 20 kW to warehouse scale."
       />
       <PageHero
         base="commercial-roof"
         alt="Commercial warehouse with a full rooftop solar array"
         kicker="Commercial"
         title="Cut operating costs with your own daytime power."
-        text="Solar engineered for your load profile, roof and tariff — designed, approved and installed by one accountable team."
+        text="Solar engineered for your load profile, roof and tariff, designed, approved and installed by one accountable team."
         cta="Request a commercial proposal"
       />
       <Value />

@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  Reusable page sections: rebate banner, savings calculator, process steps,
 //  FAQ accordion, brand strip, photo CTA band, and the quote-form section.
-//  All claims here follow the compliance rules in docs/REDESIGN_PLAN.md §6 —
+//  All claims here follow the compliance rules in docs/REDESIGN_PLAN.md §6 -
 //  rebate copy states the public program facts and carries a disclaimer.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from 'react'
@@ -26,7 +26,7 @@ export function RebateBanner() {
             </span>
             <div>
               <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px]">
-                Around 30% off home batteries — federal rebate
+                Around 30% off home batteries with the federal rebate
               </h2>
               <p className="mt-1 max-w-2xl text-[14.5px] leading-relaxed text-slate-600">
                 The Cheaper Home Batteries Program discounts the installed cost of
@@ -78,7 +78,7 @@ export function CalculatorSection() {
           <H2>What could solar save you?</H2>
           <p className="mt-4 max-w-lg text-[16px] leading-relaxed text-slate-600">
             Drag to your average quarterly power bill and see an indicative
-            annual saving — no email address required.
+            annual saving. No email address required.
           </p>
           <div className="mt-10">
             <div className="flex items-end justify-between">
@@ -159,7 +159,7 @@ export function CalculatorSection() {
             <CtaLink to="/contact" className="mt-6 w-full">Get my exact numbers</CtaLink>
             <p className="mt-4 text-[12px] leading-relaxed text-slate-400">
               Indicative estimate only. Actual savings depend on your energy use,
-              tariff, system size and site, and aren't guaranteed — we confirm
+              tariff, system size and site, and aren't guaranteed. We confirm
               figures in your written quote.
             </p>
           </div>
@@ -171,7 +171,7 @@ export function CalculatorSection() {
 
 /* ── How it works ─────────────────────────────────────────────────────── */
 const STEPS = [
-  { n: '01', Icon: ClipboardCheck, t: 'Free assessment', s: 'We look at your roof, switchboard and energy usage — on site or from your bill and photos.' },
+  { n: '01', Icon: ClipboardCheck, t: 'Free assessment', s: 'We look at your roof, switchboard and energy usage, on site or from your bill and photos.' },
   { n: '02', Icon: PencilRuler, t: 'Tailored design', s: 'A system sized to your home and budget, with the rebate paperwork prepared for you.' },
   { n: '03', Icon: Wrench, t: 'Installation', s: 'Panels, battery and inverter fitted cleanly and safely, with the switchboard work done properly.' },
   { n: '04', Icon: Power, t: 'Switch on', s: 'We commission the system, connect your monitoring app and walk you through it all.' },
@@ -217,7 +217,7 @@ export function FaqSection({ items, title = 'Questions, answered.' }) {
           <H2>{title}</H2>
           <p className="mt-4 max-w-md text-[16px] leading-relaxed text-slate-600">
             Straight answers before you commit to anything. Still unsure?
-            Ask us — no pressure, no obligation.
+            Ask us. No pressure, no obligation.
           </p>
           <CtaLink to="/contact" className="mt-7">Ask a question</CtaLink>
         </Reveal>
@@ -309,7 +309,7 @@ export function CtaBand() {
           <span className="text-amber-400"> Yours can too.</span>
         </h2>
         <p className="max-w-xl text-[16.5px] leading-relaxed text-slate-200">
-          Get a free, no-obligation quote sized to your roof, usage and budget —
+          Get a free, no-obligation quote sized to your roof, usage and budget,
           with every eligible rebate applied.
         </p>
         <CtaLink to="/contact">Get my free quote</CtaLink>
@@ -338,7 +338,7 @@ export function QuoteSection({
           <div className="absolute inset-0 bg-gradient-to-t from-[#0a1b2e]/60 via-transparent to-transparent" />
           <div className="relative flex h-full min-h-[460px] flex-col justify-end p-8">
             <p className="max-w-sm text-[22px] font-bold leading-snug text-white">
-              Tell us about your place — we'll do the numbers, the design and
+              Tell us about your place. We'll do the numbers, the design and
               the rebate paperwork.
             </p>
           </div>
