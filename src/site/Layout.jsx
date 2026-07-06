@@ -8,7 +8,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, Menu, X } from 'lucide-react'
 import skyraLogo from '../assets/skyra-logo.webp'
-import { EASE, ScrollToTop } from './shared'
+import { ABN, EASE, ScrollToTop } from './shared'
 
 const NAV = [
   ['Solar', '/solar'],
@@ -165,6 +165,7 @@ function Footer() {
           <ul className="mt-4 space-y-2.5 text-[14.5px] font-medium">
             <li><Link to="/about" className="transition-colors hover:text-white">About SkyRa</Link></li>
             <li><Link to="/rebates" className="transition-colors hover:text-white">Government rebates</Link></li>
+            <li><Link to="/faq" className="transition-colors hover:text-white">FAQ</Link></li>
             <li><Link to="/contact" className="transition-colors hover:text-white">Contact us</Link></li>
           </ul>
         </div>
@@ -186,7 +187,7 @@ function Footer() {
 
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-[12.5px] text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <span>© {new Date().getFullYear()} SkyRa Energy. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} SkyRa Energy · ABN {ABN}. All rights reserved.</span>
           <span className="max-w-xl leading-relaxed">
             Savings and rebate figures are indicative only, depend on eligibility
             and your site, and are confirmed in your written quote.

@@ -7,7 +7,8 @@ import { BatteryCharging, Home, PlugZap, ShieldCheck } from 'lucide-react'
 import PageHero from '../PageHero'
 import EnergyStory from '../../components/EnergyStory'
 import { FaqSection, QuoteSection, StepsSection } from '../sections'
-import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
+import { BATTERY_FAQS } from '../faqData'
+import { H2, JsonLd, Kicker, Meta, Photo, Reveal, SITE_URL } from '../shared'
 
 const BATTERY_PRODUCTS = [
   { img: '/images/batteries/sigenergy.webp', name: 'Sigenergy SigenStor', blurb: 'Modular stackable capacity with built-in hybrid inverter and EV-ready options.' },
@@ -136,13 +137,6 @@ function BatteryProducts() {
   )
 }
 
-const FAQS = [
-  ['Am I eligible for the battery rebate?', 'Most owner-occupied homes with a suitable switchboard are. The battery must be an approved product between 5 and 100 kWh installed by an accredited installer. We confirm eligibility as part of your free assessment.'],
-  ['Can I add a battery to my existing solar?', 'Usually yes. Depending on your current inverter we’ll quote either an AC-coupled battery that works alongside it, or a hybrid upgrade. Send us your inverter model and we’ll tell you your options.'],
-  ['How big a battery do I need?', 'A typical home uses 8–16 kWh overnight. We model your actual usage pattern and size the battery so it fills and empties most days. That’s where the payback is best.'],
-  ['Does the battery work during a blackout?', 'Only backup-configured systems do. If blackout protection matters to you, say so, and we’ll design the switchboard side for essential-circuit backup from day one.'],
-  ['Can I claim the rebate myself?', 'You never need to. The discount is applied upfront on your invoice and we handle the certificate process behind it.'],
-]
 
 export default function Batteries() {
   return (
@@ -150,6 +144,19 @@ export default function Batteries() {
       <Meta
         title="Home Batteries with a ~30% Federal Rebate | SkyRa Energy"
         description="Home battery storage installed by one local team. Around 30% off with the federal Cheaper Home Batteries Program. We size the system and handle all rebate paperwork."
+      />
+      <JsonLd
+        id="ld-service"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Home battery installation',
+          serviceType: 'Home battery storage installation',
+          provider: { '@type': 'Organization', name: 'SkyRa Energy', url: SITE_URL },
+          areaServed: { '@type': 'Country', name: 'Australia' },
+          description:
+            'Home battery systems designed, installed and configured by one team, with the federal Cheaper Home Batteries Program discount applied upfront for eligible systems.',
+        }}
       />
       <PageHero
         base="home-night"
@@ -166,7 +173,7 @@ export default function Batteries() {
       <EnergyStory />
       <BatteryProducts />
       <StepsSection />
-      <FaqSection items={FAQS} title="Battery questions, answered." />
+      <FaqSection items={BATTERY_FAQS} title="Battery questions, answered." />
       <QuoteSection photoBase="battery-garage" photoAlt="Home battery installed neatly in an Australian garage" />
     </>
   )

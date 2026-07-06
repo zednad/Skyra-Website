@@ -7,6 +7,7 @@ import Commercial from './site/pages/Commercial'
 import Rebates from './site/pages/Rebates'
 import About from './site/pages/About'
 import Contact from './site/pages/Contact'
+import Faq from './site/pages/Faq'
 import NotFound from './site/pages/NotFound'
 
 export default function App() {
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="commercial" element={<Commercial />} />
         <Route path="rebates" element={<Rebates />} />
         <Route path="about" element={<About />} />
+        <Route path="faq" element={<Faq />} />
         <Route path="contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
       </Route>

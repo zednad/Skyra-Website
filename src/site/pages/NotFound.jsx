@@ -3,7 +3,7 @@ import { CtaLink, Meta } from '../shared'
 export default function NotFound() {
   return (
     <>
-      <Meta title="Page not found | SkyRa Energy" description="That page doesn't exist." />
+      <Meta title="Page not found | SkyRa Energy" description="That page doesn't exist." noindex />
       <section className="grid min-h-[55svh] place-items-center bg-[#faf9f7] px-4 py-24 text-center">
         <div>
           <p className="text-[13px] font-bold uppercase tracking-[0.22em] text-amber-700">404</p>

@@ -11,20 +11,65 @@ import { ArrowRight } from 'lucide-react'
 
 export const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mqeojppk'
 
+export const SITE_URL = 'https://skyraenergy.com.au'
+
+export const ABN = '48 667 329 044'
+
 export const EASE = [0.22, 1, 0.36, 1]
 
-/* Sets document title + meta description per page. */
-export function Meta({ title, description }) {
+function upsertMeta(attr, key, content) {
+  let tag = document.head.querySelector(`meta[${attr}="${key}"]`)
+  if (content == null) {
+    tag?.remove()
+    return
+  }
+  if (!tag) {
+    tag = document.createElement('meta')
+    tag.setAttribute(attr, key)
+    document.head.appendChild(tag)
+  }
+  tag.setAttribute('content', content)
+}
+
+/* Per-page head: title, description, canonical URL, matching Open Graph /
+   Twitter tags, and optional noindex (404). Canonical follows the route. */
+export function Meta({ title, description, noindex = false }) {
+  const { pathname } = useLocation()
   useEffect(() => {
+    const url = SITE_URL + (pathname === '/' ? '/' : pathname)
     document.title = title
-    let tag = document.querySelector('meta[name="description"]')
-    if (!tag) {
-      tag = document.createElement('meta')
-      tag.setAttribute('name', 'description')
-      document.head.appendChild(tag)
+    upsertMeta('name', 'description', description)
+    upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : null)
+    upsertMeta('property', 'og:title', title)
+    upsertMeta('property', 'og:description', description)
+    upsertMeta('property', 'og:url', url)
+    upsertMeta('name', 'twitter:title', title)
+    upsertMeta('name', 'twitter:description', description)
+    let canonical = document.head.querySelector('link[rel="canonical"]')
+    if (!canonical) {
+      canonical = document.createElement('link')
+      canonical.setAttribute('rel', 'canonical')
+      document.head.appendChild(canonical)
     }
-    tag.setAttribute('content', description)
-  }, [title, description])
+    canonical.setAttribute('href', url)
+  }, [title, description, pathname, noindex])
+  return null
+}
+
+/* Injects a JSON-LD structured-data script; removed again on unmount. */
+export function JsonLd({ id, data }) {
+  const json = JSON.stringify(data)
+  useEffect(() => {
+    let el = document.getElementById(id)
+    if (!el) {
+      el = document.createElement('script')
+      el.type = 'application/ld+json'
+      el.id = id
+      document.head.appendChild(el)
+    }
+    el.textContent = json
+    return () => el.remove()
+  }, [id, json])
   return null
 }
 

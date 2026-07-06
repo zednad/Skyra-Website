@@ -2,7 +2,8 @@
 import { Layers, SunMedium, Wrench } from 'lucide-react'
 import PageHero from '../PageHero'
 import { CalculatorSection, FaqSection, QuoteSection, StepsSection } from '../sections'
-import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
+import { SOLAR_FAQS } from '../faqData'
+import { H2, JsonLd, Kicker, Meta, Photo, Reveal, SITE_URL } from '../shared'
 
 function Approach() {
   const items = [
@@ -74,13 +75,6 @@ function Approach() {
   )
 }
 
-const FAQS = [
-  ['How many panels do I need?', 'A typical family home lands between 6.6 and 13.2 kW (15–30 panels). We size from your bill and daytime usage rather than guessing. Oversizing slightly is usually worth it for batteries and future EVs.'],
-  ['Is my roof suitable?', 'Most are. Tile, Colorbond and metal decks are all fine; orientation and shading matter more than roof type. The free assessment answers this definitively for your address.'],
-  ['What rebate applies to panels?', 'Eligible systems attract STC incentives that come straight off the quoted price. The amount depends on system size, your location and the install date. We handle the whole process.'],
-  ['Should I get a battery at the same time?', 'If you can, yes. The federal battery rebate (~30% off) plus a single combined install usually beats retrofitting later. Every quote shows both options so you can decide with numbers.'],
-  ['What warranties come with the system?', 'Panel product and performance warranties, inverter and workmanship warranties all apply. The specific terms depend on the hardware in your design and are set out clearly in your written quote.'],
-]
 
 export default function Solar() {
   return (
@@ -88,6 +82,19 @@ export default function Solar() {
       <Meta
         title="Residential Solar Panels, Installed by One Team | SkyRa Energy"
         description="Tier-1 solar panels designed for your roof and usage, installed cleanly by one local team. Free assessments, STC rebates handled, battery-ready designs."
+      />
+      <JsonLd
+        id="ld-service"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Residential solar panel installation',
+          serviceType: 'Solar panel installation',
+          provider: { '@type': 'Organization', name: 'SkyRa Energy', url: SITE_URL },
+          areaServed: { '@type': 'Country', name: 'Australia' },
+          description:
+            'Tier-1 solar panels designed for your roof and usage, installed by one local team, with STC incentives applied upfront on the quote.',
+        }}
       />
       <PageHero
         base="bento-panels"
@@ -101,7 +108,7 @@ export default function Solar() {
       <Approach />
       <CalculatorSection />
       <StepsSection />
-      <FaqSection items={FAQS} title="Solar questions, answered." />
+      <FaqSection items={SOLAR_FAQS} title="Solar questions, answered." />
       <QuoteSection photoBase="van-driveway" photoWidths={[800, 1400]} photoAlt="SkyRa van and installer delivering panels to a home" />
     </>
   )

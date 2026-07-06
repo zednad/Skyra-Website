@@ -3,6 +3,7 @@
 import { BadgePercent, Landmark, MapPinned, SunMedium } from 'lucide-react'
 import PageHero from '../PageHero'
 import { FaqSection, QuoteSection } from '../sections'
+import { REBATE_FAQS } from '../faqData'
 import { H2, Kicker, Meta, Reveal } from '../shared'
 
 const SCHEMES = [
@@ -93,12 +94,6 @@ function Schemes() {
   )
 }
 
-const FAQS = [
-  ['Do I have to apply for anything?', 'No. We prepare and lodge everything as part of the job, and the incentives appear as upfront deductions on your invoice.'],
-  ['Can the battery rebate and solar STCs be combined?', 'Yes. A combined solar + battery install typically attracts both, plus any state scheme your address qualifies for.'],
-  ['Is there an income test?', 'The federal battery program has no income or means test. Some state schemes do, and we check what applies to you.'],
-  ['Will the rebates get smaller?', 'The solar STC scheme steps down every January until 2030, and battery program settings are reviewed against falling battery prices. Whatever applies on your install date is what your quote reflects.'],
-]
 
 export default function Rebates() {
   return (
@@ -117,7 +112,7 @@ export default function Rebates() {
         position="object-[50%_70%]"
       />
       <Schemes />
-      <FaqSection items={FAQS} title="Rebate questions, answered." />
+      <FaqSection items={REBATE_FAQS} title="Rebate questions, answered." />
       <QuoteSection />
     </>
   )

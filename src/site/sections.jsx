@@ -11,7 +11,7 @@ import {
   ArrowRight, BadgePercent, ChevronDown, ClipboardCheck, Gauge, PencilRuler,
   Power, Sun, Wrench,
 } from 'lucide-react'
-import { CtaLink, EASE, H2, Kicker, Photo, Reveal } from './shared'
+import { CtaLink, EASE, H2, JsonLd, Kicker, Photo, Reveal } from './shared'
 import QuoteForm from './QuoteForm'
 
 /* ── Rebate banner ────────────────────────────────────────────────────── */
@@ -239,6 +239,18 @@ export function FaqSection({ items, title = 'Questions, answered.' }) {
   const [open, setOpen] = useState(0)
   return (
     <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <JsonLd
+        id="ld-faq"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'FAQPage',
+          mainEntity: items.map(([q, a]) => ({
+            '@type': 'Question',
+            name: q,
+            acceptedAnswer: { '@type': 'Answer', text: a },
+          })),
+        }}
+      />
       <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <Reveal>
           <Kicker>FAQ</Kicker>

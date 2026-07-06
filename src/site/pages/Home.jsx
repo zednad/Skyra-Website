@@ -15,6 +15,7 @@ import {
   BrandStrip, CalculatorSection, FaqSection, QuoteSection,
   RebateBanner, StepsSection,
 } from '../sections'
+import { GENERAL_FAQS } from '../faqData'
 import { CtaLink, H2, Kicker, Meta, Photo, Reveal, TruthChip } from '../shared'
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
@@ -339,17 +340,6 @@ function Packages() {
   )
 }
 
-/* ── FAQ content ──────────────────────────────────────────────────────── */
-const FAQS = [
-  ['How does the ~30% battery rebate work?', 'The federal Cheaper Home Batteries Program discounts the installed cost of eligible battery systems (roughly 30% for typical home sizes). It works through small-scale technology certificates (STCs), which we apply as an upfront price reduction on your quote. You don’t claim anything yourself. Eligibility criteria apply.'],
-  ['Do solar panels still get a rebate too?', 'Yes. Eligible solar systems attract STC incentives that reduce the upfront price. The amount depends on your system size, location and install date, and the scheme phases down each year to 2030.'],
-  ['What’s included in a SkyRa system?', 'Panels, inverter, mounting, wiring, switchboard work and full installation, plus an optional home battery. We supply and fit everything as one matched system and handle grid approval paperwork.'],
-  ['How much could I save?', 'It depends on your usage, tariff, roof and system size. The calculator above gives an indicative estimate; your written quote includes figures modelled on your actual bill.'],
-  ['How long does installation take?', 'Most home installs are completed in a single day once the design is approved and the rebate paperwork is in place. You’ll get a clear timeline with your quote.'],
-  ['Will a battery keep the lights on in a blackout?', 'With a backup-capable battery and the right switchboard configuration, yes: essential circuits keep running when the grid drops out. Tell us blackout protection matters and we’ll design for it.'],
-  ['Do you do commercial systems?', 'Yes. We design and install commercial systems for warehouses, offices and retail, engineered around your daytime load and tariff.'],
-  ['Is the quote really free?', 'Completely. The assessment and written quote are free, and there’s no obligation to proceed.'],
-]
 
 export default function Home() {
   return (
@@ -369,7 +359,7 @@ export default function Home() {
       <WhySkyra />
       <StepsSection />
       <BrandStrip />
-      <FaqSection items={FAQS} />
+      <FaqSection items={GENERAL_FAQS} />
       <QuoteSection />
     </>
   )

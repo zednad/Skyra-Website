@@ -2,7 +2,8 @@
 import { BarChart3, Building2, CalendarClock } from 'lucide-react'
 import PageHero from '../PageHero'
 import { FaqSection, QuoteSection, StepsSection } from '../sections'
-import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
+import { COMMERCIAL_FAQS } from '../faqData'
+import { H2, JsonLd, Kicker, Meta, Photo, Reveal, SITE_URL } from '../shared'
 
 function Value() {
   const items = [
@@ -51,12 +52,6 @@ function Value() {
   )
 }
 
-const FAQS = [
-  ['What size system does my business need?', 'It depends on your daytime consumption and roof area. From your recent bills (ideally interval data) we model the size that maximises self-consumption, which is where commercial payback lives.'],
-  ['What incentives apply to businesses?', 'Systems up to 100 kW attract STCs like residential systems; larger systems earn LGCs over time. Batteries from 5–100 kWh can also qualify for the federal battery program. We put the applicable incentives directly in your proposal.'],
-  ['Will installation disrupt trading?', 'We plan installs around your operations: staged works, weekends and clear site management. Most sub-100 kW systems are installed within days.'],
-  ['Can you work with our landlord or body corporate?', 'Yes. We prepare the documentation owners and property managers ask for, including structural, electrical and insurance paperwork.'],
-]
 
 export default function Commercial() {
   return (
@@ -64,6 +59,19 @@ export default function Commercial() {
       <Meta
         title="Commercial Solar Systems | SkyRa Energy"
         description="Commercial solar engineered around your load profile and tariff. One accountable team for design, approvals and installation, from 20 kW to warehouse scale."
+      />
+      <JsonLd
+        id="ld-service"
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: 'Commercial solar installation',
+          serviceType: 'Commercial solar system design and installation',
+          provider: { '@type': 'Organization', name: 'SkyRa Energy', url: SITE_URL },
+          areaServed: { '@type': 'Country', name: 'Australia' },
+          description:
+            'Commercial solar systems engineered around your load profile, roof and tariff, from design and network approvals through installation.',
+        }}
       />
       <PageHero
         base="commercial-roof"
@@ -75,7 +83,7 @@ export default function Commercial() {
       />
       <Value />
       <StepsSection />
-      <FaqSection items={FAQS} title="Commercial questions, answered." />
+      <FaqSection items={COMMERCIAL_FAQS} title="Commercial questions, answered." />
       <QuoteSection photoBase="commercial-roof" photoWidths={[800, 1400]} photoAlt="Commercial solar installation" />
     </>
   )

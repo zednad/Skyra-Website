@@ -7,7 +7,9 @@
 //  the energy flow with animated pulse connectors - amber by day (panels
 //  charging the battery), sky-blue at night (battery powering the home).
 //  Built with Framer Motion only; no new dependencies.
-//  Reduced motion: unpinned, static daytime poster, captions listed in a grid.
+//  Phones and reduced motion get a static, unpinned section instead: the two
+//  renders shown side by side (no video, which crops badly at portrait sizes)
+//  with the three story beats as simple rows.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -42,11 +44,22 @@ const CAPTIONS = [
   },
 ]
 
+const PHONE_QUERY = '(max-width: 639px)'
+
 export default function EnergyStory() {
   const reduce = useReducedMotion()
+  const [isPhone, setIsPhone] = useState(() => window.matchMedia(PHONE_QUERY).matches)
+  const staticMode = reduce || isPhone
   const ref = useRef(null)
   const dayVideoRef = useRef(null)
   const nightVideoRef = useRef(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia(PHONE_QUERY)
+    const onChange = (e) => setIsPhone(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const spring = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.4 })
   const staticP = useMotionValue(0.3) // frozen daytime state for reduced motion
@@ -58,7 +71,7 @@ export default function EnergyStory() {
 
   // Only run the loops while the scene is on screen.
   useEffect(() => {
-    if (reduce || !ref.current) return undefined
+    if (staticMode || !ref.current) return undefined
     const io = new IntersectionObserver(([entry]) => {
       [dayVideoRef.current, nightVideoRef.current].forEach((v) => {
         if (!v) return
@@ -68,7 +81,7 @@ export default function EnergyStory() {
     })
     io.observe(ref.current)
     return () => io.disconnect()
-  }, [reduce])
+  }, [staticMode])
 
   // ── Glass surfaces + text flip to dark mode at night ──────────────────────
   const panelBg = useTransform(p, [0.6, 0.78], ['rgba(255,255,255,0.78)', 'rgba(15,23,42,0.68)'])
@@ -93,6 +106,53 @@ export default function EnergyStory() {
 
   const chipColors = { bg: chipBg, text: chipText, sub: chipSub, border: panelBorder }
 
+  // Phones + reduced motion: no video and no pinned scroll. The two renders
+  // sit side by side and the story reads as plain rows.
+  if (staticMode) {
+    const icons = [Sun, BatteryCharging, Home]
+    return (
+      <section id="energy-story" className="bg-[#0a1b2e] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+        <div className="mx-auto max-w-7xl">
+          <p className="text-[12px] font-bold uppercase tracking-[0.3em] text-sky-300">Day &amp; night</p>
+          <h2 className="mt-3 text-[clamp(26px,3.6vw,42px)] font-extrabold leading-[1.08] tracking-tight text-white">
+            One system that never clocks off.
+          </h2>
+          <div className="mt-6 grid grid-cols-2 gap-3">
+            <img
+              src={DAY_POSTER}
+              alt="Illustration of a solar home generating power during the day"
+              loading="lazy"
+              className="aspect-video w-full rounded-xl object-cover ring-1 ring-white/10"
+            />
+            <img
+              src={NIGHT_POSTER}
+              alt="Illustration of the same home running on its battery at night"
+              loading="lazy"
+              className="aspect-video w-full rounded-xl object-cover ring-1 ring-white/10"
+            />
+          </div>
+          <div className="mt-8 space-y-6">
+            {CAPTIONS.map((c, i) => {
+              const Icon = icons[i]
+              return (
+                <div key={c.title} className="flex gap-4">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/10 text-amber-300">
+                    <Icon size={20} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300">{c.kicker}</p>
+                    <h3 className="mt-0.5 text-[17px] font-extrabold tracking-tight text-white">{c.title}</h3>
+                    <p className="mt-1 text-[14px] leading-relaxed text-slate-300">{c.body}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="energy-story" ref={ref} className={reduce ? '' : 'relative h-[220vh] sm:h-[300vh]'}>
       <div
@@ -102,45 +162,33 @@ export default function EnergyStory() {
         }
       >
         {/* ── Video backdrop: same scene rendered by day and by night ── */}
-        {reduce ? (
-          <img
-            src={DAY_POSTER}
-            alt=""
-            aria-hidden="true"
-            loading="lazy"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
-        ) : (
-          <>
-            <video
-              ref={dayVideoRef}
-              src={DAY_VIDEO}
-              poster={DAY_POSTER}
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              tabIndex={-1}
-            />
-            <motion.video
-              ref={nightVideoRef}
-              src={NIGHT_VIDEO}
-              poster={NIGHT_POSTER}
-              style={{ opacity: nightOpacity }}
-              className="absolute inset-0 h-full w-full object-cover"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              aria-hidden="true"
-              tabIndex={-1}
-            />
-          </>
-        )}
+        <video
+          ref={dayVideoRef}
+          src={DAY_VIDEO}
+          poster={DAY_POSTER}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
+        <motion.video
+          ref={nightVideoRef}
+          src={NIGHT_VIDEO}
+          poster={NIGHT_POSTER}
+          style={{ opacity: nightOpacity }}
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+          tabIndex={-1}
+        />
         {/* constant gentle scrim so glass UI reads over the bright scene */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/25 via-transparent to-slate-900/35" />
         {/* golden-hour wash bridging the day → night crossfade */}
