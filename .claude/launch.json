@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "Skyra Dev (portable node)",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd /Users/zulunadola/Documents/GitHub/Skyra-Website && exec ./node_modules/.node-portable/bin/node ./node_modules/vite/bin/vite.js --port 5173 --strictPort"],
+      "port": 5173
     }
   ]
 }

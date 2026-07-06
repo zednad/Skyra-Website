@@ -1,0 +1,121 @@
+// /rebates - government incentives explained. Public program facts current at
+// July 2026, always with eligibility disclaimers (plan §6).
+import { BadgePercent, Landmark, MapPinned, SunMedium } from 'lucide-react'
+import PageHero from '../PageHero'
+import { CtaBand, FaqSection, QuoteSection } from '../sections'
+import { H2, Kicker, Meta, Reveal } from '../shared'
+
+const SCHEMES = [
+  {
+    Icon: BadgePercent,
+    name: 'Cheaper Home Batteries Program',
+    who: 'Federal: home & business batteries',
+    points: [
+      'Roughly 30% off the installed cost of eligible battery systems from 5–100 kWh.',
+      'Worth about $252 per usable kWh for typical home batteries installed from 1 May 2026, with the full rate up to 14 kWh usable and tapering above.',
+      'No income or means test. Applied upfront on your invoice via STCs, and we do the claiming.',
+    ],
+  },
+  {
+    Icon: SunMedium,
+    name: 'Small-scale Technology Certificates (STCs)',
+    who: 'Federal: solar panel systems',
+    points: [
+      'Reduces the upfront price of eligible solar systems up to 100 kW.',
+      'Value depends on system size, your location zone and the install date.',
+      'The scheme phases down each year until it ends in 2030, so earlier installs earn more certificates.',
+    ],
+  },
+  {
+    Icon: MapPinned,
+    name: 'State & territory incentives',
+    who: 'Varies by state',
+    points: [
+      'Several states run additional schemes, for example energy-savings certificates and interest-free loan programs.',
+      'What applies depends on your address and can often stack with the federal programs.',
+      'We check what your postcode qualifies for as part of every quote.',
+    ],
+  },
+]
+
+function Schemes() {
+  return (
+    <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      <div className="mx-auto max-w-7xl">
+        <Reveal className="max-w-2xl">
+          <Kicker>What's available</Kicker>
+          <H2>Three layers of incentives, one tidy quote.</H2>
+          <p className="mt-4 text-[16px] leading-relaxed text-slate-600">
+            You never claim anything yourself. Every eligible incentive is
+            applied to your quote as an upfront price reduction, with the
+            paperwork handled by us.
+          </p>
+        </Reveal>
+        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+          {SCHEMES.map(({ Icon, name, who, points }, i) => (
+            <Reveal key={name} delay={i * 0.06}>
+              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-7 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
+                <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-900 text-amber-400">
+                  <Icon size={22} />
+                </span>
+                <h3 className="mt-5 text-[18px] font-bold leading-snug text-slate-900">{name}</h3>
+                <p className="mt-1 text-[12.5px] font-bold uppercase tracking-wider text-amber-700">{who}</p>
+                <ul className="mt-4 space-y-3">
+                  {points.map((p) => (
+                    <li key={p} className="flex gap-2.5 text-[14px] leading-relaxed text-slate-600">
+                      <span className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal className="mt-8">
+          <div className="flex items-start gap-3.5 rounded-2xl border border-slate-200 bg-[#faf9f7] p-5 text-[13px] leading-relaxed text-slate-500">
+            <Landmark size={18} className="mt-0.5 shrink-0 text-slate-400" />
+            <p>
+              Program settings summarised here are current at July 2026 and change
+              over time. Discounts vary with system size, hardware and location,
+              and eligibility criteria apply to every scheme. Your written quote
+              states the exact incentive amounts for your address. That figure,
+              not this page, is the one we stand behind.
+            </p>
+          </div>
+        </Reveal>
+      </div>
+    </section>
+  )
+}
+
+const FAQS = [
+  ['Do I have to apply for anything?', 'No. We prepare and lodge everything as part of the job, and the incentives appear as upfront deductions on your invoice.'],
+  ['Can the battery rebate and solar STCs be combined?', 'Yes. A combined solar + battery install typically attracts both, plus any state scheme your address qualifies for.'],
+  ['Is there an income test?', 'The federal battery program has no income or means test. Some state schemes do, and we check what applies to you.'],
+  ['Will the rebates get smaller?', 'The solar STC scheme steps down every January until 2030, and battery program settings are reviewed against falling battery prices. Whatever applies on your install date is what your quote reflects.'],
+]
+
+export default function Rebates() {
+  return (
+    <>
+      <Meta
+        title="Solar & Battery Rebates Australia (2026 Guide) | SkyRa Energy"
+        description="Plain-English guide to the federal battery rebate (~30% off), solar STC incentives and state schemes, and how SkyRa applies them upfront on your quote."
+      />
+      <PageHero
+        base="suburb-aerial"
+        widths={[1280, 2048]}
+        alt="Australian suburb at golden hour with many solar rooftops"
+        kicker="Government rebates"
+        title="The rebates are real. The paperwork is ours."
+        text="Around 30% off eligible home batteries, STC incentives on solar, and state schemes on top, every one applied upfront on your quote."
+        position="object-[50%_70%]"
+      />
+      <Schemes />
+      <FaqSection items={FAQS} title="Rebate questions, answered." />
+      <CtaBand />
+      <QuoteSection />
+    </>
+  )
+}
