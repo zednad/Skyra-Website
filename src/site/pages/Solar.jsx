@@ -1,7 +1,7 @@
 // /solar - residential solar panels.
 import { Layers, SunMedium, Wrench } from 'lucide-react'
 import PageHero from '../PageHero'
-import { CalculatorSection, CtaBand, FaqSection, QuoteSection, StepsSection } from '../sections'
+import { CalculatorSection, FaqSection, QuoteSection, StepsSection } from '../sections'
 import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 
 function Approach() {
@@ -46,7 +46,8 @@ function Approach() {
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            {/* Supporting pair adds little on phones; one strong photo is enough. */}
+            <div className="hidden grid-cols-2 gap-4 sm:grid">
               <div className="overflow-hidden rounded-2xl">
                 <Photo
                   base="why-hardware"
@@ -101,7 +102,6 @@ export default function Solar() {
       <CalculatorSection />
       <StepsSection />
       <FaqSection items={FAQS} title="Solar questions, answered." />
-      <CtaBand />
       <QuoteSection photoBase="van-driveway" photoWidths={[800, 1400]} photoAlt="SkyRa van and installer delivering panels to a home" />
     </>
   )

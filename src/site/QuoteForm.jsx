@@ -163,8 +163,8 @@ export default function QuoteForm({ compact = false }) {
                 />
               </div>
               <div>
-                <label htmlFor="qf-bill" className="mb-2 block text-[13px] font-semibold text-slate-600">
-                  Quarterly bill <span className="font-normal text-slate-400">(optional)</span>
+                <label htmlFor="qf-bill" className="mb-2 block whitespace-nowrap text-[13px] font-semibold text-slate-600">
+                  Quarterly bill <span className="hidden font-normal text-slate-400 sm:inline">(optional)</span>
                 </label>
                 <select
                   id="qf-bill"
@@ -172,7 +172,7 @@ export default function QuoteForm({ compact = false }) {
                   onChange={(e) => updateLead('bill', e.target.value)}
                   className={fieldCls + ' appearance-none ' + (lead.bill === '' ? 'text-slate-400' : '')}
                 >
-                  <option value="">Select…</option>
+                  <option value="">Optional…</option>
                   {BILLS.map((b) => (
                     <option key={b} value={b}>{b}</option>
                   ))}

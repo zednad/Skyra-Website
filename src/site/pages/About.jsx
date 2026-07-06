@@ -2,7 +2,7 @@
 // or credentials (plan §6); photos are atmosphere, not captioned as staff.
 import { HeartHandshake, Ruler, ShieldCheck, Truck } from 'lucide-react'
 import PageHero from '../PageHero'
-import { CtaBand, QuoteSection } from '../sections'
+import { QuoteSection } from '../sections'
 import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 
 function Story() {
@@ -57,15 +57,18 @@ function Values() {
           <Kicker>How we work</Kicker>
           <H2>The rules we don't break.</H2>
         </Reveal>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Icon-beside-text rows on phones; cards from sm up. */}
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {items.map(({ Icon, t, s }, i) => (
             <Reveal key={t} delay={i * 0.05}>
-              <div className="h-full rounded-2xl border border-slate-200 bg-white p-6">
-                <span className="grid h-11 w-11 place-items-center rounded-xl bg-slate-900 text-amber-400">
+              <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 sm:block sm:p-6">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400">
                   <Icon size={20} />
                 </span>
-                <h3 className="mt-4 text-[16px] font-bold text-slate-900">{t}</h3>
-                <p className="mt-1.5 text-[14px] leading-relaxed text-slate-500">{s}</p>
+                <div className="min-w-0">
+                  <h3 className="text-[16px] font-bold text-slate-900 sm:mt-4">{t}</h3>
+                  <p className="mt-1.5 text-[14px] leading-relaxed text-slate-500">{s}</p>
+                </div>
               </div>
             </Reveal>
           ))}
@@ -78,7 +81,8 @@ function Values() {
 function PhotoRow() {
   return (
     <section className="bg-white px-4 pb-20 pt-4 sm:px-6 lg:px-8 lg:pb-28">
-      <div className="mx-auto grid max-w-7xl gap-4 sm:grid-cols-3">
+      {/* Phones: compact 2-up gallery; sm+: the wide editorial strip. */}
+      <div className="mx-auto grid max-w-7xl grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         {[
           ['van-driveway', 'Work van and installer delivering panels to a home', 'sm:col-span-2'],
           ['about-portrait', 'Solar installer at sunrise beside his van', ''],
@@ -88,10 +92,10 @@ function PhotoRow() {
           <div key={base} className={'overflow-hidden rounded-2xl ' + span}>
             <Photo
               base={base}
-              widths={base === 'about-portrait' || base === 'handover' ? [640, 1100] : [800, 1400]}
-              sizes="(min-width:640px) 33vw, 100vw"
+              widths={base === 'handover' ? [640, 1100] : [800, 1400]}
+              sizes="(min-width:640px) 33vw, 50vw"
               alt={alt}
-              className="aspect-[4/3] h-full w-full object-cover transition-transform duration-[1200ms] hover:scale-[1.04]"
+              className="aspect-square h-full w-full object-cover transition-transform duration-[1200ms] hover:scale-[1.04] sm:aspect-[4/3]"
             />
           </div>
         ))}
@@ -118,7 +122,6 @@ export default function About() {
       <Story />
       <Values />
       <PhotoRow />
-      <CtaBand />
       <QuoteSection />
     </>
   )

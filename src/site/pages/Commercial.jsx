@@ -1,7 +1,7 @@
 // /commercial - commercial & industrial solar.
 import { BarChart3, Building2, CalendarClock } from 'lucide-react'
 import PageHero from '../PageHero'
-import { CtaBand, FaqSection, QuoteSection, StepsSection } from '../sections'
+import { FaqSection, QuoteSection, StepsSection } from '../sections'
 import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 
 function Value() {
@@ -76,7 +76,6 @@ export default function Commercial() {
       <Value />
       <StepsSection />
       <FaqSection items={FAQS} title="Commercial questions, answered." />
-      <CtaBand />
       <QuoteSection photoBase="commercial-roof" photoWidths={[800, 1400]} photoAlt="Commercial solar installation" />
     </>
   )

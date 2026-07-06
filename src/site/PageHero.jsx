@@ -25,11 +25,11 @@ export default function PageHero({
           className="max-w-2xl"
         >
           <p className="text-[12px] font-bold uppercase tracking-[0.22em] text-amber-300">{kicker}</p>
-          <h1 className="mt-4 text-[clamp(32px,4.6vw,54px)] font-extrabold leading-[1.06] tracking-tight text-white">
+          <h1 className="mt-3 text-[clamp(30px,4.6vw,54px)] font-extrabold leading-[1.06] tracking-tight text-white sm:mt-4">
             {title}
           </h1>
-          <p className="mt-4 max-w-xl text-[16.5px] leading-relaxed text-slate-200">{text}</p>
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+          <p className="mt-3 max-w-xl text-[15.5px] leading-relaxed text-slate-200 sm:mt-4 sm:text-[16.5px]">{text}</p>
+          <div className="mt-6 flex flex-col gap-3 sm:mt-7 sm:flex-row">
             <CtaLink to={ctaTo}>{cta}</CtaLink>
             {secondCta && <CtaLink to={secondTo} variant="ghost">{secondCta}</CtaLink>}
           </div>

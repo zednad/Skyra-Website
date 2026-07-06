@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  Reusable page sections: rebate banner, savings calculator, process steps,
-//  FAQ accordion, brand strip, photo CTA band, and the quote-form section.
+//  FAQ accordion, brand strip, and the quote-form section.
 //  All claims here follow the compliance rules in docs/REDESIGN_PLAN.md §6 -
 //  rebate copy states the public program facts and carries a disclaimer.
 // ─────────────────────────────────────────────────────────────────────────────
@@ -19,26 +19,31 @@ export function RebateBanner() {
   return (
     <section className="px-4 sm:px-6 lg:px-8">
       <Reveal className="mx-auto max-w-7xl">
-        <div className="flex flex-col gap-5 rounded-2xl border border-amber-200 bg-amber-50 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <div className="flex items-start gap-4">
-            <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-amber-500 text-slate-950">
-              <BadgePercent size={24} />
+        <div className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-amber-50 p-5 sm:flex-row sm:items-center sm:justify-between sm:gap-5 sm:p-8">
+          <div className="flex items-start gap-3.5 sm:gap-4">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-500 text-slate-950 sm:h-12 sm:w-12">
+              <BadgePercent size={22} />
             </span>
             <div>
-              <h2 className="text-[19px] font-extrabold tracking-tight text-slate-900 sm:text-[21px]">
+              <h2 className="text-[17px] font-extrabold leading-snug tracking-tight text-slate-900 sm:text-[21px]">
                 Around 30% off home batteries with the federal rebate
               </h2>
-              <p className="mt-1 max-w-2xl text-[14.5px] leading-relaxed text-slate-600">
+              {/* Full program detail on larger screens; phones keep the claim
+                  qualified and link out for the rest. */}
+              <p className="mt-1 hidden max-w-2xl text-[14.5px] leading-relaxed text-slate-600 sm:block">
                 The Cheaper Home Batteries Program discounts the installed cost of
                 eligible battery systems, and solar panels still attract STC
                 incentives. We size the system and handle the paperwork.
                 <span className="text-slate-400"> Eligibility criteria apply.</span>
               </p>
+              <p className="mt-1 text-[13px] text-slate-500 sm:hidden">
+                We handle the paperwork. Eligibility criteria apply.
+              </p>
             </div>
           </div>
           <Link
             to="/rebates"
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[14px] font-bold text-white transition-colors hover:bg-slate-800"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[14px] font-bold text-white transition-colors hover:bg-slate-800"
           >
             How the rebates work <ArrowRight size={16} />
           </Link>
@@ -185,7 +190,30 @@ export function StepsSection() {
           <Kicker>How it works</Kicker>
           <H2>From first look to switch-on, one team.</H2>
         </Reveal>
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+        {/* Phones: compact connected timeline, one glance per step. */}
+        <Reveal className="mt-8 sm:hidden">
+          <ol>
+            {STEPS.map(({ n, Icon, t, s }, i) => (
+              <li key={n} className="relative flex gap-4 pb-7 last:pb-0">
+                {i < STEPS.length - 1 && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-[21px] top-12 w-px bg-slate-200" />
+                )}
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400">
+                  <Icon size={20} />
+                </span>
+                <div className="min-w-0 pt-0.5">
+                  <div className="text-[11px] font-bold uppercase tracking-[0.16em] text-amber-700">Step {n}</div>
+                  <h3 className="mt-0.5 text-[16.5px] font-bold text-slate-900">{t}</h3>
+                  <p className="mt-1 text-[14px] leading-relaxed text-slate-500">{s}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+
+        {/* Larger screens: the card grid. */}
+        <div className="mt-12 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(({ n, Icon, t, s }, i) => (
             <Reveal key={n} delay={i * 0.06}>
               <div className="group relative h-full rounded-2xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
@@ -286,33 +314,6 @@ export function BrandStrip() {
         <p className="mt-5 text-[12.5px] text-slate-400">
           The exact hardware in your quote depends on your system design and availability.
         </p>
-      </div>
-    </section>
-  )
-}
-
-/* ── Photo CTA band ───────────────────────────────────────────────────── */
-export function CtaBand() {
-  return (
-    <section className="relative isolate overflow-hidden">
-      <Photo
-        base="suburb-aerial"
-        widths={[1280, 2048]}
-        sizes="100vw"
-        alt="Aerial view of an Australian suburb at golden hour with rooftop solar"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
-      <div className="absolute inset-0 bg-[#0a1b2e]/70" />
-      <div className="relative mx-auto flex max-w-7xl flex-col items-start gap-6 px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <h2 className="max-w-2xl text-[clamp(28px,4vw,46px)] font-extrabold leading-[1.08] tracking-tight text-white">
-          Your neighbours' roofs are already earning.
-          <span className="text-amber-400"> Yours can too.</span>
-        </h2>
-        <p className="max-w-xl text-[16.5px] leading-relaxed text-slate-200">
-          Get a free, no-obligation quote sized to your roof, usage and budget,
-          with every eligible rebate applied.
-        </p>
-        <CtaLink to="/contact">Get my free quote</CtaLink>
       </div>
     </section>
   )
