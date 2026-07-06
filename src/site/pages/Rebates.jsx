@@ -2,7 +2,7 @@
 // July 2026, always with eligibility disclaimers (plan §6).
 import { BadgePercent, Landmark, MapPinned, SunMedium } from 'lucide-react'
 import PageHero from '../PageHero'
-import { CtaBand, FaqSection, QuoteSection } from '../sections'
+import { FaqSection, QuoteSection } from '../sections'
 import { H2, Kicker, Meta, Reveal } from '../shared'
 
 const SCHEMES = [
@@ -51,15 +51,19 @@ function Schemes() {
             paperwork handled by us.
           </p>
         </Reveal>
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 lg:grid-cols-3">
           {SCHEMES.map(({ Icon, name, who, points }, i) => (
             <Reveal key={name} delay={i * 0.06}>
-              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-7 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
-                <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-900 text-amber-400">
-                  <Icon size={22} />
-                </span>
-                <h3 className="mt-5 text-[18px] font-bold leading-snug text-slate-900">{name}</h3>
-                <p className="mt-1 text-[12.5px] font-bold uppercase tracking-wider text-amber-700">{who}</p>
+              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)] sm:p-7">
+                <div className="flex items-center gap-3.5 sm:block">
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400 sm:h-12 sm:w-12">
+                    <Icon size={21} />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-[17px] font-bold leading-snug text-slate-900 sm:mt-5 sm:text-[18px]">{name}</h3>
+                    <p className="mt-0.5 text-[12px] font-bold uppercase tracking-wider text-amber-700 sm:mt-1 sm:text-[12.5px]">{who}</p>
+                  </div>
+                </div>
                 <ul className="mt-4 space-y-3">
                   {points.map((p) => (
                     <li key={p} className="flex gap-2.5 text-[14px] leading-relaxed text-slate-600">
@@ -114,7 +118,6 @@ export default function Rebates() {
       />
       <Schemes />
       <FaqSection items={FAQS} title="Rebate questions, answered." />
-      <CtaBand />
       <QuoteSection />
     </>
   )

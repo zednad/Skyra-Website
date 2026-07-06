@@ -22,17 +22,17 @@ function AnnouncementBar() {
   return (
     <Link
       to="/rebates"
-      className="block bg-[#0a1b2e] px-4 py-2.5 text-center text-[12.5px] font-semibold text-sky-100 transition-colors hover:text-white sm:text-[13px]"
+      className="flex items-center justify-center gap-2 bg-[#0a1b2e] px-4 py-2 text-[12.5px] font-semibold text-sky-100 transition-colors hover:text-white sm:py-2.5 sm:text-[13px]"
     >
-      <span className="mr-2 rounded-md bg-amber-400/15 px-2 py-0.5 font-bold text-amber-300">
+      <span className="rounded-md bg-amber-400/15 px-2 py-0.5 font-bold text-amber-300">
         Rebates
       </span>
-      <span className="sm:hidden">Around 30% off home batteries with the federal rebate</span>
+      <span className="truncate sm:hidden">Around 30% off home batteries</span>
       <span className="hidden sm:inline">
         Around 30% off home batteries under the federal Cheaper Home Batteries Program
       </span>
-      <span className="ml-2 inline-flex items-center gap-1 text-amber-300">
-        How it works <ArrowRight size={13} />
+      <span className="inline-flex shrink-0 items-center gap-1 text-amber-300">
+        <span className="hidden sm:inline">How it works</span> <ArrowRight size={13} />
       </span>
     </Link>
   )
@@ -197,19 +197,40 @@ function Footer() {
   )
 }
 
-/* Mobile-only sticky quote bar (hidden on /contact where the form lives). */
+/* Mobile-only sticky quote bar (hidden on /contact where the form lives).
+   Appears only after the visitor scrolls past the hero, so it never doubles
+   up with the hero's own CTA on the first screen. */
 function MobileQuoteBar() {
   const { pathname } = useLocation()
+  const [shown, setShown] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setShown(window.scrollY > 560)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
   if (pathname === '/contact') return null
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 backdrop-blur sm:hidden">
-      <Link
-        to="/contact"
-        className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-[15px] font-bold text-slate-950"
-      >
-        Get a free quote <ArrowRight size={16} />
-      </Link>
-    </div>
+    <AnimatePresence>
+      {shown && (
+        <motion.div
+          initial={{ y: 84 }}
+          animate={{ y: 0 }}
+          exit={{ y: 84 }}
+          transition={{ duration: 0.3, ease: EASE }}
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur sm:hidden"
+        >
+          <Link
+            to="/contact"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-[15px] font-bold text-slate-950"
+          >
+            Get a free quote <ArrowRight size={16} />
+          </Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 

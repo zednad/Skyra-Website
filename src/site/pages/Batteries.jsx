@@ -6,7 +6,7 @@
 import { BatteryCharging, Home, PlugZap, ShieldCheck } from 'lucide-react'
 import PageHero from '../PageHero'
 import EnergyStory from '../../components/EnergyStory'
-import { CtaBand, FaqSection, QuoteSection, StepsSection } from '../sections'
+import { FaqSection, QuoteSection, StepsSection } from '../sections'
 import { H2, Kicker, Meta, Photo, Reveal } from '../shared'
 
 const BATTERY_PRODUCTS = [
@@ -83,15 +83,18 @@ function WhyBattery() {
           <Kicker>Why add a battery</Kicker>
           <H2>Make your solar work after sunset.</H2>
         </Reveal>
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        {/* Icon-beside-text rows on phones; roomy cards from md up. */}
+        <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:grid-cols-3">
           {items.map(({ Icon, t, s }, i) => (
             <Reveal key={t} delay={i * 0.06}>
-              <div className="h-full rounded-2xl border border-slate-200 bg-white p-7 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
-                <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-900 text-amber-400">
-                  <Icon size={22} />
+              <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)] md:block md:p-7">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400 md:h-12 md:w-12">
+                  <Icon size={21} />
                 </span>
-                <h3 className="mt-5 text-[17.5px] font-bold text-slate-900">{t}</h3>
-                <p className="mt-2 text-[14.5px] leading-relaxed text-slate-500">{s}</p>
+                <div className="min-w-0">
+                  <h3 className="text-[16px] font-bold text-slate-900 md:mt-5 md:text-[17.5px]">{t}</h3>
+                  <p className="mt-1.5 text-[14px] leading-relaxed text-slate-500 md:mt-2 md:text-[14.5px]">{s}</p>
+                </div>
               </div>
             </Reveal>
           ))}
@@ -117,8 +120,8 @@ function BatteryProducts() {
           {BATTERY_PRODUCTS.map(({ img, name, blurb }, i) => (
             <Reveal key={name} delay={i * 0.06}>
               <div className="h-full overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
-                <div className="grid aspect-[4/3] place-items-center bg-white p-8">
-                  <img src={img} alt={name} loading="lazy" className="max-h-full max-w-full object-contain" />
+                <div className="relative aspect-[16/9] bg-white sm:aspect-[4/3]">
+                  <img src={img} alt={name} loading="lazy" className="absolute inset-0 h-full w-full object-contain p-6 sm:p-8" />
                 </div>
                 <div className="border-t border-slate-100 p-5">
                   <h3 className="text-[16px] font-bold text-slate-900">{name}</h3>
@@ -164,7 +167,6 @@ export default function Batteries() {
       <BatteryProducts />
       <StepsSection />
       <FaqSection items={FAQS} title="Battery questions, answered." />
-      <CtaBand />
       <QuoteSection photoBase="battery-garage" photoAlt="Home battery installed neatly in an Australian garage" />
     </>
   )

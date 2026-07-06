@@ -1,27 +1,25 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  EnergyStory - pinned, scroll-driven "store by day, use by night" scene.
-//  A real photo of a solar home is graded from bright day through golden dusk
-//  into night as the visitor scrolls: stars fade in, warm light pools glow
-//  around the house, and a row of glass status chips (Panels → Battery → Home)
-//  shows the energy flow with animated pulse connectors - amber by day
-//  (panels charging the battery), sky-blue at night (battery powering the
-//  home). Built with Framer Motion only; no new dependencies.
-//  Reduced motion: unpinned, daytime state, captions listed in a grid.
+//  Two 2-second looping renders of the same solar home (one daytime, one
+//  night) are stacked; the night layer crossfades in through a brief golden
+//  dusk wash as the visitor scrolls, so the scene appears to pass from day
+//  into night. A row of glass status chips (Panels → Battery → Home) shows
+//  the energy flow with animated pulse connectors - amber by day (panels
+//  charging the battery), sky-blue at night (battery powering the home).
+//  Built with Framer Motion only; no new dependencies.
+//  Reduced motion: unpinned, static daytime poster, captions listed in a grid.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   motion, useMotionValue, useMotionValueEvent, useScroll, useSpring,
   useTransform, useReducedMotion,
 } from 'framer-motion'
 import { Sun, BatteryCharging, Home } from 'lucide-react'
 
-const PHOTO = '/images/photos/bento-panels-1400.webp'
-
-const STARS = [
-  [70, 60, 1.6], [180, 120, 1.1], [300, 50, 1.4], [420, 95, 1.0], [520, 40, 1.5],
-  [640, 90, 1.1], [760, 45, 1.5], [880, 100, 1.2], [950, 55, 1.6], [240, 190, 1.0],
-  [560, 160, 1.0], [820, 170, 1.2], [120, 230, 1.0], [700, 140, 1.0],
-]
+const DAY_VIDEO = '/videos/energy-day.mp4'
+const NIGHT_VIDEO = '/videos/energy-night.mp4'
+const DAY_POSTER = '/videos/energy-day-poster.jpg'
+const NIGHT_POSTER = '/videos/energy-night-poster.jpg'
 
 const CAPTIONS = [
   {
@@ -47,16 +45,30 @@ const CAPTIONS = [
 export default function EnergyStory() {
   const reduce = useReducedMotion()
   const ref = useRef(null)
+  const dayVideoRef = useRef(null)
+  const nightVideoRef = useRef(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const spring = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.4 })
   const staticP = useMotionValue(0.3) // frozen daytime state for reduced motion
   const p = reduce ? staticP : spring
 
-  // ── Photo grading ─────────────────────────────────────────────────────────
-  const duskWash = useTransform(p, [0.45, 0.6, 0.75], [0, 0.75, 0])
-  const nightDim = useTransform(p, [0.55, 0.8], [0, 0.86])
-  const starsOpacity = useTransform(p, [0.68, 0.85], [0, 1])
-  const homeGlow = useTransform(p, [0.64, 0.82], [0, 1])
+  // ── Day → night video crossfade ───────────────────────────────────────────
+  const nightOpacity = useTransform(p, [0.55, 0.8], [0, 1])
+  const duskWash = useTransform(p, [0.45, 0.62, 0.78], [0, 0.45, 0])
+
+  // Only run the loops while the scene is on screen.
+  useEffect(() => {
+    if (reduce || !ref.current) return undefined
+    const io = new IntersectionObserver(([entry]) => {
+      [dayVideoRef.current, nightVideoRef.current].forEach((v) => {
+        if (!v) return
+        if (entry.isIntersecting) v.play().catch(() => {})
+        else v.pause()
+      })
+    })
+    io.observe(ref.current)
+    return () => io.disconnect()
+  }, [reduce])
 
   // ── Glass surfaces + text flip to dark mode at night ──────────────────────
   const panelBg = useTransform(p, [0.6, 0.78], ['rgba(255,255,255,0.78)', 'rgba(15,23,42,0.68)'])
@@ -89,53 +101,53 @@ export default function EnergyStory() {
           (reduce ? 'relative' : 'sticky top-0 h-screen')
         }
       >
-        {/* ── Photo backdrop + grading layers ── */}
-        <img
-          src={PHOTO}
-          alt=""
-          aria-hidden="true"
-          loading="lazy"
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        {/* constant gentle scrim so glass UI reads over the bright photo */}
+        {/* ── Video backdrop: same scene rendered by day and by night ── */}
+        {reduce ? (
+          <img
+            src={DAY_POSTER}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+        ) : (
+          <>
+            <video
+              ref={dayVideoRef}
+              src={DAY_VIDEO}
+              poster={DAY_POSTER}
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+            <motion.video
+              ref={nightVideoRef}
+              src={NIGHT_VIDEO}
+              poster={NIGHT_POSTER}
+              style={{ opacity: nightOpacity }}
+              className="absolute inset-0 h-full w-full object-cover"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              aria-hidden="true"
+              tabIndex={-1}
+            />
+          </>
+        )}
+        {/* constant gentle scrim so glass UI reads over the bright scene */}
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/25 via-transparent to-slate-900/35" />
-        {/* golden-hour wash */}
+        {/* golden-hour wash bridging the day → night crossfade */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-t from-amber-500/80 via-rose-400/40 to-amber-200/25"
+          className="absolute inset-0 bg-gradient-to-t from-amber-500/70 via-rose-400/35 to-transparent"
           style={{ opacity: reduce ? 0 : duskWash }}
         />
-        {/* night dim */}
-        <motion.div
-          className="absolute inset-0 bg-[#0a1626]"
-          style={{ opacity: reduce ? 0 : nightDim }}
-        />
-        {/* stars (upper sky only) */}
-        {!reduce && (
-          <motion.svg
-            viewBox="0 0 1000 300"
-            preserveAspectRatio="none"
-            className="absolute inset-x-0 top-0 h-2/5 w-full"
-            style={{ opacity: starsOpacity }}
-            aria-hidden="true"
-          >
-            {STARS.map(([x, y, r]) => (
-              <circle key={`${x}-${y}`} cx={x} cy={y} r={r} fill="#e2e8f0" />
-            ))}
-          </motion.svg>
-        )}
-        {/* warm light pools around the home at night */}
-        {!reduce &&
-          [
-            'left-[26%] top-[58%] h-28 w-52',
-            'left-[46%] top-[54%] h-24 w-44',
-            'left-[62%] top-[60%] h-28 w-48',
-          ].map((pos) => (
-            <motion.div
-              key={pos}
-              className={'absolute rounded-full bg-amber-400/60 blur-3xl ' + pos}
-              style={{ opacity: homeGlow }}
-            />
-          ))}
 
         {/* ── Content ── */}
         <div
