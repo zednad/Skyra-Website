@@ -181,9 +181,24 @@ function Header() {
 }
 
 function Footer() {
+  const backToTop = () =>
+    window.scrollTo({
+      top: 0,
+      // JS smooth scrolling bypasses the CSS reduced-motion override
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+
   return (
-    <footer className="bg-[#0a1b2e] text-slate-300">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
+    <footer className="grain relative overflow-hidden bg-[#0a1b2e] text-slate-300">
+      {/* Oversized wordmark watermark, clipped at the footer's bottom edge */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -bottom-[0.24em] select-none text-center text-[19vw] font-extrabold leading-none tracking-tight text-white/[0.03]"
+      >
+        SKYRA
+      </div>
+
+      <div className="relative z-10 mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:grid-cols-2 sm:px-6 lg:grid-cols-4 lg:px-8">
         <div>
           <div className="inline-flex rounded-xl bg-white p-2.5">
             <img src={skyraLogo} alt="SkyRa Energy" className="h-9 w-auto" width="480" height="284" />
@@ -197,19 +212,19 @@ function Footer() {
         <div>
           <h3 className="text-[13px] font-bold uppercase tracking-wider text-slate-500">What we install</h3>
           <ul className="mt-4 space-y-2.5 text-[14.5px] font-medium">
-            <li><Link to="/solar" className="transition-colors hover:text-white">Solar panels</Link></li>
-            <li><Link to="/batteries" className="transition-colors hover:text-white">Home batteries</Link></li>
-            <li><Link to="/commercial" className="transition-colors hover:text-white">Commercial solar</Link></li>
+            <li><Link to="/solar" className="link-underline inline-block py-1 transition-colors hover:text-white">Solar panels</Link></li>
+            <li><Link to="/batteries" className="link-underline inline-block py-1 transition-colors hover:text-white">Home batteries</Link></li>
+            <li><Link to="/commercial" className="link-underline inline-block py-1 transition-colors hover:text-white">Commercial solar</Link></li>
           </ul>
         </div>
 
         <div>
           <h3 className="text-[13px] font-bold uppercase tracking-wider text-slate-500">Company</h3>
           <ul className="mt-4 space-y-2.5 text-[14.5px] font-medium">
-            <li><Link to="/about" className="transition-colors hover:text-white">About SkyRa</Link></li>
-            <li><Link to="/rebates" className="transition-colors hover:text-white">Government rebates</Link></li>
-            <li><Link to="/faq" className="transition-colors hover:text-white">FAQ</Link></li>
-            <li><Link to="/contact" className="transition-colors hover:text-white">Contact us</Link></li>
+            <li><Link to="/about" className="link-underline inline-block py-1 transition-colors hover:text-white">About SkyRa</Link></li>
+            <li><Link to="/rebates" className="link-underline inline-block py-1 transition-colors hover:text-white">Government rebates</Link></li>
+            <li><Link to="/faq" className="link-underline inline-block py-1 transition-colors hover:text-white">FAQ</Link></li>
+            <li><Link to="/contact" className="link-underline inline-block py-1 transition-colors hover:text-white">Contact us</Link></li>
           </ul>
         </div>
 
@@ -228,13 +243,24 @@ function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="relative z-10">
+        <div className="h-px bg-gradient-to-r from-transparent via-amber-500/40 to-transparent" />
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-6 text-[12.5px] text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
           <span>© {new Date().getFullYear()} SkyRa Energy · ABN {ABN}. All rights reserved.</span>
-          <span className="max-w-xl leading-relaxed">
-            Savings and rebate figures are indicative only, depend on eligibility
-            and your site, and are confirmed in your written quote.
-          </span>
+          <div className="flex items-center gap-5 sm:gap-6">
+            <span className="max-w-xl leading-relaxed">
+              Savings and rebate figures are indicative only, depend on eligibility
+              and your site, and are confirmed in your written quote.
+            </span>
+            <button
+              type="button"
+              onClick={backToTop}
+              aria-label="Back to top"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-white/10 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+            >
+              <ArrowUp size={17} />
+            </button>
+          </div>
         </div>
       </div>
     </footer>
