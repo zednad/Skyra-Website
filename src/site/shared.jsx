@@ -89,10 +89,34 @@ export function ScrollToTop() {
   return null
 }
 
+/* Average colour of each photo (10x10 canvas sample), shown as the img
+   background while pixels decode so lazy images surface as a tonally
+   correct block instead of a white gap. Colour only - no opacity fade,
+   which would fight the hover-zoom transitions at several call sites. */
+const PHOTO_TONE = {
+  'hero-install': '#8b8f94',
+  'bento-panels': '#6f5f53',
+  'battery-garage': '#91867b',
+  'commercial-roof': '#6c5744',
+  'why-team': '#7e7f82',
+  'install-detail': '#534d49',
+  'consult-table': '#878279',
+  'handover': '#89705e',
+  'family-app': '#756a62',
+  'home-night': '#3a332f',
+  'van-driveway': '#827c73',
+  'team-group': '#938676',
+  'suburb-aerial': '#635848',
+  'about-portrait': '#838175',
+  'panel-macro': '#65646a',
+  'why-hardware': '#766b61',
+}
+
 /* Responsive photo from /public/images/photos renditions. */
 export function Photo({ base, widths, sizes = '100vw', alt, className = '', eager = false, style }) {
   const srcSet = widths.map((w) => `/images/photos/${base}-${w}.webp ${w}w`).join(', ')
   const mid = widths[Math.min(1, widths.length - 1)]
+  const tone = PHOTO_TONE[base]
   return (
     <img
       src={`/images/photos/${base}-${mid}.webp`}
@@ -103,7 +127,7 @@ export function Photo({ base, widths, sizes = '100vw', alt, className = '', eage
       fetchPriority={eager ? 'high' : undefined}
       decoding={eager ? undefined : 'async'}
       className={className}
-      style={style}
+      style={tone ? { backgroundColor: tone, ...style } : style}
     />
   )
 }
@@ -139,24 +163,34 @@ export function H2({ children, className = '' }) {
   )
 }
 
+/* Button recipes shared by CtaLink and plain <Link>/<button> call sites.
+   Combine with the caller's own size/layout classes. Solid variants lift
+   on hover and press down on click; ghost/outline stay flat (they sit on
+   photos or inside dense UI). */
+const BTN_FX =
+  // v4 translate/scale utilities animate via the `translate`/`scale` props
+  'transition-[translate,scale,box-shadow,background-color,color] duration-200 ease-brand ' +
+  'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]'
+export const BTN = {
+  primary: 'bg-amber-500 text-slate-950 font-bold shadow-cta hover:bg-amber-400 hover:shadow-cta-hover ' + BTN_FX,
+  navy: 'bg-slate-900 text-white font-bold hover:bg-slate-800 hover:shadow-card-hover ' + BTN_FX,
+  ghost: 'ring-1 ring-white/40 text-white font-semibold transition-[background-color,box-shadow] duration-200 ease-brand hover:bg-white/10 hover:ring-white/60',
+  outline: 'ring-1 ring-slate-300 text-slate-800 font-semibold transition-[background-color,box-shadow] duration-200 ease-brand hover:bg-slate-50 hover:ring-slate-400',
+}
+
+/* Consistent card elevation: quiet at rest, lifts on hover. */
+export const CARD_HOVER =
+  'shadow-card transition-[translate,box-shadow,border-color] duration-300 ease-brand ' +
+  'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-card-hover'
+
 /* Primary amber CTA (link). */
 export function CtaLink({ to, children, className = '', variant = 'primary' }) {
-  const styles = {
-    primary:
-      'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-sm font-bold',
-    navy:
-      'bg-slate-900 text-white hover:bg-slate-800 font-bold',
-    ghost:
-      'ring-1 ring-white/40 text-white hover:bg-white/10 font-semibold',
-    outline:
-      'ring-1 ring-slate-300 text-slate-800 hover:border-slate-400 hover:bg-slate-50 font-semibold',
-  }
   return (
     <Link
       to={to}
       className={
-        'inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] transition-colors ' +
-        styles[variant] + ' ' + className
+        'inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] ' +
+        BTN[variant] + ' ' + className
       }
     >
       {children}

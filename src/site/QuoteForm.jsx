@@ -4,15 +4,48 @@
 //  single submission at the end. Honeypot retained for basic spam protection.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
-import { EASE, FORMSPREE_ENDPOINT } from './shared'
+import { BTN, EASE, FORMSPREE_ENDPOINT } from './shared'
 
 const fieldCls =
-  'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-[14.5px] text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-amber-400 focus:bg-white focus:ring-2 focus:ring-amber-100'
+  'w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3.5 text-[14.5px] text-slate-900 placeholder:text-slate-400 outline-none transition-all duration-200 hover:border-slate-300 focus:border-amber-400 focus:bg-white focus:ring-[3px] focus:ring-amber-400/20'
 
 const INTERESTS = ['Solar panels', 'Home battery', 'Solar + battery', 'Commercial']
 const BILLS = ['Under $300', '$300 – $600', '$600 – $900', '$900+']
+
+/* Success tick: circle pops, then the check draws itself on. */
+function SuccessMark() {
+  const reduce = useReducedMotion()
+  if (reduce) {
+    return (
+      <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-500 text-slate-950">
+        <Check size={26} strokeWidth={3} />
+      </div>
+    )
+  }
+  return (
+    <motion.div
+      initial={{ scale: 0.6, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-500 shadow-cta"
+    >
+      <svg viewBox="0 0 52 52" className="h-7 w-7" fill="none" aria-hidden="true">
+        <motion.path
+          d="M14 27.5l8 8L38 19"
+          stroke="#0a1b2e"
+          strokeWidth="5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: 1 }}
+          transition={{ delay: 0.15, duration: 0.4, ease: EASE }}
+        />
+      </svg>
+    </motion.div>
+  )
+}
 
 export default function QuoteForm({ compact = false }) {
   const [step, setStep] = useState(1)
@@ -61,11 +94,9 @@ export default function QuoteForm({ compact = false }) {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: EASE }}
-        className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-10"
+        className="rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card sm:p-10"
       >
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-500 text-slate-950">
-          <Check size={26} strokeWidth={3} />
-        </div>
+        <SuccessMark />
         <h3 className="mt-5 text-[22px] font-extrabold tracking-tight text-slate-900">Request received</h3>
         <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
           Thanks. A SkyRa specialist will be in touch shortly to arrange your
@@ -89,26 +120,32 @@ export default function QuoteForm({ compact = false }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={'rounded-2xl border border-slate-200 bg-white shadow-sm ' + (compact ? 'p-5 sm:p-6' : 'p-6 sm:p-8')}
+      className={'rounded-2xl border border-slate-200 bg-white shadow-card ' + (compact ? 'p-5 sm:p-6' : 'p-6 sm:p-8')}
     >
       {/* progress */}
       <div className="flex items-center justify-between">
         <div className="text-[17px] font-bold text-slate-900">Get your free quote</div>
         <div className="flex items-center gap-1.5" aria-hidden="true">
           {[1, 2].map((s) => (
-            <span
+            <motion.span
               key={s}
-              className={
-                'h-1.5 rounded-full transition-all ' +
-                (s <= step ? 'w-6 bg-amber-500' : 'w-3 bg-slate-200')
-              }
+              animate={{ width: s <= step ? 24 : 12, backgroundColor: s <= step ? '#f59e0b' : '#e2e8f0' }}
+              transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              className="h-1.5 rounded-full"
             />
           ))}
         </div>
       </div>
-      <p className="mt-1 text-[13px] text-slate-400">
+      {/* enter-only label swap keyed by step (no AnimatePresence by design) */}
+      <motion.p
+        key={step}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.25, ease: EASE }}
+        className="mt-1 text-[13px] text-slate-400"
+      >
         {step === 1 ? 'Step 1 of 2: about your place' : 'Step 2 of 2: where to send it'}
-      </p>
+      </motion.p>
 
       {/* honeypot */}
       <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
@@ -135,9 +172,9 @@ export default function QuoteForm({ compact = false }) {
                     aria-checked={lead.interest === label}
                     onClick={() => updateLead('interest', label)}
                     className={
-                      'rounded-xl px-3 py-3 text-[13.5px] font-semibold transition-colors ' +
+                      'min-h-11 rounded-xl px-3 py-3 text-[13.5px] font-semibold transition-all duration-200 ' +
                       (lead.interest === label
-                        ? 'bg-slate-900 text-white'
+                        ? 'bg-slate-900 text-white shadow-card ring-2 ring-slate-900/15'
                         : 'border border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300')
                     }
                   >
@@ -183,7 +220,7 @@ export default function QuoteForm({ compact = false }) {
               type="button"
               disabled={!step1Valid}
               onClick={() => setStep(2)}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-[15px] font-bold text-slate-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-40"
+              className={'flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] disabled:pointer-events-none disabled:opacity-40 ' + BTN.primary}
             >
               Continue <ArrowRight size={17} />
             </button>
@@ -218,14 +255,14 @@ export default function QuoteForm({ compact = false }) {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 px-4 py-3.5 text-[14px] font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+                className={'inline-flex items-center gap-1.5 rounded-xl px-4 py-3.5 text-[14px] text-slate-600 ' + BTN.outline}
               >
                 <ArrowLeft size={15} /> Back
               </button>
               <button
                 type="submit"
                 disabled={status === 'submitting'}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-[15px] font-bold text-slate-950 transition-colors hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+                className={'flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] disabled:pointer-events-none disabled:opacity-60 ' + BTN.primary}
               >
                 {status === 'submitting'
                   ? (<><Loader2 size={17} className="animate-spin" /> Sending…</>)

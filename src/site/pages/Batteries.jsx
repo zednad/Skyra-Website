@@ -8,7 +8,7 @@ import PageHero from '../PageHero'
 import EnergyStory from '../../components/EnergyStory'
 import { FaqSection, QuoteSection, StepsSection } from '../sections'
 import { BATTERY_FAQS } from '../faqData'
-import { H2, JsonLd, Kicker, Meta, Photo, Reveal, SITE_URL } from '../shared'
+import { CARD_HOVER, H2, JsonLd, Kicker, Meta, Photo, Reveal, SITE_URL } from '../shared'
 
 const BATTERY_PRODUCTS = [
   { img: '/images/batteries/sigenergy.webp', name: 'Sigenergy SigenStor', blurb: 'Modular stackable capacity with built-in hybrid inverter and EV-ready options.' },
@@ -88,7 +88,7 @@ function WhyBattery() {
         <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 md:grid-cols-3">
           {items.map(({ Icon, t, s }, i) => (
             <Reveal key={t} delay={i * 0.06}>
-              <div className="flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)] md:block md:p-7">
+              <div className={'flex h-full items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 md:block md:p-7 ' + CARD_HOVER}>
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400 md:h-12 md:w-12">
                   <Icon size={21} />
                 </span>
@@ -120,7 +120,7 @@ function BatteryProducts() {
         <div className="mt-10 grid gap-5 md:grid-cols-3">
           {BATTERY_PRODUCTS.map(({ img, name, blurb }, i) => (
             <Reveal key={name} delay={i * 0.06}>
-              <div className="h-full overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
+              <div className={'h-full overflow-hidden rounded-2xl border border-slate-200 bg-white ' + CARD_HOVER}>
                 <div className="relative aspect-[16/9] bg-white sm:aspect-[4/3]">
                   <img src={img} alt={name} loading="lazy" className="absolute inset-0 h-full w-full object-contain p-6 sm:p-8" />
                 </div>

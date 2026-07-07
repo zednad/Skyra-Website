@@ -4,14 +4,14 @@
 //  All claims here follow the compliance rules in docs/REDESIGN_PLAN.md §6 -
 //  rebate copy states the public program facts and carries a disclaimer.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useEffect, useState } from 'react'
+import { Children, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, animate, useMotionValue, useReducedMotion } from 'framer-motion'
 import {
   ArrowRight, BadgePercent, ChevronDown, ClipboardCheck, Gauge, PencilRuler,
   Power, Sun, Wrench,
 } from 'lucide-react'
-import { CtaLink, EASE, H2, JsonLd, Kicker, Photo, Reveal } from './shared'
+import { BTN, CARD_HOVER, CtaLink, EASE, H2, JsonLd, Kicker, Photo, Reveal } from './shared'
 import QuoteForm from './QuoteForm'
 
 /* ── Rebate banner ────────────────────────────────────────────────────── */
@@ -43,7 +43,7 @@ export function RebateBanner() {
           </div>
           <Link
             to="/rebates"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[14px] font-bold text-white transition-colors hover:bg-slate-800"
+            className={'inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-[14px] ' + BTN.navy}
           >
             How the rebates work <ArrowRight size={16} />
           </Link>
@@ -88,7 +88,7 @@ export function CalculatorSection() {
           <div className="mt-10">
             <div className="flex items-end justify-between">
               <span className="text-[14px] font-semibold text-slate-500">Average quarterly bill</span>
-              <span className="text-[24px] font-extrabold text-slate-900">${bill}</span>
+              <span className="text-[24px] font-extrabold text-slate-900 tabular-nums">${bill}</span>
             </div>
             <input
               type="range" min="200" max="1200" step="10" value={bill}
@@ -104,9 +104,9 @@ export function CalculatorSection() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
             <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-amber-700">Estimated saving</div>
-            <div className="mt-2 text-[clamp(44px,6vw,64px)] font-extrabold leading-none tracking-tight text-slate-900">
+            <div className="mt-2 text-[clamp(44px,6vw,64px)] font-extrabold leading-none tracking-tight text-slate-900 tabular-nums">
               $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
               <span className="text-[20px] font-semibold text-slate-400"> /yr</span>
             </div>
@@ -147,17 +147,18 @@ export function CalculatorSection() {
             <div className="mt-7 grid grid-cols-2 gap-3">
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <Gauge size={19} className="text-amber-600" />
-                <div className="mt-2.5 text-[22px] font-extrabold leading-none text-slate-900">
+                <div className="mt-2.5 text-[22px] font-extrabold leading-none text-slate-900 tabular-nums">
                   <AnimatedNumber value={payback} formatFn={(v) => v.toFixed(1)} /> yr
                 </div>
                 <div className="mt-1 text-[12px] text-slate-500">Estimated payback</div>
               </div>
               <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                 <Sun size={19} className="text-amber-600" />
-                <div className="mt-2.5 text-[22px] font-extrabold leading-none text-slate-900">
+                <div className="mt-2.5 text-[22px] font-extrabold leading-none text-slate-900 tabular-nums">
                   <AnimatedNumber value={co2} formatFn={(v) => v.toFixed(1)} />t
                 </div>
-                <div className="mt-1 text-[12px] text-slate-500">CO₂ avoided / yr</div>
+                {/* CO2 as markup: U+2082 sits outside the latin font subset */}
+                <div className="mt-1 text-[12px] text-slate-500">CO<sub>2</sub> avoided / yr</div>
               </div>
             </div>
 
@@ -216,7 +217,7 @@ export function StepsSection() {
         <div className="mt-12 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(({ n, Icon, t, s }, i) => (
             <Reveal key={n} delay={i * 0.06}>
-              <div className="group relative h-full rounded-2xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
+              <div className={'group relative h-full rounded-2xl border border-slate-200 bg-white p-6 ' + CARD_HOVER}>
                 <div className="flex items-center justify-between">
                   <span className="grid h-11 w-11 place-items-center rounded-xl bg-slate-900 text-amber-400">
                     <Icon size={21} />
@@ -234,7 +235,140 @@ export function StepsSection() {
   )
 }
 
+/* ── Snap carousel (phones) ───────────────────────────────────────────────
+   Horizontal scroll-snap strip with edge peek and a dots indicator. Wrap
+   the whole thing in one Reveal; per-card whileInView would leave the
+   off-screen cards invisible.                                            */
+export function SnapCarousel({ children, itemClassName = 'w-[80%]', initialIndex = 0, ariaLabel }) {
+  const ref = useRef(null)
+  const [index, setIndex] = useState(initialIndex)
+  const count = Children.count(children)
+
+  // Pre-centre the highlighted card (no smooth scroll on mount).
+  useEffect(() => {
+    const el = ref.current
+    const card = el?.children[initialIndex]
+    if (!el || !card || initialIndex === 0) return
+    el.scrollLeft = card.offsetLeft - (el.clientWidth - card.clientWidth) / 2
+  }, [initialIndex])
+
+  const onScroll = () => {
+    const el = ref.current
+    if (!el) return
+    const per = el.scrollWidth / count
+    setIndex(Math.max(0, Math.min(count - 1, Math.round(el.scrollLeft / per))))
+  }
+
+  const scrollToCard = (i) => {
+    const el = ref.current
+    const card = el?.children[i]
+    if (!el || !card) return
+    el.scrollTo({
+      left: card.offsetLeft - (el.clientWidth - card.clientWidth) / 2,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+  }
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        onScroll={onScroll}
+        role="group"
+        aria-label={ariaLabel}
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 scrollbar-none"
+      >
+        {Children.map(children, (child) => (
+          <div className={'shrink-0 snap-center ' + itemClassName}>{child}</div>
+        ))}
+      </div>
+      <div className="mt-1 flex justify-center">
+        {Array.from({ length: count }).map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={'Go to item ' + (i + 1) + ' of ' + count}
+            aria-current={i === index}
+            onClick={() => scrollToCard(i)}
+            className="grid place-items-center p-2"
+          >
+            <span
+              className={
+                'h-1.5 rounded-full transition-all duration-300 ease-brand ' +
+                (i === index ? 'w-4 bg-amber-500' : 'w-1.5 bg-slate-300')
+              }
+            />
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ── Editorial photo break ────────────────────────────────────────────────
+   Full-bleed 21:9 strip between sections; slow scale-settle on reveal.   */
+export function EditorialBreak({ base, widths = [1280, 2048], alt, caption }) {
+  return (
+    <section className="relative overflow-hidden bg-[#0a1b2e]">
+      <motion.div
+        initial={{ scale: 1.05 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true, margin: '-15%' }}
+        transition={{ duration: 1.6, ease: EASE }}
+        className="h-[38vw] max-h-[420px] min-h-[220px]"
+      >
+        <Photo base={base} widths={widths} sizes="100vw" alt={alt} className="h-full w-full object-cover" />
+      </motion.div>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0a1b2e]/45 via-transparent to-transparent" />
+      {caption && (
+        <div className="absolute inset-x-0 bottom-0">
+          <div className="mx-auto max-w-7xl px-4 pb-5 sm:px-6 lg:px-8">
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-white/75">{caption}</p>
+          </div>
+        </div>
+      )}
+    </section>
+  )
+}
+
 /* ── FAQ accordion ────────────────────────────────────────────────────── */
+/* One accordion row, shared by FaqSection and the /faq page. */
+export function FaqItem({ q, a, isOpen, onToggle }) {
+  return (
+    <div className={'transition-colors duration-300 ' + (isOpen ? 'bg-amber-50/40' : '')}>
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between gap-4 py-5 text-left"
+      >
+        <span className="text-[15.5px] font-bold text-slate-900 sm:text-[16.5px]">{q}</span>
+        <span
+          className={
+            'grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-all duration-300 ease-brand ' +
+            (isOpen ? 'rotate-180 border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-500')
+          }
+        >
+          <ChevronDown size={16} />
+        </span>
+      </button>
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: EASE }}
+            className="overflow-hidden"
+          >
+            <p className="pb-5 pr-10 text-[14.5px] leading-relaxed text-slate-500">{a}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export function FaqSection({ items, title = 'Questions, answered.' }) {
   const [open, setOpen] = useState(0)
   return (
@@ -262,43 +396,10 @@ export function FaqSection({ items, title = 'Questions, answered.' }) {
           <CtaLink to="/contact" className="mt-7">Ask a question</CtaLink>
         </Reveal>
         <Reveal delay={0.08}>
-          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-sm sm:px-7">
-            {items.map(([q, a], i) => {
-              const isOpen = open === i
-              return (
-                <div key={q}>
-                  <button
-                    type="button"
-                    onClick={() => setOpen(isOpen ? -1 : i)}
-                    aria-expanded={isOpen}
-                    className="flex w-full items-center justify-between gap-4 py-5 text-left"
-                  >
-                    <span className="text-[15.5px] font-bold text-slate-900 sm:text-[16.5px]">{q}</span>
-                    <span
-                      className={
-                        'grid h-8 w-8 shrink-0 place-items-center rounded-full border transition-all duration-300 ' +
-                        (isOpen ? 'rotate-180 border-amber-300 bg-amber-50 text-amber-700' : 'border-slate-200 text-slate-500')
-                      }
-                    >
-                      <ChevronDown size={16} />
-                    </span>
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {isOpen && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.28, ease: EASE }}
-                        className="overflow-hidden"
-                      >
-                        <p className="pb-5 pr-10 text-[14.5px] leading-relaxed text-slate-500">{a}</p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              )
-            })}
+          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-card sm:px-7">
+            {items.map(([q, a], i) => (
+              <FaqItem key={q} q={q} a={a} isOpen={open === i} onToggle={() => setOpen(open === i ? -1 : i)} />
+            ))}
           </div>
         </Reveal>
       </div>
@@ -306,8 +407,23 @@ export function FaqSection({ items, title = 'Questions, answered.' }) {
   )
 }
 
-/* ── Hardware brands strip (quiet, honest) ────────────────────────────── */
-const BRANDS = ['Jinko', 'Trina', 'LONGi', 'Canadian Solar', 'Sungrow', 'Fronius', 'GoodWe', 'SMA', 'Fox ESS', 'Sigenergy', 'Tesla']
+/* ── Hardware brands strip (quiet, honest) ────────────────────────────────
+   Logo-capable: drop official logo files into /public/images/brands and set
+   `src` per brand. Until then each renders as a styled wordmark. Only list
+   brands SkyRa actually supplies (docs/REDESIGN_PLAN.md §6).             */
+const BRANDS = [
+  { name: 'Jinko', src: null },
+  { name: 'Trina', src: null },
+  { name: 'LONGi', src: null },
+  { name: 'Canadian Solar', src: null },
+  { name: 'Sungrow', src: null },
+  { name: 'Fronius', src: null },
+  { name: 'GoodWe', src: null },
+  { name: 'SMA', src: null },
+  { name: 'Fox ESS', src: null },
+  { name: 'Sigenergy', src: null },
+  { name: 'Tesla', src: null },
+]
 
 export function BrandStrip() {
   return (
@@ -317,11 +433,21 @@ export function BrandStrip() {
           Tier-1 hardware we work with
         </p>
         <div className="mx-auto mt-5 flex max-w-4xl flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {BRANDS.map((b) => (
-            <span key={b} className="text-[16px] font-extrabold tracking-tight text-slate-400/90">
-              {b}
-            </span>
-          ))}
+          {BRANDS.map(({ name, src }) =>
+            src ? (
+              <img
+                key={name}
+                src={src}
+                alt={name + ' logo'}
+                loading="lazy"
+                className="h-6 w-auto opacity-60 grayscale transition duration-300 ease-brand hover:opacity-100 hover:grayscale-0 sm:h-7"
+              />
+            ) : (
+              <span key={name} className="text-[16px] font-extrabold tracking-tight text-slate-400/90">
+                {name}
+              </span>
+            ),
+          )}
         </div>
         <p className="mt-5 text-[12.5px] text-slate-400">
           The exact hardware in your quote depends on your system design and availability.

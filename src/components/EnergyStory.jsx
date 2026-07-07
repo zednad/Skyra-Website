@@ -16,7 +16,7 @@ import {
   motion, useMotionValue, useMotionValueEvent, useScroll, useSpring,
   useTransform, useReducedMotion,
 } from 'framer-motion'
-import { Sun, BatteryCharging, Home } from 'lucide-react'
+import { Sun, Moon, BatteryCharging, Home } from 'lucide-react'
 
 const DAY_VIDEO = '/videos/energy-day.mp4'
 const NIGHT_VIDEO = '/videos/energy-night.mp4'
@@ -106,51 +106,10 @@ export default function EnergyStory() {
 
   const chipColors = { bg: chipBg, text: chipText, sub: chipSub, border: panelBorder }
 
-  // Phones + reduced motion: no video and no pinned scroll. The two renders
-  // sit side by side and the story reads as plain rows.
+  // Phones + reduced motion: no video and no pinned scroll. A tap toggle
+  // crossfades the day/night renders and drives the same status chips.
   if (staticMode) {
-    const icons = [Sun, BatteryCharging, Home]
-    return (
-      <section id="energy-story" className="bg-[#0a1b2e] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-        <div className="mx-auto max-w-7xl">
-          <p className="text-[12px] font-bold uppercase tracking-[0.3em] text-sky-300">Day &amp; night</p>
-          <h2 className="mt-3 text-[clamp(26px,3.6vw,42px)] font-extrabold leading-[1.08] tracking-tight text-white">
-            One system that never clocks off.
-          </h2>
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            <img
-              src={DAY_POSTER}
-              alt="Illustration of a solar home generating power during the day"
-              loading="lazy"
-              className="aspect-video w-full rounded-xl object-cover ring-1 ring-white/10"
-            />
-            <img
-              src={NIGHT_POSTER}
-              alt="Illustration of the same home running on its battery at night"
-              loading="lazy"
-              className="aspect-video w-full rounded-xl object-cover ring-1 ring-white/10"
-            />
-          </div>
-          <div className="mt-8 space-y-6">
-            {CAPTIONS.map((c, i) => {
-              const Icon = icons[i]
-              return (
-                <div key={c.title} className="flex gap-4">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/10 text-amber-300">
-                    <Icon size={20} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300">{c.kicker}</p>
-                    <h3 className="mt-0.5 text-[17px] font-extrabold tracking-tight text-white">{c.title}</h3>
-                    <p className="mt-1 text-[14px] leading-relaxed text-slate-300">{c.body}</p>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      </section>
-    )
+    return <EnergyToggle reduce={reduce} />
   }
 
   return (
@@ -400,5 +359,191 @@ function Caption({ progress, range, children }) {
     <motion.div style={{ opacity, y }} className="absolute inset-x-0 top-0">
       {children}
     </motion.div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  EnergyToggle - the phone / reduced-motion version of the scene. The same
+//  day and night renders (posters only, no video, so phones stay light) are
+//  crossfaded by a Day/Night tap toggle instead of scroll, and drive the
+//  same StatusChip + Connector components through a spring progress value.
+//  Under reduced motion the spring is skipped and states snap.
+// ─────────────────────────────────────────────────────────────────────────────
+const TOGGLE_COPY = {
+  day: {
+    kicker: 'Daytime',
+    title: 'Generate by day, store the extra',
+    body: 'Your panels power the home while the sun shines, and the energy you don’t use flows into the battery.',
+  },
+  night: {
+    kicker: 'Night',
+    title: 'Power your night',
+    body: 'When the sun sets, your battery takes over with clean power after dark.',
+  },
+}
+
+function EnergyToggle({ reduce }) {
+  const [night, setNight] = useState(false)
+  const mv = useMotionValue(0)
+  const springP = useSpring(mv, { stiffness: 110, damping: 22 })
+  const p = reduce ? mv : springP
+
+  useEffect(() => {
+    if (reduce) mv.jump(night ? 1 : 0)
+    else mv.set(night ? 1 : 0)
+  }, [night, reduce, mv])
+
+  // Same value shapes as the scroll scene, remapped onto the 0..1 toggle.
+  const nightOpacity = useTransform(p, [0.25, 0.85], [0, 1])
+  const duskWash = useTransform(p, [0.15, 0.5, 0.85], [0, 0.4, 0])
+  const dayFlow = useTransform(p, [0.3, 0.6], [1, 0])
+  const nightFlow = useTransform(p, [0.4, 0.7], [0, 1])
+  const dayLabel = useTransform(p, [0.4, 0.6], [1, 0])
+  const batteryLevel = useTransform(p, [0, 1], [0.9, 0.62])
+  const batteryFill = useTransform(p, [0.35, 0.7], ['#f59e0b', '#38bdf8'])
+  const chipBg = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.88)', 'rgba(15,23,42,0.8)'])
+  const chipText = useTransform(p, [0.35, 0.7], ['#0f172a', '#f1f5f9'])
+  const chipSub = useTransform(p, [0.35, 0.7], ['#64748b', '#94a3b8'])
+  const chipBorder = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.6)', 'rgba(255,255,255,0.14)'])
+  const dayCaption = useTransform(p, [0.35, 0.6], [1, 0])
+  const [batteryPct, setBatteryPct] = useState(`${Math.round(batteryLevel.get() * 100)}%`)
+  useMotionValueEvent(batteryLevel, 'change', (v) => setBatteryPct(`${Math.round(v * 100)}%`))
+
+  const chipColors = { bg: chipBg, text: chipText, sub: chipSub, border: chipBorder }
+
+  const MODES = [
+    { key: 'day', label: 'Day', Icon: Sun },
+    { key: 'night', label: 'Night', Icon: Moon },
+  ]
+
+  return (
+    <section id="energy-story" className="bg-[#0a1b2e] px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+      <div className="mx-auto max-w-7xl">
+        <p className="text-[12px] font-bold uppercase tracking-[0.3em] text-sky-300">Day &amp; night</p>
+        <h2 className="mt-3 text-[clamp(26px,3.6vw,42px)] font-extrabold leading-[1.08] tracking-tight text-white">
+          One system that never clocks off.
+        </h2>
+
+        <div className="mt-6 grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
+          <div>
+            <div className="relative aspect-video overflow-hidden rounded-2xl ring-1 ring-white/10">
+              <img
+                src={DAY_POSTER}
+                alt="Illustration of a solar home generating power during the day"
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <motion.img
+                src={NIGHT_POSTER}
+                alt="Illustration of the same home running on its battery at night"
+                loading="lazy"
+                style={{ opacity: nightOpacity }}
+                aria-hidden={!night}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              {/* golden-hour wash bridging the crossfade */}
+              <motion.div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-amber-500/50 via-rose-400/25 to-transparent"
+                style={{ opacity: duskWash }}
+              />
+            </div>
+
+            <div className="mt-4 flex justify-center">
+              <div className="inline-flex rounded-xl border border-white/10 bg-white/5 p-1.5">
+                {MODES.map(({ key, label, Icon }) => {
+                  const active = night === (key === 'night')
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setNight(key === 'night')}
+                      className={
+                        'relative min-h-11 rounded-lg px-7 text-[14px] font-bold transition-colors ' +
+                        (active ? 'text-slate-950' : 'text-slate-300 hover:text-white')
+                      }
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="dn-thumb"
+                          className="absolute inset-0 rounded-lg bg-amber-400"
+                          transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                        />
+                      )}
+                      <span className="relative z-10 inline-flex items-center gap-2">
+                        <Icon size={15} /> {label}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div className="relative min-h-[92px]">
+              <motion.div style={{ opacity: dayCaption }} aria-hidden={night}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300">{TOGGLE_COPY.day.kicker}</p>
+                <h3 className="mt-1 text-[19px] font-extrabold tracking-tight text-white sm:text-[21px]">{TOGGLE_COPY.day.title}</h3>
+                <p className="mt-1 text-[14px] leading-relaxed text-slate-300 sm:text-[14.5px]">{TOGGLE_COPY.day.body}</p>
+              </motion.div>
+              <motion.div style={{ opacity: nightFlow }} aria-hidden={!night} className="absolute inset-x-0 top-0">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300">{TOGGLE_COPY.night.kicker}</p>
+                <h3 className="mt-1 text-[19px] font-extrabold tracking-tight text-white sm:text-[21px]">{TOGGLE_COPY.night.title}</h3>
+                <p className="mt-1 text-[14px] leading-relaxed text-slate-300 sm:text-[14.5px]">{TOGGLE_COPY.night.body}</p>
+              </motion.div>
+            </div>
+
+            <div className="mt-6 flex flex-col items-stretch sm:flex-row sm:items-center">
+              <StatusChip
+                colors={chipColors}
+                icon={<Sun size={19} />}
+                title="Solar panels"
+                day="Generating"
+                night="Idle"
+                dayLabel={dayLabel}
+                nightFlow={nightFlow}
+                reduce={false}
+              />
+              <Connector dayFlow={dayFlow} nightFlow={nightFlow} reduce={false} />
+              <StatusChip
+                colors={chipColors}
+                icon={<BatteryCharging size={19} />}
+                title="Home battery"
+                day="Charging"
+                night="Discharging"
+                dayLabel={dayLabel}
+                nightFlow={nightFlow}
+                reduce={false}
+              >
+                <div className="mt-1.5 flex items-center gap-2">
+                  <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-400/40">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{ backgroundColor: batteryFill, scaleX: batteryLevel, originX: 0 }}
+                    />
+                  </div>
+                  <motion.span style={{ color: chipText }} className="text-[12px] font-bold tabular-nums">
+                    {batteryPct}
+                  </motion.span>
+                </div>
+              </StatusChip>
+              <Connector dayFlow={dayFlow} nightFlow={nightFlow} reduce={false} />
+              <StatusChip
+                colors={chipColors}
+                icon={<Home size={19} />}
+                title="Your home"
+                day="On solar"
+                night="On battery"
+                dayLabel={dayLabel}
+                nightFlow={nightFlow}
+                reduce={false}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
