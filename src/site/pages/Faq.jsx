@@ -26,7 +26,7 @@ function Group({ heading, items }) {
       <h2 className="text-[22px] font-extrabold tracking-tight text-slate-900 sm:text-[26px]">
         {heading}
       </h2>
-      <div className="mt-4 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-sm sm:px-7">
+      <div className="mt-4 divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-card sm:px-7">
         {items.map(([q, a], i) => {
           const isOpen = open === i
           return (

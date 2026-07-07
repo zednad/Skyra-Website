@@ -4,7 +4,7 @@ import { BadgePercent, Landmark, MapPinned, SunMedium } from 'lucide-react'
 import PageHero from '../PageHero'
 import { FaqSection, QuoteSection } from '../sections'
 import { REBATE_FAQS } from '../faqData'
-import { H2, Kicker, Meta, Reveal } from '../shared'
+import { CARD_HOVER, H2, Kicker, Meta, Reveal } from '../shared'
 
 const SCHEMES = [
   {
@@ -55,7 +55,7 @@ function Schemes() {
         <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5 lg:grid-cols-3">
           {SCHEMES.map(({ Icon, name, who, points }, i) => (
             <Reveal key={name} delay={i * 0.06}>
-              <div className="flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)] sm:p-7">
+              <div className={'flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 sm:p-7 ' + CARD_HOVER}>
                 <div className="flex items-center gap-3.5 sm:block">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-slate-900 text-amber-400 sm:h-12 sm:w-12">
                     <Icon size={21} />

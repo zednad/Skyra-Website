@@ -16,7 +16,7 @@ import {
   RebateBanner, StepsSection,
 } from '../sections'
 import { GENERAL_FAQS } from '../faqData'
-import { CtaLink, H2, Kicker, Meta, Photo, Reveal, TruthChip } from '../shared'
+import { CARD_HOVER, CtaLink, H2, Kicker, Meta, Photo, Reveal, TruthChip } from '../shared'
 
 /* ── Hero ─────────────────────────────────────────────────────────────── */
 function Hero() {
@@ -211,7 +211,7 @@ function WhySkyra() {
         <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
           {WHY.map(({ base, widths, alt, t, s }, i) => (
             <Reveal key={t} delay={i * 0.06}>
-              <div className="group flex h-full overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)] sm:block">
+              <div className={'group flex h-full overflow-hidden rounded-2xl border border-slate-200 bg-white sm:block ' + CARD_HOVER}>
                 <div className="relative w-[112px] shrink-0 self-stretch overflow-hidden sm:aspect-[4/3] sm:w-auto sm:self-auto">
                   <Photo
                     base={base}

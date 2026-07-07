@@ -5,10 +5,10 @@
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, Menu, X } from 'lucide-react'
+import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion'
+import { ArrowRight, ArrowUp, Menu, X } from 'lucide-react'
 import skyraLogo from '../assets/skyra-logo.webp'
-import { ABN, EASE, ScrollToTop } from './shared'
+import { ABN, BTN, EASE, ScrollToTop } from './shared'
 
 const NAV = [
   ['Solar', '/solar'],
@@ -41,6 +41,9 @@ function AnnouncementBar() {
 function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  const { pathname } = useLocation()
+  const { scrollY } = useScroll()
   const close = () => setOpen(false)
 
   useEffect(() => {
@@ -50,16 +53,44 @@ function Header() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  /* Phones/tablets: tuck the header away while scrolling down, bring it back
+     on the first upward scroll. Never near the top or with the menu open. */
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const prev = scrollY.getPrevious() ?? 0
+    if (open || y < 160) {
+      setHidden(false)
+      return
+    }
+    const delta = y - prev
+    if (delta > 6) setHidden(true)
+    else if (delta < -4) setHidden(false)
+  })
+
+  useEffect(() => setHidden(false), [pathname])
+
   return (
     <header
+      onFocusCapture={() => setHidden(false)}
       className={
-        'sticky top-0 z-40 border-b bg-white/95 backdrop-blur transition-shadow ' +
-        (scrolled ? 'border-slate-200 shadow-[0_1px_12px_rgba(2,8,23,0.06)]' : 'border-transparent')
+        'sticky top-0 z-40 border-b bg-white/95 backdrop-blur transition-[translate,box-shadow,border-color] duration-300 ease-brand ' +
+        (scrolled ? 'border-slate-200 shadow-header ' : 'border-transparent ') +
+        (hidden ? 'max-lg:-translate-y-full' : '')
       }
     >
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div
+        className={
+          'mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 transition-[height] duration-300 ease-brand sm:px-6 lg:px-8 ' +
+          (scrolled ? 'h-[60px]' : 'h-[72px]')
+        }
+      >
         <Link to="/" className="flex shrink-0 items-center" aria-label="SkyRa Energy home">
-          <img src={skyraLogo} alt="SkyRa Energy" className="h-10 w-auto sm:h-11" width="480" height="284" />
+          <img
+            src={skyraLogo}
+            alt="SkyRa Energy"
+            className={'w-auto transition-[height] duration-300 ease-brand ' + (scrolled ? 'h-8 sm:h-9' : 'h-10 sm:h-11')}
+            width="480"
+            height="284"
+          />
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">
@@ -69,12 +100,24 @@ function Header() {
               to={to}
               className={({ isActive }) =>
                 'relative py-1 text-[14.5px] font-semibold transition-colors ' +
-                (isActive
-                  ? 'text-slate-900 after:absolute after:-bottom-0.5 after:left-0 after:h-[2px] after:w-full after:rounded-full after:bg-amber-500'
-                  : 'text-slate-600 hover:text-slate-900')
+                (isActive ? 'text-slate-900' : 'text-slate-600 hover:text-slate-900')
               }
             >
-              {label}
+              {({ isActive }) => (
+                <>
+                  {label}
+                  {/* Shared layoutId makes the underline glide between items.
+                      Known edge: returning from a non-nav route animates in
+                      from the last position; cosmetic, accepted. */}
+                  {isActive && (
+                    <motion.span
+                      layoutId="nav-underline"
+                      className="absolute inset-x-0 -bottom-0.5 h-[2px] rounded-full bg-amber-500"
+                      transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                    />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -82,7 +125,7 @@ function Header() {
         <div className="flex items-center gap-2.5">
           <Link
             to="/contact"
-            className="hidden rounded-xl bg-amber-500 px-5 py-2.5 text-[14px] font-bold text-slate-950 shadow-sm transition-colors hover:bg-amber-400 sm:inline-flex"
+            className={'hidden rounded-xl px-5 py-2.5 text-[14px] sm:inline-flex ' + BTN.primary}
           >
             Get a free quote
           </Link>
@@ -125,7 +168,7 @@ function Header() {
               <Link
                 to="/contact"
                 onClick={close}
-                className="mt-2 rounded-xl bg-amber-500 px-4 py-3 text-center text-[15px] font-bold text-slate-950"
+                className={'mt-2 justify-center rounded-xl px-4 py-3 text-center text-[15px] ' + BTN.primary}
               >
                 Get a free quote
               </Link>
@@ -178,7 +221,7 @@ function Footer() {
           </p>
           <Link
             to="/contact"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-[14px] font-bold text-slate-950 transition-colors hover:bg-amber-400"
+            className={'mt-4 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-[14px] ' + BTN.primary}
           >
             Get a free quote <ArrowRight size={16} />
           </Link>
@@ -225,7 +268,7 @@ function MobileQuoteBar() {
         >
           <Link
             to="/contact"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-3.5 text-[15px] font-bold text-slate-950"
+            className={'flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] ' + BTN.primary}
           >
             Get a free quote <ArrowRight size={16} />
           </Link>
@@ -236,13 +279,23 @@ function MobileQuoteBar() {
 }
 
 export default function Layout() {
+  const { pathname } = useLocation()
   return (
     <div className="min-h-screen bg-white">
       <ScrollToTop />
       <AnnouncementBar />
       <Header />
       <main className="pb-20 sm:pb-0">
-        <Outlet />
+        {/* Enter-only page fade on route change. Deliberately no
+            AnimatePresence: exit animations stall UI in this app. */}
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, ease: EASE }}
+        >
+          <Outlet />
+        </motion.div>
       </main>
       <Footer />
       <MobileQuoteBar />

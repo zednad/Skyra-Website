@@ -11,7 +11,7 @@ import {
   ArrowRight, BadgePercent, ChevronDown, ClipboardCheck, Gauge, PencilRuler,
   Power, Sun, Wrench,
 } from 'lucide-react'
-import { CtaLink, EASE, H2, JsonLd, Kicker, Photo, Reveal } from './shared'
+import { BTN, CARD_HOVER, CtaLink, EASE, H2, JsonLd, Kicker, Photo, Reveal } from './shared'
 import QuoteForm from './QuoteForm'
 
 /* ── Rebate banner ────────────────────────────────────────────────────── */
@@ -43,7 +43,7 @@ export function RebateBanner() {
           </div>
           <Link
             to="/rebates"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-[14px] font-bold text-white transition-colors hover:bg-slate-800"
+            className={'inline-flex shrink-0 items-center justify-center gap-2 rounded-xl px-5 py-3 text-[14px] ' + BTN.navy}
           >
             How the rebates work <ArrowRight size={16} />
           </Link>
@@ -104,7 +104,7 @@ export function CalculatorSection() {
         </Reveal>
 
         <Reveal delay={0.08}>
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
             <div className="text-[12px] font-bold uppercase tracking-[0.2em] text-amber-700">Estimated saving</div>
             <div className="mt-2 text-[clamp(44px,6vw,64px)] font-extrabold leading-none tracking-tight text-slate-900">
               $<AnimatedNumber value={saving} formatFn={(v) => Math.round(v).toLocaleString()} />
@@ -217,7 +217,7 @@ export function StepsSection() {
         <div className="mt-12 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map(({ n, Icon, t, s }, i) => (
             <Reveal key={n} delay={i * 0.06}>
-              <div className="group relative h-full rounded-2xl border border-slate-200 bg-white p-6 transition-shadow hover:shadow-[0_10px_36px_rgba(2,8,23,0.08)]">
+              <div className={'group relative h-full rounded-2xl border border-slate-200 bg-white p-6 ' + CARD_HOVER}>
                 <div className="flex items-center justify-between">
                   <span className="grid h-11 w-11 place-items-center rounded-xl bg-slate-900 text-amber-400">
                     <Icon size={21} />
@@ -263,7 +263,7 @@ export function FaqSection({ items, title = 'Questions, answered.' }) {
           <CtaLink to="/contact" className="mt-7">Ask a question</CtaLink>
         </Reveal>
         <Reveal delay={0.08}>
-          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-sm sm:px-7">
+          <div className="divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white px-5 shadow-card sm:px-7">
             {items.map(([q, a], i) => {
               const isOpen = open === i
               return (

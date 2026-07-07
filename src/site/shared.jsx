@@ -139,24 +139,34 @@ export function H2({ children, className = '' }) {
   )
 }
 
+/* Button recipes shared by CtaLink and plain <Link>/<button> call sites.
+   Combine with the caller's own size/layout classes. Solid variants lift
+   on hover and press down on click; ghost/outline stay flat (they sit on
+   photos or inside dense UI). */
+const BTN_FX =
+  // v4 translate/scale utilities animate via the `translate`/`scale` props
+  'transition-[translate,scale,box-shadow,background-color,color] duration-200 ease-brand ' +
+  'hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.985]'
+export const BTN = {
+  primary: 'bg-amber-500 text-slate-950 font-bold shadow-cta hover:bg-amber-400 hover:shadow-cta-hover ' + BTN_FX,
+  navy: 'bg-slate-900 text-white font-bold hover:bg-slate-800 hover:shadow-card-hover ' + BTN_FX,
+  ghost: 'ring-1 ring-white/40 text-white font-semibold transition-[background-color,box-shadow] duration-200 ease-brand hover:bg-white/10 hover:ring-white/60',
+  outline: 'ring-1 ring-slate-300 text-slate-800 font-semibold transition-[background-color,box-shadow] duration-200 ease-brand hover:bg-slate-50 hover:ring-slate-400',
+}
+
+/* Consistent card elevation: quiet at rest, lifts on hover. */
+export const CARD_HOVER =
+  'shadow-card transition-[translate,box-shadow,border-color] duration-300 ease-brand ' +
+  'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-card-hover'
+
 /* Primary amber CTA (link). */
 export function CtaLink({ to, children, className = '', variant = 'primary' }) {
-  const styles = {
-    primary:
-      'bg-amber-500 text-slate-950 hover:bg-amber-400 shadow-sm font-bold',
-    navy:
-      'bg-slate-900 text-white hover:bg-slate-800 font-bold',
-    ghost:
-      'ring-1 ring-white/40 text-white hover:bg-white/10 font-semibold',
-    outline:
-      'ring-1 ring-slate-300 text-slate-800 hover:border-slate-400 hover:bg-slate-50 font-semibold',
-  }
   return (
     <Link
       to={to}
       className={
-        'inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] transition-colors ' +
-        styles[variant] + ' ' + className
+        'inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-[15px] ' +
+        BTN[variant] + ' ' + className
       }
     >
       {children}
