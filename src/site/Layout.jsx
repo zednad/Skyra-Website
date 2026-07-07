@@ -66,7 +66,13 @@ function Header() {
     else if (delta < -4) setHidden(false)
   })
 
-  useEffect(() => setHidden(false), [pathname])
+  // Reveal the header again whenever the route changes (render-time state
+  // adjustment; an effect here trips the cascading-render lint rule).
+  const [lastPath, setLastPath] = useState(pathname)
+  if (lastPath !== pathname) {
+    setLastPath(pathname)
+    setHidden(false)
+  }
 
   return (
     <header
