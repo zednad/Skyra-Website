@@ -290,7 +290,7 @@ function MobileQuoteBar() {
           animate={{ y: 0 }}
           exit={{ y: 84 }}
           transition={{ duration: 0.3, ease: EASE }}
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 pb-[max(12px,env(safe-area-inset-bottom))] backdrop-blur sm:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(2,8,23,0.10)] backdrop-blur sm:hidden"
         >
           <Link
             to="/contact"

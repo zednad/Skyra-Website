@@ -13,7 +13,7 @@ import { ArrowRight, BadgeCheck, Check, FileCheck2, MapPin, Sun } from 'lucide-r
 import EnergyStory from '../../components/EnergyStory'
 import {
   BrandStrip, CalculatorSection, EditorialBreak, FaqSection, QuoteSection,
-  RebateBanner, StepsSection,
+  RebateBanner, SnapCarousel, StepsSection,
 } from '../sections'
 import { GENERAL_FAQS } from '../faqData'
 import { BTN, CARD_HOVER, CtaLink, EASE, H2, Kicker, Meta, Photo, Reveal, TruthChip } from '../shared'
@@ -229,6 +229,26 @@ const WHY = [
   },
 ]
 
+function WhyCard({ base, widths, alt, t, s }) {
+  return (
+    <div className={'group h-full overflow-hidden rounded-2xl border border-slate-200 bg-white ' + CARD_HOVER}>
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <Photo
+          base={base}
+          widths={widths || [640, 1100]}
+          sizes="(min-width:1024px) 24vw, (min-width:640px) 46vw, 80vw"
+          alt={alt}
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
+        />
+      </div>
+      <div className="min-w-0 p-4 sm:p-5">
+        <h3 className="text-[15.5px] font-bold text-slate-900 sm:text-[16.5px]">{t}</h3>
+        <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-500 sm:text-[14px]">{s}</p>
+      </div>
+    </div>
+  )
+}
+
 function WhySkyra() {
   return (
     <section className="bg-[#faf9f7] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
@@ -237,25 +257,17 @@ function WhySkyra() {
           <Kicker>Why SkyRa</Kicker>
           <H2>A solar company you can hold to its word.</H2>
         </Reveal>
-        {/* Phones get compact photo-beside-text rows; sm+ keeps the tall photo cards. */}
-        <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-          {WHY.map(({ base, widths, alt, t, s }, i) => (
-            <Reveal key={t} delay={i * 0.06}>
-              <div className={'group flex h-full overflow-hidden rounded-2xl border border-slate-200 bg-white sm:block ' + CARD_HOVER}>
-                <div className="relative w-[112px] shrink-0 self-stretch overflow-hidden sm:aspect-[4/3] sm:w-auto sm:self-auto">
-                  <Photo
-                    base={base}
-                    widths={widths || [640, 1100]}
-                    sizes="(min-width:1024px) 24vw, (min-width:640px) 46vw, 30vw"
-                    alt={alt}
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
-                  />
-                </div>
-                <div className="min-w-0 p-4 sm:p-5">
-                  <h3 className="text-[15.5px] font-bold text-slate-900 sm:text-[16.5px]">{t}</h3>
-                  <p className="mt-1.5 text-[13.5px] leading-relaxed text-slate-500 sm:text-[14px]">{s}</p>
-                </div>
-              </div>
+        {/* Phones: swipeable snap cards with edge peek. */}
+        <Reveal className="mt-8 sm:hidden">
+          <SnapCarousel ariaLabel="Why choose SkyRa">
+            {WHY.map((w) => <WhyCard key={w.t} {...w} />)}
+          </SnapCarousel>
+        </Reveal>
+        {/* Larger screens: the card grid. */}
+        <div className="mt-10 hidden gap-5 sm:grid sm:grid-cols-2 lg:grid-cols-4">
+          {WHY.map((w, i) => (
+            <Reveal key={w.t} delay={i * 0.06}>
+              <WhyCard {...w} />
             </Reveal>
           ))}
         </div>
@@ -276,6 +288,53 @@ const PACKAGES = {
     { size: '30', panels: '69 × 440 W panels', tag: 'Mid-size business', popular: true },
     { size: '50', panels: '114 × 440 W panels', tag: 'Warehouse & industrial', popular: false },
   ],
+}
+
+function PackageCard({ p }) {
+  return (
+    <div
+      className={
+        'relative flex h-full flex-col rounded-2xl p-5 ring-1 sm:p-8 ' +
+        (p.popular
+          ? 'bg-[#0a1b2e] text-white ring-white/10 shadow-navy-card'
+          : 'bg-white text-slate-900 ring-slate-200 shadow-card transition-[translate,box-shadow] duration-300 ease-brand hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-slate-300')
+      }
+    >
+      {p.popular && (
+        <span className="absolute right-5 top-5 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-950 shadow-cta ring-2 ring-amber-300/30 sm:right-6 sm:top-6">
+          Most chosen
+        </span>
+      )}
+      <span className={'text-[12px] font-bold uppercase tracking-[0.16em] ' + (p.popular ? 'text-amber-300' : 'text-amber-700')}>
+        {p.tag}
+      </span>
+      <div className="mt-2 flex items-baseline gap-1.5 sm:mt-3">
+        <span className="text-[44px] font-extrabold leading-none tracking-tight tabular-nums sm:text-[52px]">{p.size}</span>
+        <span className="text-[20px] font-bold text-slate-400">kW</span>
+      </div>
+      {/* Phones list only what differs per size; the shared inclusions
+          sit once under the grid. */}
+      <ul className={'mt-4 space-y-3 text-[14.5px] sm:mt-6 ' + (p.popular ? 'text-slate-200' : 'text-slate-600')}>
+        {[p.panels, 'Smart hybrid-ready inverter', 'Battery-ready design', 'Fully supplied & installed'].map((f, fi) => (
+          <li key={f} className={'items-center gap-2.5 ' + (fi === 0 ? 'flex' : 'hidden sm:flex')}>
+            <span className={'grid h-5.5 w-5.5 shrink-0 place-items-center rounded-full ' + (p.popular ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-700')}>
+              <Check size={12} strokeWidth={3} />
+            </span>
+            {f}
+          </li>
+        ))}
+      </ul>
+      <Link
+        to="/contact"
+        className={
+          'mt-5 block w-full rounded-xl py-3.5 text-center text-[14.5px] sm:mt-8 ' +
+          (p.popular ? BTN.primary : BTN.navy)
+        }
+      >
+        Get exact pricing
+      </Link>
+    </div>
+  )
 }
 
 function Packages() {
@@ -314,53 +373,21 @@ function Packages() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-10 grid items-stretch gap-5 md:grid-cols-3"
+            className="mt-10"
           >
-            {PACKAGES[tab].map((p) => (
-              <div
-                key={p.size}
-                className={
-                  'relative flex flex-col rounded-2xl p-5 ring-1 sm:p-8 ' +
-                  (p.popular
-                    ? 'bg-[#0a1b2e] text-white ring-white/10 shadow-navy-card'
-                    : 'bg-white text-slate-900 ring-slate-200 shadow-card transition-[translate,box-shadow] duration-300 ease-brand hover:-translate-y-0.5 hover:shadow-card-hover hover:ring-slate-300')
-                }
+            {/* Phones: swipeable, pre-centred on the most-chosen size. */}
+            <div className="md:hidden">
+              <SnapCarousel
+                itemClassName="w-[84%]"
+                initialIndex={Math.max(0, PACKAGES[tab].findIndex((p) => p.popular))}
+                ariaLabel={tab + ' package sizes'}
               >
-                {p.popular && (
-                  <span className="absolute right-5 top-5 rounded-full bg-amber-400 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-slate-950 shadow-cta ring-2 ring-amber-300/30 sm:right-6 sm:top-6">
-                    Most chosen
-                  </span>
-                )}
-                <span className={'text-[12px] font-bold uppercase tracking-[0.16em] ' + (p.popular ? 'text-amber-300' : 'text-amber-700')}>
-                  {p.tag}
-                </span>
-                <div className="mt-2 flex items-baseline gap-1.5 sm:mt-3">
-                  <span className="text-[44px] font-extrabold leading-none tracking-tight tabular-nums sm:text-[52px]">{p.size}</span>
-                  <span className="text-[20px] font-bold text-slate-400">kW</span>
-                </div>
-                {/* Phones list only what differs per size; the shared inclusions
-                    sit once under the grid. */}
-                <ul className={'mt-4 space-y-3 text-[14.5px] sm:mt-6 ' + (p.popular ? 'text-slate-200' : 'text-slate-600')}>
-                  {[p.panels, 'Smart hybrid-ready inverter', 'Battery-ready design', 'Fully supplied & installed'].map((f, fi) => (
-                    <li key={f} className={'items-center gap-2.5 ' + (fi === 0 ? 'flex' : 'hidden sm:flex')}>
-                      <span className={'grid h-5.5 w-5.5 shrink-0 place-items-center rounded-full ' + (p.popular ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-700')}>
-                        <Check size={12} strokeWidth={3} />
-                      </span>
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/contact"
-                  className={
-                    'mt-5 block w-full rounded-xl py-3.5 text-center text-[14.5px] sm:mt-8 ' +
-                    (p.popular ? BTN.primary : BTN.navy)
-                  }
-                >
-                  Get exact pricing
-                </Link>
-              </div>
-            ))}
+                {PACKAGES[tab].map((p) => <PackageCard key={p.size} p={p} />)}
+              </SnapCarousel>
+            </div>
+            <div className="hidden items-stretch gap-5 md:grid md:grid-cols-3">
+              {PACKAGES[tab].map((p) => <PackageCard key={p.size} p={p} />)}
+            </div>
           </motion.div>
         <p className="mt-5 text-center text-[13px] text-slate-500 sm:hidden">
           Every size includes a smart hybrid-ready inverter, battery-ready

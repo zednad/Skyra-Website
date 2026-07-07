@@ -4,7 +4,7 @@
 //  All claims here follow the compliance rules in docs/REDESIGN_PLAN.md §6 -
 //  rebate copy states the public program facts and carries a disclaimer.
 // ─────────────────────────────────────────────────────────────────────────────
-import { useEffect, useState } from 'react'
+import { Children, useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AnimatePresence, motion, animate, useMotionValue, useReducedMotion } from 'framer-motion'
 import {
@@ -232,6 +232,76 @@ export function StepsSection() {
         </div>
       </div>
     </section>
+  )
+}
+
+/* ── Snap carousel (phones) ───────────────────────────────────────────────
+   Horizontal scroll-snap strip with edge peek and a dots indicator. Wrap
+   the whole thing in one Reveal; per-card whileInView would leave the
+   off-screen cards invisible.                                            */
+export function SnapCarousel({ children, itemClassName = 'w-[80%]', initialIndex = 0, ariaLabel }) {
+  const ref = useRef(null)
+  const [index, setIndex] = useState(initialIndex)
+  const count = Children.count(children)
+
+  // Pre-centre the highlighted card (no smooth scroll on mount).
+  useEffect(() => {
+    const el = ref.current
+    const card = el?.children[initialIndex]
+    if (!el || !card || initialIndex === 0) return
+    el.scrollLeft = card.offsetLeft - (el.clientWidth - card.clientWidth) / 2
+  }, [initialIndex])
+
+  const onScroll = () => {
+    const el = ref.current
+    if (!el) return
+    const per = el.scrollWidth / count
+    setIndex(Math.max(0, Math.min(count - 1, Math.round(el.scrollLeft / per))))
+  }
+
+  const scrollToCard = (i) => {
+    const el = ref.current
+    const card = el?.children[i]
+    if (!el || !card) return
+    el.scrollTo({
+      left: card.offsetLeft - (el.clientWidth - card.clientWidth) / 2,
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+  }
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        onScroll={onScroll}
+        role="group"
+        aria-label={ariaLabel}
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 scrollbar-none"
+      >
+        {Children.map(children, (child) => (
+          <div className={'shrink-0 snap-center ' + itemClassName}>{child}</div>
+        ))}
+      </div>
+      <div className="mt-1 flex justify-center">
+        {Array.from({ length: count }).map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={'Go to item ' + (i + 1) + ' of ' + count}
+            aria-current={i === index}
+            onClick={() => scrollToCard(i)}
+            className="grid place-items-center p-2"
+          >
+            <span
+              className={
+                'h-1.5 rounded-full transition-all duration-300 ease-brand ' +
+                (i === index ? 'w-4 bg-amber-500' : 'w-1.5 bg-slate-300')
+              }
+            />
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 
