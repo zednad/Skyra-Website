@@ -157,7 +157,8 @@ export function CalculatorSection() {
                 <div className="mt-2.5 text-[22px] font-extrabold leading-none text-slate-900">
                   <AnimatedNumber value={co2} formatFn={(v) => v.toFixed(1)} />t
                 </div>
-                <div className="mt-1 text-[12px] text-slate-500">CO₂ avoided / yr</div>
+                {/* CO2 as markup: U+2082 sits outside the latin font subset */}
+                <div className="mt-1 text-[12px] text-slate-500">CO<sub>2</sub> avoided / yr</div>
               </div>
             </div>
 
