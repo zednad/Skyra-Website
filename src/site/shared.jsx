@@ -89,10 +89,34 @@ export function ScrollToTop() {
   return null
 }
 
+/* Average colour of each photo (10x10 canvas sample), shown as the img
+   background while pixels decode so lazy images surface as a tonally
+   correct block instead of a white gap. Colour only - no opacity fade,
+   which would fight the hover-zoom transitions at several call sites. */
+const PHOTO_TONE = {
+  'hero-install': '#8b8f94',
+  'bento-panels': '#6f5f53',
+  'battery-garage': '#91867b',
+  'commercial-roof': '#6c5744',
+  'why-team': '#7e7f82',
+  'install-detail': '#534d49',
+  'consult-table': '#878279',
+  'handover': '#89705e',
+  'family-app': '#756a62',
+  'home-night': '#3a332f',
+  'van-driveway': '#827c73',
+  'team-group': '#938676',
+  'suburb-aerial': '#635848',
+  'about-portrait': '#838175',
+  'panel-macro': '#65646a',
+  'why-hardware': '#766b61',
+}
+
 /* Responsive photo from /public/images/photos renditions. */
 export function Photo({ base, widths, sizes = '100vw', alt, className = '', eager = false, style }) {
   const srcSet = widths.map((w) => `/images/photos/${base}-${w}.webp ${w}w`).join(', ')
   const mid = widths[Math.min(1, widths.length - 1)]
+  const tone = PHOTO_TONE[base]
   return (
     <img
       src={`/images/photos/${base}-${mid}.webp`}
@@ -103,7 +127,7 @@ export function Photo({ base, widths, sizes = '100vw', alt, className = '', eage
       fetchPriority={eager ? 'high' : undefined}
       decoding={eager ? undefined : 'async'}
       className={className}
-      style={style}
+      style={tone ? { backgroundColor: tone, ...style } : style}
     />
   )
 }
