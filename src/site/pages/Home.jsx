@@ -163,7 +163,9 @@ function BentoTile({ to, title, text, base, widths, img, alt, className = '', de
 
 function WhatWeInstall() {
   return (
-    <section className="bg-white px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+    // Top padding stays light: the rebate banner's wrapper already spaces
+    // this boundary, and the two stacked paddings read as a hole otherwise.
+    <section className="bg-white px-4 pb-20 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pb-28 lg:pt-14">
       <div className="mx-auto max-w-7xl">
         <Reveal className="max-w-2xl">
           <Kicker>What we install</Kicker>

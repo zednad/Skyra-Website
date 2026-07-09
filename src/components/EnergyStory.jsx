@@ -350,6 +350,128 @@ function Connector({ dayFlow, nightFlow, reduce }) {
   )
 }
 
+// ── EnergyRail - the toggle scene's status display ───────────────────────
+//  One glass card where the three nodes hang off a single continuous line
+//  and the pulse runs down it: amber out of the panels by day, sky-blue
+//  into the home at night. Reads as one circuit at phone widths, where the
+//  pinned scene's separate floating chips fell apart into stacked cards.
+function RailSegment({ day, night, reduce }) {
+  return (
+    <svg
+      className="min-h-7 w-4 flex-1"
+      viewBox="0 0 16 40"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <line x1="8" y1="4" x2="8" y2="36" stroke="rgba(148,163,184,0.35)" strokeWidth="2.5" />
+      <motion.line
+        x1="8" y1="4" x2="8" y2="36"
+        stroke="#f59e0b" strokeWidth="3.5"
+        className={reduce ? '' : 'energy-pulse'}
+        style={{ opacity: day }}
+      />
+      {night && (
+        <motion.line
+          x1="8" y1="4" x2="8" y2="36"
+          stroke="#38bdf8" strokeWidth="3.5"
+          className={reduce ? '' : 'energy-pulse'}
+          style={{ opacity: night }}
+        />
+      )}
+    </svg>
+  )
+}
+
+function RailRow({ colors, icon, iconCls, dim, title, day, night, dayLabel, nightFlow, segment, children }) {
+  return (
+    <div className="grid grid-cols-[44px_1fr] gap-x-4">
+      <div className="flex flex-col items-center self-stretch">
+        <motion.span
+          style={dim ? { opacity: dim } : undefined}
+          className={'grid h-11 w-11 shrink-0 place-items-center rounded-full text-white shadow-md ' + iconCls}
+        >
+          {icon}
+        </motion.span>
+        {segment}
+      </div>
+      <div className={segment ? 'pb-6' : 'pb-0.5'}>
+        <motion.div style={{ color: colors.sub }} className="pt-0.5 text-[11px] font-semibold uppercase tracking-wider">
+          {title}
+        </motion.div>
+        <div className="relative mt-0.5 h-5 text-[15px] font-bold leading-5">
+          {/* invisible sizer so the longer label sets the row width */}
+          <span className="invisible whitespace-nowrap">
+            {night.length > day.length ? night : day}
+          </span>
+          <motion.span style={{ opacity: dayLabel, color: colors.text }} className="absolute inset-0 whitespace-nowrap">
+            {day}
+          </motion.span>
+          <motion.span style={{ opacity: nightFlow, color: colors.text }} className="absolute inset-0 whitespace-nowrap">
+            {night}
+          </motion.span>
+        </div>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+function EnergyRail({ p, colors, dayLabel, dayFlow, nightFlow, batteryFill, batteryLevel, batteryPct, reduce }) {
+  const sunDim = useTransform(p, [0.4, 0.7], [1, 0.45])
+  return (
+    <motion.div
+      style={{ backgroundColor: colors.bg, borderColor: colors.border }}
+      className="mt-6 rounded-2xl border p-5 shadow-xl shadow-slate-950/25 backdrop-blur-md sm:p-6"
+    >
+      <RailRow
+        colors={colors}
+        icon={<Sun size={19} />}
+        iconCls="bg-gradient-to-br from-amber-400 to-orange-500 shadow-amber-500/40"
+        dim={sunDim}
+        title="Solar panels"
+        day="Generating"
+        night="Idle"
+        dayLabel={dayLabel}
+        nightFlow={nightFlow}
+        segment={<RailSegment day={dayFlow} reduce={reduce} />}
+      />
+      <RailRow
+        colors={colors}
+        icon={<BatteryCharging size={19} />}
+        iconCls="bg-gradient-to-br from-sky-400 to-blue-600 shadow-sky-500/40"
+        title="Home battery"
+        day="Charging"
+        night="Discharging"
+        dayLabel={dayLabel}
+        nightFlow={nightFlow}
+        segment={<RailSegment day={dayFlow} night={nightFlow} reduce={reduce} />}
+      >
+        <div className="mt-2.5 flex items-center gap-2.5">
+          <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-slate-400/30">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ backgroundColor: batteryFill, scaleX: batteryLevel, originX: 0 }}
+            />
+          </div>
+          <motion.span style={{ color: colors.text }} className="text-[12.5px] font-bold tabular-nums">
+            {batteryPct}
+          </motion.span>
+        </div>
+      </RailRow>
+      <RailRow
+        colors={colors}
+        icon={<Home size={19} />}
+        iconCls="bg-gradient-to-br from-slate-500 to-slate-700 shadow-slate-900/30 ring-1 ring-white/20"
+        title="Your home"
+        day="On solar"
+        night="On battery"
+        dayLabel={dayLabel}
+        nightFlow={nightFlow}
+      />
+    </motion.div>
+  )
+}
+
 // One caption block: fades/rises in and out over its progress range.
 function Caption({ progress, range, children }) {
   const [a, b, c, d] = range
@@ -401,10 +523,11 @@ function EnergyToggle({ reduce }) {
   const dayLabel = useTransform(p, [0.4, 0.6], [1, 0])
   const batteryLevel = useTransform(p, [0, 1], [0.9, 0.62])
   const batteryFill = useTransform(p, [0.35, 0.7], ['#f59e0b', '#38bdf8'])
-  const chipBg = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.88)', 'rgba(15,23,42,0.8)'])
+  const chipBg = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.9)', 'rgba(15,23,42,0.85)'])
   const chipText = useTransform(p, [0.35, 0.7], ['#0f172a', '#f1f5f9'])
   const chipSub = useTransform(p, [0.35, 0.7], ['#64748b', '#94a3b8'])
-  const chipBorder = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.6)', 'rgba(255,255,255,0.14)'])
+  // sky-tinted ring at night so the card doesn't melt into the navy section
+  const chipBorder = useTransform(p, [0.35, 0.7], ['rgba(255,255,255,0.6)', 'rgba(125,211,252,0.22)'])
   const dayCaption = useTransform(p, [0.35, 0.6], [1, 0])
   const [batteryPct, setBatteryPct] = useState(`${Math.round(batteryLevel.get() * 100)}%`)
   useMotionValueEvent(batteryLevel, 'change', (v) => setBatteryPct(`${Math.round(v * 100)}%`))
@@ -495,52 +618,17 @@ function EnergyToggle({ reduce }) {
               </motion.div>
             </div>
 
-            <div className="mt-6 flex flex-col items-stretch sm:flex-row sm:items-center">
-              <StatusChip
-                colors={chipColors}
-                icon={<Sun size={19} />}
-                title="Solar panels"
-                day="Generating"
-                night="Idle"
-                dayLabel={dayLabel}
-                nightFlow={nightFlow}
-                reduce={false}
-              />
-              <Connector dayFlow={dayFlow} nightFlow={nightFlow} reduce={false} />
-              <StatusChip
-                colors={chipColors}
-                icon={<BatteryCharging size={19} />}
-                title="Home battery"
-                day="Charging"
-                night="Discharging"
-                dayLabel={dayLabel}
-                nightFlow={nightFlow}
-                reduce={false}
-              >
-                <div className="mt-1.5 flex items-center gap-2">
-                  <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-400/40">
-                    <motion.div
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: batteryFill, scaleX: batteryLevel, originX: 0 }}
-                    />
-                  </div>
-                  <motion.span style={{ color: chipText }} className="text-[12px] font-bold tabular-nums">
-                    {batteryPct}
-                  </motion.span>
-                </div>
-              </StatusChip>
-              <Connector dayFlow={dayFlow} nightFlow={nightFlow} reduce={false} />
-              <StatusChip
-                colors={chipColors}
-                icon={<Home size={19} />}
-                title="Your home"
-                day="On solar"
-                night="On battery"
-                dayLabel={dayLabel}
-                nightFlow={nightFlow}
-                reduce={false}
-              />
-            </div>
+            <EnergyRail
+              p={p}
+              colors={chipColors}
+              dayLabel={dayLabel}
+              dayFlow={dayFlow}
+              nightFlow={nightFlow}
+              batteryFill={batteryFill}
+              batteryLevel={batteryLevel}
+              batteryPct={batteryPct}
+              reduce={reduce}
+            />
           </div>
         </div>
       </div>
