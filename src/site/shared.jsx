@@ -15,6 +15,15 @@ export const SITE_URL = 'https://skyraenergy.com.au'
 
 export const ABN = '48 667 329 044'
 
+export const PHONE = '+61 488 825 334'
+export const PHONE_HREF = 'tel:+61488825334'
+
+export const ADDRESS_LINES = [
+  'Point Cook Business Centre Entrance L4, Level 1',
+  '2 Main Street',
+  'Point Cook VIC 3030',
+]
+
 export const EASE = [0.22, 1, 0.36, 1]
 
 function upsertMeta(attr, key, content) {

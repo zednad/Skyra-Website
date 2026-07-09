@@ -1,7 +1,8 @@
-// /contact - quote form front and centre.
-import { CheckCircle2 } from 'lucide-react'
+// /contact - quote form front and centre, phone and office for
+// people who would rather talk or drop in.
+import { CheckCircle2, MapPin, Phone } from 'lucide-react'
 import QuoteForm from '../QuoteForm'
-import { Kicker, Meta, Photo, Reveal } from '../shared'
+import { ADDRESS_LINES, Kicker, Meta, Photo, PHONE, PHONE_HREF, Reveal } from '../shared'
 
 export default function Contact() {
   return (
@@ -35,6 +36,32 @@ export default function Contact() {
                 </li>
               ))}
             </ul>
+            <div className="mt-9 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+              <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500">
+                Prefer to talk or drop in?
+              </p>
+              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:gap-8">
+                <a
+                  href={PHONE_HREF}
+                  className="flex shrink-0 items-center gap-3 whitespace-nowrap text-[15.5px] font-bold text-slate-900 transition-colors hover:text-amber-700"
+                >
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700">
+                    <Phone size={17} strokeWidth={2.5} />
+                  </span>
+                  {PHONE}
+                </a>
+                <address className="flex items-start gap-3 text-[14.5px] font-medium not-italic leading-relaxed text-slate-600">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700">
+                    <MapPin size={17} strokeWidth={2.5} />
+                  </span>
+                  <span>
+                    {ADDRESS_LINES.map((line) => (
+                      <span key={line} className="block">{line}</span>
+                    ))}
+                  </span>
+                </address>
+              </div>
+            </div>
             <div className="mt-9 hidden overflow-hidden rounded-2xl lg:block">
               <Photo
                 base="consult-table"

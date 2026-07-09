@@ -36,15 +36,19 @@ function Hero() {
 
   return (
     <section ref={ref} className="grain relative isolate overflow-hidden bg-[#0a1b2e]">
-      {/* Ken Burns settle + scroll parallax on a wrapper: the img itself is
-          the LCP element, so only transforms, never opacity. The vertical
-          overdraw stops the parallax exposing the photo's edges. */}
+      {/* sm+: photo as a full-bleed canvas behind the copy. Ken Burns settle
+          + scroll parallax on a wrapper: the img itself is the LCP element,
+          so only transforms, never opacity. The vertical overdraw stops the
+          parallax exposing the photo's edges. Phones skip this entirely -
+          text over the whole photo buried it, so they get the photo as its
+          own block below the copy instead (same pattern as EnergyStory's
+          static phone treatment). */}
       <motion.div
         style={reduce ? undefined : { y: parallaxY }}
         initial={reduce ? false : { scale: 1.07 }}
         animate={{ scale: 1 }}
         transition={{ duration: 6.5, ease: 'easeOut' }}
-        className="absolute inset-x-0 -inset-y-[6%]"
+        className="absolute inset-x-0 -inset-y-[6%] hidden sm:block"
       >
         <Photo
           base="hero-install"
@@ -55,22 +59,39 @@ function Hero() {
           className="h-full w-full object-cover object-[72%_38%]"
         />
       </motion.div>
-      {/* scrims: left for copy, bottom vignette, stronger bottom on mobile */}
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0a1b2e]/92 via-[#0a1b2e]/55 to-[#0a1b2e]/10" />
+      {/* scrims: left for copy, bottom vignette (sm+ only; phones are solid navy) */}
+      <div className="absolute inset-0 hidden bg-gradient-to-r from-[#0a1b2e]/92 via-[#0a1b2e]/55 to-[#0a1b2e]/10 sm:block" />
       <div className="absolute inset-0 hidden bg-gradient-to-t from-[#0a1b2e]/35 via-transparent to-transparent sm:block" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a1b2e]/80 via-transparent to-transparent sm:hidden" />
 
-      <div className="relative z-10 mx-auto flex min-h-[78svh] max-w-7xl flex-col justify-center px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+      {/* Phones: the photo leads, full-bleed from the top with the kicker
+          pill floating on it; the navy copy block then rides up over its
+          bottom edge as a rounded sheet, so image and copy read as one
+          composed cover rather than two stacked slabs. */}
+      <div className="relative sm:hidden">
+        <Photo
+          base="hero-install"
+          widths={[768, 1280, 1920]}
+          sizes="100vw"
+          alt="SkyRa installers fitting solar panels on an Australian home"
+          eager
+          className="h-[52svh] min-h-[340px] w-full object-cover object-[72%_38%]"
+        />
+        <p className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full bg-slate-950/60 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300 ring-1 ring-white/20 backdrop-blur-sm">
+          <Sun size={12} /> Solar · Batteries · Inverters
+        </p>
+      </div>
+
+      <div className="relative z-10 mx-auto -mt-9 flex max-w-7xl flex-col justify-center rounded-t-[28px] bg-[#0a1b2e] px-4 pt-8 pb-12 sm:mt-0 sm:min-h-[78svh] sm:rounded-none sm:bg-transparent sm:px-6 sm:py-20 lg:px-8 lg:py-28">
         <motion.div variants={heroStagger} initial="hidden" animate="show" className="max-w-2xl">
           <motion.p
             variants={heroItem}
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.18em] text-amber-300 ring-1 ring-white/15"
+            className="hidden items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[12px] font-bold uppercase tracking-[0.18em] text-amber-300 ring-1 ring-white/15 sm:inline-flex"
           >
             <Sun size={13} /> Solar · Batteries · Inverters
           </motion.p>
           <motion.h1
             variants={heroItem}
-            className="mt-6 text-[clamp(36px,5.6vw,64px)] font-extrabold leading-[1.05] tracking-tight text-white"
+            className="mt-0 text-[clamp(36px,5.6vw,64px)] font-extrabold leading-[1.05] tracking-tight text-white sm:mt-6"
           >
             Solar &amp; battery systems, installed by one local team.
           </motion.h1>

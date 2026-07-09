@@ -1,14 +1,14 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  Site chrome: announcement bar (rebate hook), sticky header with real nav,
-//  fat navy footer, and a mobile bottom quote bar. No phone number is shown
-//  anywhere until the business publishes one (compliance rule - see plan §6).
+//  Site chrome: announcement bar (rebate hook), sticky header with real nav
+//  and click-to-call, fat navy footer with the business NAP, and a mobile
+//  bottom Call + quote bar (placements per plan §6, published details only).
 // ─────────────────────────────────────────────────────────────────────────────
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-motion'
-import { ArrowRight, ArrowUp, Menu, X } from 'lucide-react'
+import { ArrowRight, ArrowUp, MapPin, Menu, Phone, X } from 'lucide-react'
 import skyraLogo from '../assets/skyra-logo.webp'
-import { ABN, BTN, EASE, ScrollToTop } from './shared'
+import { ABN, ADDRESS_LINES, BTN, EASE, PHONE, PHONE_HREF, ScrollToTop } from './shared'
 
 const NAV = [
   ['Solar', '/solar'],
@@ -129,6 +129,15 @@ function Header() {
         </nav>
 
         <div className="flex items-center gap-2.5">
+          {/* Click-to-call sits beside the CTA from xl up; below that the
+              mobile menu and bottom bar carry the number instead. */}
+          <a
+            href={PHONE_HREF}
+            className="hidden items-center gap-2 px-2 text-[14.5px] font-semibold text-slate-700 transition-colors hover:text-slate-900 xl:inline-flex"
+          >
+            <Phone size={15} strokeWidth={2.5} className="text-amber-600" />
+            {PHONE}
+          </a>
           <Link
             to="/contact"
             className={'hidden rounded-xl px-5 py-2.5 text-[14px] sm:inline-flex ' + BTN.primary}
@@ -178,6 +187,14 @@ function Header() {
               >
                 Get a free quote
               </Link>
+              <a
+                href={PHONE_HREF}
+                onClick={close}
+                className={'mt-2 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-[15px] ' + BTN.outline}
+              >
+                <Phone size={16} strokeWidth={2.5} className="text-amber-600" />
+                {PHONE}
+              </a>
             </div>
           </motion.nav>
         )}
@@ -213,6 +230,23 @@ function Footer() {
             Solar panels, home batteries and inverters, designed, supplied and
             installed as one system for homes and businesses across Australia.
           </p>
+          <address className="mt-5 space-y-3 text-[14px] not-italic leading-relaxed text-slate-400">
+            <a
+              href={PHONE_HREF}
+              className="flex items-center gap-2.5 font-semibold text-slate-200 transition-colors hover:text-white"
+            >
+              <Phone size={15} className="shrink-0 text-amber-400" />
+              {PHONE}
+            </a>
+            <span className="flex gap-2.5">
+              <MapPin size={15} className="mt-[3px] shrink-0 text-amber-400" />
+              <span>
+                {ADDRESS_LINES.map((line) => (
+                  <span key={line} className="block">{line}</span>
+                ))}
+              </span>
+            </span>
+          </address>
         </div>
 
         <div>
@@ -298,12 +332,21 @@ function MobileQuoteBar() {
           transition={{ duration: 0.3, ease: EASE }}
           className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 p-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[0_-8px_30px_rgba(2,8,23,0.10)] backdrop-blur sm:hidden"
         >
-          <Link
-            to="/contact"
-            className={'flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] ' + BTN.primary}
-          >
-            Get a free quote <ArrowRight size={16} />
-          </Link>
+          <div className="flex items-stretch gap-2.5">
+            <a
+              href={PHONE_HREF}
+              aria-label={'Call SkyRa on ' + PHONE}
+              className={'grid w-[54px] shrink-0 place-items-center rounded-xl ' + BTN.navy}
+            >
+              <Phone size={19} />
+            </a>
+            <Link
+              to="/contact"
+              className={'flex flex-1 items-center justify-center gap-2 rounded-xl py-3.5 text-[15px] ' + BTN.primary}
+            >
+              Get a free quote <ArrowRight size={16} />
+            </Link>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
