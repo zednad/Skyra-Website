@@ -33,9 +33,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+        env:
+          # Prerender uses the runner's preinstalled Chrome; skip the download.
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
 
       - name: Build
         run: npm run build
+        env:
+          PUPPETEER_EXECUTABLE_PATH: /usr/bin/google-chrome
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -52,3 +57,26 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # Tell IndexNow-capable engines (Bing/DuckDuckGo, Yandex, Naver, Seznam)
+      # that the pages changed. Google does not support IndexNow; it discovers
+      # via the sitemap in robots.txt and Search Console.
+      - name: Notify IndexNow
+        run: |
+          curl -sS -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d '{
+              "host": "skyraenergy.com.au",
+              "key": "416d8a558e216c1e8fb7672d07d2ade7",
+              "keyLocation": "https://skyraenergy.com.au/416d8a558e216c1e8fb7672d07d2ade7.txt",
+              "urlList": [
+                "https://skyraenergy.com.au/",
+                "https://skyraenergy.com.au/solar",
+                "https://skyraenergy.com.au/batteries",
+                "https://skyraenergy.com.au/commercial",
+                "https://skyraenergy.com.au/rebates",
+                "https://skyraenergy.com.au/faq",
+                "https://skyraenergy.com.au/about",
+                "https://skyraenergy.com.au/contact"
+              ]
+            }' || true

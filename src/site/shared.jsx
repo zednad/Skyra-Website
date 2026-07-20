@@ -48,13 +48,17 @@ export function Meta({ title, description, noindex = false }) {
     const url = SITE_URL + (pathname === '/' ? '/' : pathname)
     document.title = title
     upsertMeta('name', 'description', description)
-    upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : null)
+    upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large')
     upsertMeta('property', 'og:title', title)
     upsertMeta('property', 'og:description', description)
     upsertMeta('property', 'og:url', url)
     upsertMeta('name', 'twitter:title', title)
     upsertMeta('name', 'twitter:description', description)
     let canonical = document.head.querySelector('link[rel="canonical"]')
+    if (noindex) {
+      canonical?.remove()
+      return
+    }
     if (!canonical) {
       canonical = document.createElement('link')
       canonical.setAttribute('rel', 'canonical')

@@ -1,16 +1,21 @@
-# React + Vite
+# SkyRa Energy — website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Source for [skyraenergy.com.au](https://skyraenergy.com.au/), the website of SkyRa Energy: solar panels, home batteries and inverters, supplied and installed for homes and businesses across Australia.
 
-Currently, two official plugins are available:
+- Live site: **[https://skyraenergy.com.au](https://skyraenergy.com.au/)**
+- Pages: [Solar](https://skyraenergy.com.au/solar) · [Batteries](https://skyraenergy.com.au/batteries) · [Commercial](https://skyraenergy.com.au/commercial) · [Rebates](https://skyraenergy.com.au/rebates) · [FAQ](https://skyraenergy.com.au/faq) · [About](https://skyraenergy.com.au/about) · [Contact](https://skyraenergy.com.au/contact)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
 
-## React Compiler
+React 19 + Vite 7 + Tailwind CSS 4, deployed to GitHub Pages via Actions.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Every route is prerendered to static HTML after the Vite build (`scripts/prerender.mjs`): headless Chrome renders the built SPA and the resulting markup — including each page's title, meta description, canonical URL and JSON-LD — is written to `dist` as flat `.html` files that GitHub Pages serves at the clean URLs. The script also generates `sitemap.xml` and a noindex `404.html`.
 
-## Expanding the ESLint configuration
+## Develop
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```sh
+npm install
+npm run dev     # local dev server
+npm run build   # production build + prerender into dist/
+npm run preview # serve the built site
+```

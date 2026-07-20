@@ -8,6 +8,12 @@
       "port": 5173
     },
     {
+      "name": "Skyra Preview dist (portable node)",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd /Users/zulunadola/Documents/GitHub/Skyra-Website && exec ./node_modules/.node-portable/bin/node ./node_modules/vite/bin/vite.js preview --port 4173 --strictPort"],
+      "port": 4173
+    },
+    {
       "name": "Skyra Dev (portable node)",
       "runtimeExecutable": "/bin/sh",
       "runtimeArgs": ["-c", "cd /Users/zulunadola/Documents/GitHub/Skyra-Website && exec ./node_modules/.node-portable/bin/node ./node_modules/vite/bin/vite.js --port 5173 --strictPort"],
